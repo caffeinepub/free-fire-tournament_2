@@ -1,0 +1,141 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 5,
+  "summary": "Professional dark-themed Free Fire gaming tournament website with red and black accents, featuring Home/Hero section, Tournaments List, Registration Form, Rules Page, Leaderboard, and Contact/Support sections. Mobile-responsive design.",
+  "architectural_notes": [
+    "Dark theme with aggressive/modern design using red and black accents",
+    "Mobile-responsive layout so players can register from phones"
+  ],
+  "known_issues": [],
+  "isFixRequest": false,
+  "existing_features": [
+    {
+      "id": "feature-apply-a-dark-aggressive-modern-visual-theme-throughout-the-entire-site-using-a-red-and-black-color-palette-use-deep-black-0a0a0a-111111-as-backgrounds-vivid-red-e53e3e-c0392b-as-primary-accent-color-and-white-light-gray-for-text-typography-should-be-bold-and-impactful-e-g-heavy-weight-sans-serif-fonts-include-subtle-glitch-neon-effects-sharp-angular-design-elements-and-flame-or-combat-inspired-decorative-motifs-consistent-with-free-fire-s-aesthetic-all-pages-must-be-fully-mobile-responsive",
+      "title": "Apply a dark, aggressive, modern visual theme throughout the entire site using a red and black color palette. Use deep black (#0a0a0a, #111111) as backgrounds, vivid red (#e53e3e, #c0392b) as primary accent color, and white/light gray for text. Typography should be bold and impactful (e.g., heavy-weight sans-serif fonts). Include subtle glitch/neon effects, sharp angular design elements, and flame or combat-inspired decorative motifs consistent with Free Fire's aesthetic. All pages must be fully mobile-responsive.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-a-full-page-hero-section-on-the-home-page-featuring-a-large-headline-announcing-the-free-fire-tournament-a-subtitle-with-tournament-date-tagline-a-prominent-register-now-call-to-action-button-styled-in-red-and-a-countdown-timer-counting-down-to-the-next-tournament-date-the-hero-should-use-the-generated-background-image-as-its-background",
+      "title": "Build a full-page Hero section on the Home page featuring: a large headline announcing the Free Fire tournament, a subtitle with tournament date/tagline, a prominent 'Register Now' call-to-action button styled in red, and a countdown timer counting down to the next tournament date. The hero should use the generated background image as its background.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-a-tournaments-list-section-displaying-upcoming-tournaments-in-a-responsive-grid-layout-each-tournament-card-must-show-tournament-name-match-date-time-entry-fee-badge-labeled-free-in-green-or-paid-in-red-gold-and-prize-pool-amount-store-a-static-list-of-at-least-4-sample-tournaments-in-the-backend-and-expose-a-query-to-retrieve-them",
+      "title": "Create a Tournaments List section displaying upcoming tournaments in a responsive grid layout. Each tournament card must show: tournament name, match date/time, entry fee badge (labeled 'FREE' in green or 'PAID' in red/gold), and prize pool amount. Store a static list of at least 4 sample tournaments in the backend and expose a query to retrieve them.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-a-registration-form-section-page-that-collects-player-name-text-in-game-id-text-team-name-text-and-whatsapp-number-tel-input-on-submission-save-the-registration-entry-to-the-backend-show-a-success-confirmation-message-after-successful-submission-validate-that-all-fields-are-non-empty-before-submitting",
+      "title": "Create a Registration Form section/page that collects: Player Name (text), In-Game ID (text), Team Name (text), and WhatsApp Number (tel input). On submission, save the registration entry to the backend. Show a success confirmation message after successful submission. Validate that all fields are non-empty before submitting.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-a-rules-page-with-two-sections-1-a-numbered-list-of-gameplay-rules-at-least-8-rules-covering-fair-play-squad-rules-disconnection-policy-cheating-policy-etc-and-2-a-points-table-showing-rank-to-points-mapping-e-g-1st-place-12-pts-2nd-9-pts-etc-styled-as-a-clearly-readable-table-with-alternating-row-colors",
+      "title": "Create a Rules page with two sections: (1) a numbered list of gameplay rules (at least 8 rules covering fair play, squad rules, disconnection policy, cheating policy, etc.), and (2) a Points Table showing rank-to-points mapping (e.g., 1st place = 12 pts, 2nd = 9 pts, etc.) styled as a clearly readable table with alternating row colors.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-a-leaderboard-section-page-displaying-a-ranked-table-of-top-players-include-columns-for-rank-player-name-team-name-total-points-and-kills-store-at-least-10-sample-leaderboard-entries-in-the-backend-and-expose-a-query-to-retrieve-them-sorted-by-total-points-descending-highlight-the-top-3-entries-with-gold-silver-and-bronze-styling-respectively",
+      "title": "Create a Leaderboard section/page displaying a ranked table of top players. Include columns for Rank, Player Name, Team Name, Total Points, and Kills. Store at least 10 sample leaderboard entries in the backend and expose a query to retrieve them sorted by total points descending. Highlight the top 3 entries with gold, silver, and bronze styling respectively.",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-a-contact-support-section-at-the-bottom-of-the-site-or-as-a-dedicated-page-that-includes-social-media-icon-links-youtube-instagram-facebook-using-placeholder-urls-a-large-join-our-whatsapp-group-button-and-a-join-discord-button-both-join-buttons-should-be-styled-prominently-in-contrasting-colors-and-open-links-in-a-new-tab",
+      "title": "Create a Contact/Support section at the bottom of the site (or as a dedicated page) that includes: social media icon links (YouTube, Instagram, Facebook — using placeholder URLs), a large 'Join Our WhatsApp Group' button, and a 'Join Discord' button. Both join buttons should be styled prominently in contrasting colors and open links in a new tab.",
+      "reqIds": [
+        "REQ-7"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-a-persistent-navigation-bar-fixed-at-the-top-of-every-page-with-links-to-home-tournaments-register-rules-leaderboard-and-contact-sections-pages-the-nav-should-collapse-into-a-hamburger-menu-on-mobile-style-it-with-a-dark-semi-transparent-background-and-red-accent-on-the-active-hover-link",
+      "title": "Build a persistent navigation bar fixed at the top of every page with links to: Home, Tournaments, Register, Rules, Leaderboard, and Contact sections/pages. The nav should collapse into a hamburger menu on mobile. Style it with a dark semi-transparent background and red accent on the active/hover link.",
+      "reqIds": [
+        "REQ-8"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-render-the-generated-hero-background-image-as-a-static-asset-at-frontend-public-assets-generated-and-use-it-as-the-full-bleed-background-of-the-home-page-hero-section",
+      "title": "Render the generated hero background image as a static asset at frontend/public/assets/generated/ and use it as the full-bleed background of the Home page hero section.",
+      "reqIds": [
+        "REQ-9"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-a-new-secure-payment-section-component-and-insert-it-in-app-tsx-immediately-before-the-registrationform-section-the-section-must-display-1-a-heading-secure-payment-2-the-text-pay-the-entry-fee-to-the-following-upi-id-to-participate-8728872927-fam-3-a-copy-id-button-that-copies-8728872927-fam-to-the-clipboard-and-shows-a-brief-confirmation-feedback-e-g-text-changes-to-copied-and-4-a-note-reading-please-keep-the-transaction-screenshot-ready-for-the-form-the-section-background-should-use-a-slightly-red-tint-e-g-a-dark-red-overlay-or-bg-color-like-1a0505-or-rgba-229-62-62-0-10-consistent-with-the-existing-red-black-free-fire-theme-style-with-bold-orbitron-rajdhani-fonts-sharp-angular-design-elements-and-red-accent-borders-highlights-matching-the-site-s-existing-aesthetic",
+      "title": "Create a new 'Secure Payment' section component and insert it in App.tsx immediately before the RegistrationForm section. The section must display: (1) a heading 'Secure Payment', (2) the text 'Pay the entry fee to the following UPI ID to participate: 8728872927@fam', (3) a 'Copy ID' button that copies '8728872927@fam' to the clipboard and shows a brief confirmation feedback (e.g., text changes to 'Copied!'), and (4) a note reading 'Please keep the transaction screenshot ready for the form'. The section background should use a slightly red tint (e.g., a dark red overlay or bg color like #1a0505 or rgba(229,62,62,0.10)) consistent with the existing red/black Free Fire theme. Style with bold Orbitron/Rajdhani fonts, sharp angular design elements, and red accent borders/highlights matching the site's existing aesthetic.",
+      "reqIds": [
+        "REQ-10"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Home Page: Bold hero section with 'Register Now' button and countdown timer for next tournament",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Tournaments List: Grid view showing upcoming matches, entry fees (Free/Paid), and prize pools",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Registration Form: Collect Player Name, In-game ID, Team Name, and WhatsApp number",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Rules Page: Gameplay rules list and points table system",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-5",
+      "summary": "Leaderboard: Table showing top players and previous winners",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-6",
+      "summary": "Contact/Support: Social media links and 'Join Discord/WhatsApp' button",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-7",
+      "summary": "Secure Payment section before registration form: UPI ID '8728872927@fam', 'Copy ID' button, transaction screenshot note, slightly red background matching Free Fire theme",
+      "reqIds": [],
+      "status": "pending"
+    }
+  ],
+  "gameProjectType": "none",
+  "projectName": "Free Fire Tournament",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}

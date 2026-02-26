@@ -1,0 +1,48 @@
+{
+  "kind": "build_request",
+  "title": "Add Secure Payment section before Registration Form",
+  "projectName": "Free Fire Tournament",
+  "priority": "normal",
+  "requirements": [
+    {
+      "id": "REQ-10",
+      "text": "Create a new 'Secure Payment' section component and insert it in App.tsx immediately before the RegistrationForm section. The section must display: (1) a heading 'Secure Payment', (2) the text 'Pay the entry fee to the following UPI ID to participate: 8728872927@fam', (3) a 'Copy ID' button that copies '8728872927@fam' to the clipboard and shows a brief confirmation feedback (e.g., text changes to 'Copied!'), and (4) a note reading 'Please keep the transaction screenshot ready for the form'. The section background should use a slightly red tint (e.g., a dark red overlay or bg color like #1a0505 or rgba(229,62,62,0.10)) consistent with the existing red/black Free Fire theme. Style with bold Orbitron/Rajdhani fonts, sharp angular design elements, and red accent borders/highlights matching the site's existing aesthetic.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-8"
+        ],
+        "quotes": [
+          "Add a new section before the registration form titled 'Secure Payment'.",
+          "Text: 'Pay the entry fee to the following UPI ID to participate: 8728872927@fam'.",
+          "Include a 'Copy ID' button and a note saying 'Please keep the transaction screenshot ready for the form'.",
+          "Make the background slightly red to match the Free Fire theme."
+        ]
+      },
+      "acceptanceCriteria": [
+        "A 'Secure Payment' section appears on the page directly above the Registration Form section.",
+        "The section displays the heading 'Secure Payment'.",
+        "The UPI ID text 'Pay the entry fee to the following UPI ID to participate: 8728872927@fam' is visible.",
+        "A 'Copy ID' button is present; clicking it copies '8728872927@fam' to the clipboard.",
+        "After clicking 'Copy ID', the button text briefly changes to 'Copied!' as feedback.",
+        "The note 'Please keep the transaction screenshot ready for the form' is displayed beneath the UPI ID.",
+        "The section background uses a slightly red tint (dark red) consistent with the Free Fire red/black theme.",
+        "The section is fully mobile-responsive and matches the existing site typography and styling conventions."
+      ]
+    }
+  ],
+  "constraints": [
+    "Do not modify any files under frontend/src/hooks/ or frontend/src/components/ui/.",
+    "The new section must be inserted before RegistrationForm in App.tsx, not after.",
+    "UPI ID value must be exactly '8728872927@fam' — do not alter it."
+  ],
+  "nonGoals": [
+    "No backend changes required — this is a purely frontend UI section.",
+    "No payment gateway integration or transaction verification logic.",
+    "No screenshot upload functionality in this requirement."
+  ],
+  "imageRequirements": {
+    "required": [],
+    "edits": []
+  }
+}

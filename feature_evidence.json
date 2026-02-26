@@ -1,0 +1,24 @@
+{
+  "kind": "feature_evidence_report",
+  "features": [
+    {
+      "featureId": "feature-create-a-new-secure-payment-section-component-and-insert-it-in-app-tsx-immediately-before-the-registrationform-section-the-section-must-display-1-a-heading-secure-payment-2-the-text-pay-the-entry-fee-to-the-following-upi-id-to-participate-8728872927-fam-3-a-copy-id-button-that-copies-8728872927-fam-to-the-clipboard-and-shows-a-brief-confirmation-feedback-e-g-text-changes-to-copied-and-4-a-note-reading-please-keep-the-transaction-screenshot-ready-for-the-form-the-section-background-should-use-a-slightly-red-tint-e-g-a-dark-red-overlay-or-bg-color-like-1a0505-or-rgba-229-62-62-0-10-consistent-with-the-existing-red-black-free-fire-theme-style-with-bold-orbitron-rajdhani-fonts-sharp-angular-design-elements-and-red-accent-borders-highlights-matching-the-site-s-existing-aesthetic",
+      "featureTitle": "Create a new 'Secure Payment' section component and insert it in App.tsx immediately before the RegistrationForm section. The section must display: (1) a heading 'Secure Payment', (2) the text 'Pay the entry fee to the following UPI ID to participate: 8728872927@fam', (3) a 'Copy ID' button that copies '8728872927@fam' to the clipboard and shows a brief confirmation feedback (e.g., text changes to 'Copied!'), and (4) a note reading 'Please keep the transaction screenshot ready for the form'. The section background should use a slightly red tint (e.g., a dark red overlay or bg color like #1a0505 or rgba(229,62,62,0.10)) consistent with the existing red/black Free Fire theme. Style with bold Orbitron/Rajdhani fonts, sharp angular design elements, and red accent borders/highlights matching the site's existing aesthetic.",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/components/SecurePayment.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-10"
+      ],
+      "confidence": "high"
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "frontend/src/index.css": "Global styles with dark gaming theme using OKLCH color tokens, imports Orbitron and Rajdhani fonts from Google Fonts, defines custom utility classes for glow effects, grid patterns, and gaming animations.",
+  "frontend/tailwind.config.js": "Extended Tailwind config with Orbitron/Rajdhani/Inter font families, custom game-red/game-black/gold/silver/bronze color tokens, red glow box shadows, and sharp border radius for the aggressive gaming aesthetic.",
+  "frontend/src/hooks/useQueries.ts": "React Query hooks for all backend operations — useGetTournaments, useGetLeaderboard, and useRegisterPlayer mutation with cache invalidation.",
+  "frontend/src/components/CountdownTimer.tsx": "Live countdown timer component that ticks every second, displaying days/hours/minutes/seconds in styled boxes with red glow accents and corner decorations.",
+  "frontend/src/components/Navbar.tsx": "Fixed top navigation bar with Free Fire branding, smooth-scroll links to all 6 sections, active section detection, red accent hover/active states, and a mobile hamburger menu with slide-down animation.",
+  "frontend/src/components/Hero.tsx": "Full-viewport hero section with generated background image, dark overlay, animated headline, prize pool info, live countdown timer, and prominent Register Now + View Tournaments CTA buttons.",
+  "frontend/src/components/TournamentCard.tsx": "Individual tournament card with colored top accent bar, FREE/PAID badge, date/prize pool/mode details, and a hover-animated register CTA button.",
+  "frontend/src/components/TournamentsList.tsx": "Responsive grid section fetching tournaments from backend, showing loading skeletons, error state, and rendering TournamentCard components in 1/2/3/4 column layouts.",
+  "frontend/src/components/RegistrationForm.tsx": "Controlled registration form with Player Name, In-Game ID, Team Name, and WhatsApp fields, client-side validation, backend mutation, loading spinner, and success/error feedback.",
+  "frontend/src/pages/Rules.tsx": "Rules page section with 10 numbered gameplay rules in a card list and a styled points table showing placement/kill points, tournament format info, and alternating row colors.",
+  "frontend/src/components/Leaderboard.tsx": "Leaderboard section fetching entries from backend, displaying a top-3 podium with gold/silver/bronze styling and a full ranked table with medal icons for top 3 rows.",
+  "frontend/src/components/Contact.tsx": "Contact section with WhatsApp and Discord join buttons, YouTube/Instagram/Facebook social icon links, and a support email — all opening in new tabs.",
+  "frontend/src/App.tsx": "Root app component composing Navbar, all page sections (Hero, Tournaments, SecurePayment, Registration, Rules, Leaderboard, Contact), and a Footer with dynamic year, nav links, and caffeine.ai attribution. SecurePayment is inserted directly before RegistrationForm.",
+  "frontend/src/components/SecurePayment.tsx": "New section component displaying UPI payment instructions with the ID '8728872927@fam', a clipboard copy button with 'Copied!' feedback, a screenshot reminder note, and a dark red themed background with Free Fire-style angular design elements."
+}
