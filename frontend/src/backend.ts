@@ -89,13 +89,6 @@ export class ExternalBlob {
         return this;
     }
 }
-export interface Tournament {
-    id: bigint;
-    name: string;
-    entryFeeType: EntryFeeType;
-    dateTime: string;
-    prizePool: bigint;
-}
 export interface LeaderboardEntry {
     teamName: string;
     rank: bigint;
@@ -103,18 +96,146 @@ export interface LeaderboardEntry {
     totalPoints: bigint;
     kills: bigint;
 }
+export interface User {
+    freefireUid: string;
+    password: string;
+    name: string;
+    whatsapp: string;
+    email: string;
+}
+export interface Tournament {
+    id: bigint;
+    name: string;
+    entryFeeType: EntryFeeType;
+    entryFee: string;
+    dateTime: string;
+    prizePool: string;
+}
+export interface Room {
+    startTime: bigint;
+    name: string;
+    joinedSlots: bigint;
+    totalSlots: bigint;
+    joinStatus: RoomJoinStatus;
+    entryFee: string;
+    roomType: RoomType;
+    prizePool: string;
+}
+export type LoginUserResult = {
+    __kind__: "userNotFound";
+    userNotFound: null;
+} | {
+    __kind__: "passwordIncorrect";
+    passwordIncorrect: null;
+} | {
+    __kind__: "success";
+    success: User;
+};
+export interface UserProfile {
+    freefireUid: string;
+    name: string;
+    whatsapp: string;
+    email: string;
+}
 export enum EntryFeeType {
     free = "free",
     paid = "paid"
 }
-export interface backendInterface {
-    getLeaderboard(): Promise<Array<LeaderboardEntry>>;
-    getTournaments(): Promise<Array<Tournament>>;
-    registerPlayer(playerName: string, inGameId: string, teamName: string, whatsappNumber: string): Promise<void>;
+export enum RegisterUserResult {
+    emailExists = "emailExists",
+    success = "success"
 }
-import type { EntryFeeType as _EntryFeeType, Tournament as _Tournament } from "./declarations/backend.did.d.ts";
+export enum RoomJoinStatus {
+    closed = "closed",
+    open = "open",
+    inProgress = "inProgress"
+}
+export enum RoomType {
+    duo = "duo",
+    solo = "solo",
+    clashSquad = "clashSquad",
+    squad = "squad",
+    fullMap = "fullMap"
+}
+export enum UserRole {
+    admin = "admin",
+    user = "user",
+    guest = "guest"
+}
+export interface backendInterface {
+    _initializeAccessControlWithSecret(userSecret: string): Promise<void>;
+    assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
+    getCallerUserProfile(): Promise<UserProfile | null>;
+    getCallerUserRole(): Promise<UserRole>;
+    getLeaderboard(): Promise<Array<LeaderboardEntry>>;
+    getRooms(): Promise<Array<Room>>;
+    getTournaments(): Promise<Array<Tournament>>;
+    getUserProfile(user: Principal): Promise<UserProfile | null>;
+    isCallerAdmin(): Promise<boolean>;
+    loginUser(email: string, password: string): Promise<LoginUserResult>;
+    registerPlayer(playerName: string, inGameId: string, teamName: string, whatsappNumber: string): Promise<void>;
+    registerUser(name: string, email: string, whatsapp: string, freefireUid: string, password: string): Promise<RegisterUserResult>;
+    saveCallerUserProfile(profile: UserProfile): Promise<void>;
+}
+import type { EntryFeeType as _EntryFeeType, LoginUserResult as _LoginUserResult, RegisterUserResult as _RegisterUserResult, Room as _Room, RoomJoinStatus as _RoomJoinStatus, RoomType as _RoomType, Tournament as _Tournament, User as _User, UserProfile as _UserProfile, UserRole as _UserRole } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
     constructor(private actor: ActorSubclass<_SERVICE>, private _uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, private _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, private processError?: (error: unknown) => never){}
+    async _initializeAccessControlWithSecret(arg0: string): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor._initializeAccessControlWithSecret(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor._initializeAccessControlWithSecret(arg0);
+            return result;
+        }
+    }
+    async assignCallerUserRole(arg0: Principal, arg1: UserRole): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.assignCallerUserRole(arg0, to_candid_UserRole_n1(this._uploadFile, this._downloadFile, arg1));
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.assignCallerUserRole(arg0, to_candid_UserRole_n1(this._uploadFile, this._downloadFile, arg1));
+            return result;
+        }
+    }
+    async getCallerUserProfile(): Promise<UserProfile | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getCallerUserProfile();
+                return from_candid_opt_n3(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getCallerUserProfile();
+            return from_candid_opt_n3(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getCallerUserRole(): Promise<UserRole> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getCallerUserRole();
+                return from_candid_UserRole_n4(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getCallerUserRole();
+            return from_candid_UserRole_n4(this._uploadFile, this._downloadFile, result);
+        }
+    }
     async getLeaderboard(): Promise<Array<LeaderboardEntry>> {
         if (this.processError) {
             try {
@@ -129,18 +250,74 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async getRooms(): Promise<Array<Room>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getRooms();
+                return from_candid_vec_n6(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getRooms();
+            return from_candid_vec_n6(this._uploadFile, this._downloadFile, result);
+        }
+    }
     async getTournaments(): Promise<Array<Tournament>> {
         if (this.processError) {
             try {
                 const result = await this.actor.getTournaments();
-                return from_candid_vec_n1(this._uploadFile, this._downloadFile, result);
+                return from_candid_vec_n13(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.getTournaments();
-            return from_candid_vec_n1(this._uploadFile, this._downloadFile, result);
+            return from_candid_vec_n13(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getUserProfile(arg0: Principal): Promise<UserProfile | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getUserProfile(arg0);
+                return from_candid_opt_n3(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getUserProfile(arg0);
+            return from_candid_opt_n3(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async isCallerAdmin(): Promise<boolean> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.isCallerAdmin();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.isCallerAdmin();
+            return result;
+        }
+    }
+    async loginUser(arg0: string, arg1: string): Promise<LoginUserResult> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.loginUser(arg0, arg1);
+                return from_candid_LoginUserResult_n18(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.loginUser(arg0, arg1);
+            return from_candid_LoginUserResult_n18(this._uploadFile, this._downloadFile, result);
         }
     }
     async registerPlayer(arg0: string, arg1: string, arg2: string, arg3: string): Promise<void> {
@@ -157,43 +334,211 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async registerUser(arg0: string, arg1: string, arg2: string, arg3: string, arg4: string): Promise<RegisterUserResult> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.registerUser(arg0, arg1, arg2, arg3, arg4);
+                return from_candid_RegisterUserResult_n20(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.registerUser(arg0, arg1, arg2, arg3, arg4);
+            return from_candid_RegisterUserResult_n20(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async saveCallerUserProfile(arg0: UserProfile): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.saveCallerUserProfile(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.saveCallerUserProfile(arg0);
+            return result;
+        }
+    }
 }
-function from_candid_EntryFeeType_n4(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _EntryFeeType): EntryFeeType {
+function from_candid_EntryFeeType_n16(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _EntryFeeType): EntryFeeType {
+    return from_candid_variant_n17(_uploadFile, _downloadFile, value);
+}
+function from_candid_LoginUserResult_n18(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _LoginUserResult): LoginUserResult {
+    return from_candid_variant_n19(_uploadFile, _downloadFile, value);
+}
+function from_candid_RegisterUserResult_n20(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _RegisterUserResult): RegisterUserResult {
+    return from_candid_variant_n21(_uploadFile, _downloadFile, value);
+}
+function from_candid_RoomJoinStatus_n9(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _RoomJoinStatus): RoomJoinStatus {
+    return from_candid_variant_n10(_uploadFile, _downloadFile, value);
+}
+function from_candid_RoomType_n11(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _RoomType): RoomType {
+    return from_candid_variant_n12(_uploadFile, _downloadFile, value);
+}
+function from_candid_Room_n7(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _Room): Room {
+    return from_candid_record_n8(_uploadFile, _downloadFile, value);
+}
+function from_candid_Tournament_n14(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _Tournament): Tournament {
+    return from_candid_record_n15(_uploadFile, _downloadFile, value);
+}
+function from_candid_UserRole_n4(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _UserRole): UserRole {
     return from_candid_variant_n5(_uploadFile, _downloadFile, value);
 }
-function from_candid_Tournament_n2(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _Tournament): Tournament {
-    return from_candid_record_n3(_uploadFile, _downloadFile, value);
+function from_candid_opt_n3(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_UserProfile]): UserProfile | null {
+    return value.length === 0 ? null : value[0];
 }
-function from_candid_record_n3(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+function from_candid_record_n15(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     id: bigint;
     name: string;
     entryFeeType: _EntryFeeType;
+    entryFee: string;
     dateTime: string;
-    prizePool: bigint;
+    prizePool: string;
 }): {
     id: bigint;
     name: string;
     entryFeeType: EntryFeeType;
+    entryFee: string;
     dateTime: string;
-    prizePool: bigint;
+    prizePool: string;
 } {
     return {
         id: value.id,
         name: value.name,
-        entryFeeType: from_candid_EntryFeeType_n4(_uploadFile, _downloadFile, value.entryFeeType),
+        entryFeeType: from_candid_EntryFeeType_n16(_uploadFile, _downloadFile, value.entryFeeType),
+        entryFee: value.entryFee,
         dateTime: value.dateTime,
         prizePool: value.prizePool
     };
 }
-function from_candid_variant_n5(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+function from_candid_record_n8(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    startTime: bigint;
+    name: string;
+    joinedSlots: bigint;
+    totalSlots: bigint;
+    joinStatus: _RoomJoinStatus;
+    entryFee: string;
+    roomType: _RoomType;
+    prizePool: string;
+}): {
+    startTime: bigint;
+    name: string;
+    joinedSlots: bigint;
+    totalSlots: bigint;
+    joinStatus: RoomJoinStatus;
+    entryFee: string;
+    roomType: RoomType;
+    prizePool: string;
+} {
+    return {
+        startTime: value.startTime,
+        name: value.name,
+        joinedSlots: value.joinedSlots,
+        totalSlots: value.totalSlots,
+        joinStatus: from_candid_RoomJoinStatus_n9(_uploadFile, _downloadFile, value.joinStatus),
+        entryFee: value.entryFee,
+        roomType: from_candid_RoomType_n11(_uploadFile, _downloadFile, value.roomType),
+        prizePool: value.prizePool
+    };
+}
+function from_candid_variant_n10(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    closed: null;
+} | {
+    open: null;
+} | {
+    inProgress: null;
+}): RoomJoinStatus {
+    return "closed" in value ? RoomJoinStatus.closed : "open" in value ? RoomJoinStatus.open : "inProgress" in value ? RoomJoinStatus.inProgress : value;
+}
+function from_candid_variant_n12(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    duo: null;
+} | {
+    solo: null;
+} | {
+    clashSquad: null;
+} | {
+    squad: null;
+} | {
+    fullMap: null;
+}): RoomType {
+    return "duo" in value ? RoomType.duo : "solo" in value ? RoomType.solo : "clashSquad" in value ? RoomType.clashSquad : "squad" in value ? RoomType.squad : "fullMap" in value ? RoomType.fullMap : value;
+}
+function from_candid_variant_n17(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     free: null;
 } | {
     paid: null;
 }): EntryFeeType {
     return "free" in value ? EntryFeeType.free : "paid" in value ? EntryFeeType.paid : value;
 }
-function from_candid_vec_n1(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_Tournament>): Array<Tournament> {
-    return value.map((x)=>from_candid_Tournament_n2(_uploadFile, _downloadFile, x));
+function from_candid_variant_n19(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    userNotFound: null;
+} | {
+    passwordIncorrect: null;
+} | {
+    success: _User;
+}): {
+    __kind__: "userNotFound";
+    userNotFound: null;
+} | {
+    __kind__: "passwordIncorrect";
+    passwordIncorrect: null;
+} | {
+    __kind__: "success";
+    success: User;
+} {
+    return "userNotFound" in value ? {
+        __kind__: "userNotFound",
+        userNotFound: value.userNotFound
+    } : "passwordIncorrect" in value ? {
+        __kind__: "passwordIncorrect",
+        passwordIncorrect: value.passwordIncorrect
+    } : "success" in value ? {
+        __kind__: "success",
+        success: value.success
+    } : value;
+}
+function from_candid_variant_n21(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    emailExists: null;
+} | {
+    success: null;
+}): RegisterUserResult {
+    return "emailExists" in value ? RegisterUserResult.emailExists : "success" in value ? RegisterUserResult.success : value;
+}
+function from_candid_variant_n5(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    admin: null;
+} | {
+    user: null;
+} | {
+    guest: null;
+}): UserRole {
+    return "admin" in value ? UserRole.admin : "user" in value ? UserRole.user : "guest" in value ? UserRole.guest : value;
+}
+function from_candid_vec_n13(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_Tournament>): Array<Tournament> {
+    return value.map((x)=>from_candid_Tournament_n14(_uploadFile, _downloadFile, x));
+}
+function from_candid_vec_n6(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_Room>): Array<Room> {
+    return value.map((x)=>from_candid_Room_n7(_uploadFile, _downloadFile, x));
+}
+function to_candid_UserRole_n1(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: UserRole): _UserRole {
+    return to_candid_variant_n2(_uploadFile, _downloadFile, value);
+}
+function to_candid_variant_n2(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: UserRole): {
+    admin: null;
+} | {
+    user: null;
+} | {
+    guest: null;
+} {
+    return value == UserRole.admin ? {
+        admin: null
+    } : value == UserRole.user ? {
+        user: null
+    } : value == UserRole.guest ? {
+        guest: null
+    } : value;
 }
 export interface CreateActorOptions {
     agent?: Agent;

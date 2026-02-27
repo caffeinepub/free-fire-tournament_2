@@ -1,45 +1,98 @@
 {
   "kind": "build_request",
-  "title": "Add Secure Payment section before Registration Form",
+  "title": "Make Live Lobby the permanent home for authenticated users",
   "projectName": "Free Fire Tournament",
-  "priority": "normal",
+  "priority": "high",
   "requirements": [
     {
-      "id": "REQ-10",
-      "text": "Create a new 'Secure Payment' section component and insert it in App.tsx immediately before the RegistrationForm section. The section must display: (1) a heading 'Secure Payment', (2) the text 'Pay the entry fee to the following UPI ID to participate: 8728872927@fam', (3) a 'Copy ID' button that copies '8728872927@fam' to the clipboard and shows a brief confirmation feedback (e.g., text changes to 'Copied!'), and (4) a note reading 'Please keep the transaction screenshot ready for the form'. The section background should use a slightly red tint (e.g., a dark red overlay or bg color like #1a0505 or rgba(229,62,62,0.10)) consistent with the existing red/black Free Fire theme. Style with bold Orbitron/Rajdhani fonts, sharp angular design elements, and red accent borders/highlights matching the site's existing aesthetic.",
+      "id": "REQ-41",
+      "text": "Update App.tsx router configuration so that the '/lobby' route is the default destination for all authenticated users. When a logged-in user navigates to '/' (WelcomePage), '/login', or '/signup', they must be automatically redirected to '/lobby' instead of seeing the auth/splash screens. The auth guard logic in useAuth.ts (or equivalent) must check the authentication flag on every route render and redirect authenticated users away from '/', '/login', and '/signup' to '/lobby'.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-8"
+          "msg-1"
         ],
         "quotes": [
-          "Add a new section before the registration form titled 'Secure Payment'.",
-          "Text: 'Pay the entry fee to the following UPI ID to participate: 8728872927@fam'.",
-          "Include a 'Copy ID' button and a note saying 'Please keep the transaction screenshot ready for the form'.",
-          "Make the background slightly red to match the Free Fire theme."
+          "Make the 'Live Lobby' screen the permanent Home Page for logged-in users.",
+          "Ensure that once a user is logged in, they are never redirected back to the login or splash screen.",
+          "Delete or disable the old landing page entirely for authenticated users so they stay within the tournament list"
         ]
       },
       "acceptanceCriteria": [
-        "A 'Secure Payment' section appears on the page directly above the Registration Form section.",
-        "The section displays the heading 'Secure Payment'.",
-        "The UPI ID text 'Pay the entry fee to the following UPI ID to participate: 8728872927@fam' is visible.",
-        "A 'Copy ID' button is present; clicking it copies '8728872927@fam' to the clipboard.",
-        "After clicking 'Copy ID', the button text briefly changes to 'Copied!' as feedback.",
-        "The note 'Please keep the transaction screenshot ready for the form' is displayed beneath the UPI ID.",
-        "The section background uses a slightly red tint (dark red) consistent with the Free Fire red/black theme.",
-        "The section is fully mobile-responsive and matches the existing site typography and styling conventions."
+        "An authenticated user who manually navigates to '/' is immediately redirected to '/lobby'",
+        "An authenticated user who manually navigates to '/login' is immediately redirected to '/lobby'",
+        "An authenticated user who manually navigates to '/signup' is immediately redirected to '/lobby'",
+        "The WelcomePage, LoginPage, and SignUpPage are never rendered for authenticated users",
+        "Unauthenticated users are still correctly redirected from '/lobby' to '/' (WelcomePage)"
+      ]
+    },
+    {
+      "id": "REQ-42",
+      "text": "Update the 'Back to Home' button in frontend/src/pages/RegisterPage.tsx (and any other location on the registration/payment page that contains a back/home navigation control) so that it navigates to '/lobby' instead of '/' or any auth screen. The navigation must use React Router's navigate or Link.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "Update the 'Back to Home' button (on the registration/payment page) to redirect strictly to this Live Lobby screen, NOT the authentication/landing page."
+        ]
+      },
+      "acceptanceCriteria": [
+        "Clicking 'Back to Home' on RegisterPage navigates the user to '/lobby'",
+        "The button does not navigate to '/', '/login', '/signup', or '/home'",
+        "Navigation uses React Router (no full page reload)"
+      ]
+    },
+    {
+      "id": "REQ-43",
+      "text": "In frontend/src/pages/LobbyPage.tsx, update the `useEffect` that replaces the browser history entry on mount so that it also covers cases where the user might have navigated from '/home'. The replace navigation must clear the entire auth+landing page history stack so that pressing the browser back button from the lobby never lands on '/', '/login', '/signup', or '/home'. Authenticated users must remain within the lobby/register/rules/leaderboard flow at all times.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "Ensure that once a user is logged in, they are never redirected back to the login or splash screen.",
+          "Delete or disable the old landing page entirely for authenticated users so they stay within the tournament list"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Pressing the browser back button while on LobbyPage does not navigate to WelcomePage, LoginPage, or SignUpPage",
+        "Pressing the browser back button while on LobbyPage does not navigate to '/home' or '/'",
+        "The history replace strategy on LobbyPage mount prevents any back-navigation to auth screens"
+      ]
+    },
+    {
+      "id": "REQ-44",
+      "text": "Update Navbar.tsx so that the 'Home' navigation link (and any other links that currently point to '/home' or '/') redirect authenticated users to '/lobby' instead. If the user is not authenticated, those links should continue to function as before (pointing to '/' or '/home'). The Navbar must not expose any link that sends an authenticated user to an auth or landing page.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "Make the 'Live Lobby' screen the permanent Home Page for logged-in users.",
+          "Delete or disable the old landing page entirely for authenticated users so they stay within the tournament list"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Clicking the 'Home' Navbar link while authenticated navigates to '/lobby'",
+        "No Navbar link routes an authenticated user to '/', '/login', or '/signup'",
+        "Other Navbar links (Tournaments, Rules, Leaderboard, Contact) continue to function correctly for authenticated users"
       ]
     }
   ],
   "constraints": [
-    "Do not modify any files under frontend/src/hooks/ or frontend/src/components/ui/.",
-    "The new section must be inserted before RegistrationForm in App.tsx, not after.",
-    "UPI ID value must be exactly '8728872927@fam' — do not alter it."
+    "Do not modify any files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui",
+    "Authentication state must continue to be read from the existing useAuth.ts hook and localStorage flag — do not introduce a new auth mechanism",
+    "All navigation must use React Router — no full page reloads"
   ],
   "nonGoals": [
-    "No backend changes required — this is a purely frontend UI section.",
-    "No payment gateway integration or transaction verification logic.",
-    "No screenshot upload functionality in this requirement."
+    "Adding new pages or route definitions not already present",
+    "Changing the visual design or layout of LobbyPage, RegisterPage, or Navbar beyond navigation behavior",
+    "Implementing server-side session management or JWT tokens",
+    "Modifying backend authentication logic"
   ],
   "imageRequirements": {
     "required": [],

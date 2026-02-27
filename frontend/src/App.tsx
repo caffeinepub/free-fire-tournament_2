@@ -1,11 +1,16 @@
+import { createRouter, createRoute, createRootRoute, RouterProvider, Outlet, redirect } from '@tanstack/react-router';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import TournamentsList from './components/TournamentsList';
-import SecurePayment from './components/SecurePayment';
-import RegistrationForm from './components/RegistrationForm';
 import Rules from './pages/Rules';
 import Leaderboard from './components/Leaderboard';
 import Contact from './components/Contact';
+import WhatsAppChannelBanner from './components/WhatsAppChannelBanner';
+import RegisterPage from './pages/RegisterPage';
+import LobbyPage from './pages/LobbyPage';
+import WelcomePage from './pages/WelcomePage';
+import LoginPage from './pages/LoginPage';
+import SignUpPage from './pages/SignUpPage';
 import { Flame, Heart } from 'lucide-react';
 
 function Footer() {
@@ -41,7 +46,7 @@ function Footer() {
 
           {/* Nav links */}
           <div className="flex flex-wrap items-center justify-center gap-4">
-            {['home', 'tournaments', 'register', 'rules', 'leaderboard', 'contact'].map((section) => (
+            {['home', 'tournaments', 'rules', 'leaderboard', 'contact'].map((section) => (
               <button
                 key={section}
                 onClick={() => document.getElementById(section)?.scrollIntoView({ behavior: 'smooth' })}
@@ -85,20 +90,130 @@ function Footer() {
   );
 }
 
-export default function App() {
+// ─── Home Page (post-login main content) ─────────────────────────────────────
+function HomePage() {
   return (
     <div className="min-h-screen" style={{ background: '#0a0a0a' }}>
       <Navbar />
       <main>
         <Hero />
+        <div
+          style={{
+            background: 'rgba(0,0,0,0.6)',
+            borderTop: '1px solid rgba(37,211,102,0.2)',
+            borderBottom: '1px solid rgba(37,211,102,0.2)',
+          }}
+        >
+          <WhatsAppChannelBanner />
+        </div>
         <TournamentsList />
-        <SecurePayment />
-        <RegistrationForm />
         <Rules />
         <Leaderboard />
         <Contact />
+        <div
+          style={{
+            background: 'rgba(0,0,0,0.5)',
+            borderTop: '1px solid rgba(37,211,102,0.15)',
+            borderBottom: '1px solid rgba(37,211,102,0.15)',
+          }}
+        >
+          <WhatsAppChannelBanner />
+        </div>
       </main>
       <Footer />
     </div>
   );
+}
+
+// ─── Auth guard helpers ───────────────────────────────────────────────────────
+function isAuthenticated(): boolean {
+  return localStorage.getItem('isAuthenticated') === 'true';
+}
+
+// ─── Router Setup ─────────────────────────────────────────────────────────────
+const rootRoute = createRootRoute({
+  component: () => <Outlet />,
+});
+
+// Redirect authenticated users away from auth/landing pages to /lobby
+const welcomeRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/',
+  beforeLoad: () => {
+    if (isAuthenticated()) {
+      throw redirect({ to: '/lobby' });
+    }
+  },
+  component: WelcomePage,
+});
+
+const loginRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/login',
+  beforeLoad: () => {
+    if (isAuthenticated()) {
+      throw redirect({ to: '/lobby' });
+    }
+  },
+  component: LoginPage,
+});
+
+const signupRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/signup',
+  beforeLoad: () => {
+    if (isAuthenticated()) {
+      throw redirect({ to: '/lobby' });
+    }
+  },
+  component: SignUpPage,
+});
+
+const homeRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/home',
+  beforeLoad: () => {
+    if (isAuthenticated()) {
+      throw redirect({ to: '/lobby' });
+    }
+  },
+  component: HomePage,
+});
+
+const registerRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/register',
+  component: RegisterPage,
+});
+
+const lobbyRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/lobby',
+  beforeLoad: () => {
+    if (!isAuthenticated()) {
+      throw redirect({ to: '/' });
+    }
+  },
+  component: LobbyPage,
+});
+
+const routeTree = rootRoute.addChildren([
+  welcomeRoute,
+  loginRoute,
+  signupRoute,
+  homeRoute,
+  registerRoute,
+  lobbyRoute,
+]);
+
+const router = createRouter({ routeTree });
+
+declare module '@tanstack/react-router' {
+  interface Register {
+    router: typeof router;
+  }
+}
+
+export default function App() {
+  return <RouterProvider router={router} />;
 }

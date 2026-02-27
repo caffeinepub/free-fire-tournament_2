@@ -1,13 +1,15 @@
 import CountdownTimer from './CountdownTimer';
 import { ChevronDown } from 'lucide-react';
+import { useRouter } from '@tanstack/react-router';
 
 // Next tournament date: 30 days from now
 const TOURNAMENT_DATE = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
 
 export default function Hero() {
+  const router = useRouter();
+
   const handleRegisterClick = () => {
-    const el = document.getElementById('register');
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
+    router.navigate({ to: '/register' });
   };
 
   const handleScrollDown = () => {
@@ -91,11 +93,31 @@ export default function Hero() {
           Prove your dominance. Claim the throne. Win the glory.
         </p>
         <p
-          className="font-rajdhani text-base sm:text-lg mb-10"
+          className="font-rajdhani text-base sm:text-lg mb-4"
           style={{ color: 'rgba(255,255,255,0.45)' }}
         >
-          Grand Prize Pool: <span style={{ color: '#f6c90e', fontWeight: 700 }}>$5,000+</span> &nbsp;|&nbsp; Open to all squads
+          Prize Pool: <span style={{ color: '#f6c90e', fontWeight: 700 }}>₹100</span>
+          &nbsp;|&nbsp;
+          Entry Fee: <span style={{ color: '#e53e3e', fontWeight: 700 }}>₹10</span>
+          &nbsp;|&nbsp; Open to all squads
         </p>
+
+        {/* Prize Distribution Strip */}
+        <div className="inline-flex items-center gap-1 mb-8 px-4 py-2"
+          style={{
+            background: 'rgba(0,0,0,0.4)',
+            border: '1px solid rgba(229,62,62,0.2)',
+          }}
+        >
+          <span className="font-rajdhani text-xs tracking-widest uppercase mr-2" style={{ color: 'rgba(255,255,255,0.35)' }}>
+            Prizes:
+          </span>
+          <span className="font-rajdhani font-bold text-sm" style={{ color: '#f6c90e' }}>🥇 ₹50</span>
+          <span className="font-rajdhani text-xs mx-1" style={{ color: 'rgba(255,255,255,0.2)' }}>·</span>
+          <span className="font-rajdhani font-bold text-sm" style={{ color: '#c0c0c0' }}>🥈 ₹30</span>
+          <span className="font-rajdhani text-xs mx-1" style={{ color: 'rgba(255,255,255,0.2)' }}>·</span>
+          <span className="font-rajdhani font-bold text-sm" style={{ color: '#cd7f32' }}>🥉 ₹20</span>
+        </div>
 
         {/* Countdown */}
         <div className="flex flex-col items-center mb-10">

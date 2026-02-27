@@ -8,12 +8,45 @@
 
 import { IDL } from '@icp-sdk/core/candid';
 
+export const UserRole = IDL.Variant({
+  'admin' : IDL.Null,
+  'user' : IDL.Null,
+  'guest' : IDL.Null,
+});
+export const UserProfile = IDL.Record({
+  'freefireUid' : IDL.Text,
+  'name' : IDL.Text,
+  'whatsapp' : IDL.Text,
+  'email' : IDL.Text,
+});
 export const LeaderboardEntry = IDL.Record({
   'teamName' : IDL.Text,
   'rank' : IDL.Nat,
   'playerName' : IDL.Text,
   'totalPoints' : IDL.Nat,
   'kills' : IDL.Nat,
+});
+export const RoomJoinStatus = IDL.Variant({
+  'closed' : IDL.Null,
+  'open' : IDL.Null,
+  'inProgress' : IDL.Null,
+});
+export const RoomType = IDL.Variant({
+  'duo' : IDL.Null,
+  'solo' : IDL.Null,
+  'clashSquad' : IDL.Null,
+  'squad' : IDL.Null,
+  'fullMap' : IDL.Null,
+});
+export const Room = IDL.Record({
+  'startTime' : IDL.Int,
+  'name' : IDL.Text,
+  'joinedSlots' : IDL.Nat,
+  'totalSlots' : IDL.Nat,
+  'joinStatus' : RoomJoinStatus,
+  'entryFee' : IDL.Text,
+  'roomType' : RoomType,
+  'prizePool' : IDL.Text,
 });
 export const EntryFeeType = IDL.Variant({
   'free' : IDL.Null,
@@ -23,19 +56,65 @@ export const Tournament = IDL.Record({
   'id' : IDL.Nat,
   'name' : IDL.Text,
   'entryFeeType' : EntryFeeType,
+  'entryFee' : IDL.Text,
   'dateTime' : IDL.Text,
-  'prizePool' : IDL.Nat,
+  'prizePool' : IDL.Text,
+});
+export const User = IDL.Record({
+  'freefireUid' : IDL.Text,
+  'password' : IDL.Text,
+  'name' : IDL.Text,
+  'whatsapp' : IDL.Text,
+  'email' : IDL.Text,
+});
+export const LoginUserResult = IDL.Variant({
+  'userNotFound' : IDL.Null,
+  'passwordIncorrect' : IDL.Null,
+  'success' : User,
+});
+export const RegisterUserResult = IDL.Variant({
+  'emailExists' : IDL.Null,
+  'success' : IDL.Null,
 });
 
 export const idlService = IDL.Service({
+  '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
+  'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+  'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
+  'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
   'getLeaderboard' : IDL.Func([], [IDL.Vec(LeaderboardEntry)], ['query']),
+  'getRooms' : IDL.Func([], [IDL.Vec(Room)], ['query']),
   'getTournaments' : IDL.Func([], [IDL.Vec(Tournament)], ['query']),
+  'getUserProfile' : IDL.Func(
+      [IDL.Principal],
+      [IDL.Opt(UserProfile)],
+      ['query'],
+    ),
+  'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+  'loginUser' : IDL.Func([IDL.Text, IDL.Text], [LoginUserResult], []),
   'registerPlayer' : IDL.Func([IDL.Text, IDL.Text, IDL.Text, IDL.Text], [], []),
+  'registerUser' : IDL.Func(
+      [IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Text],
+      [RegisterUserResult],
+      [],
+    ),
+  'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
 });
 
 export const idlInitArgs = [];
 
 export const idlFactory = ({ IDL }) => {
+  const UserRole = IDL.Variant({
+    'admin' : IDL.Null,
+    'user' : IDL.Null,
+    'guest' : IDL.Null,
+  });
+  const UserProfile = IDL.Record({
+    'freefireUid' : IDL.Text,
+    'name' : IDL.Text,
+    'whatsapp' : IDL.Text,
+    'email' : IDL.Text,
+  });
   const LeaderboardEntry = IDL.Record({
     'teamName' : IDL.Text,
     'rank' : IDL.Nat,
@@ -43,23 +122,80 @@ export const idlFactory = ({ IDL }) => {
     'totalPoints' : IDL.Nat,
     'kills' : IDL.Nat,
   });
+  const RoomJoinStatus = IDL.Variant({
+    'closed' : IDL.Null,
+    'open' : IDL.Null,
+    'inProgress' : IDL.Null,
+  });
+  const RoomType = IDL.Variant({
+    'duo' : IDL.Null,
+    'solo' : IDL.Null,
+    'clashSquad' : IDL.Null,
+    'squad' : IDL.Null,
+    'fullMap' : IDL.Null,
+  });
+  const Room = IDL.Record({
+    'startTime' : IDL.Int,
+    'name' : IDL.Text,
+    'joinedSlots' : IDL.Nat,
+    'totalSlots' : IDL.Nat,
+    'joinStatus' : RoomJoinStatus,
+    'entryFee' : IDL.Text,
+    'roomType' : RoomType,
+    'prizePool' : IDL.Text,
+  });
   const EntryFeeType = IDL.Variant({ 'free' : IDL.Null, 'paid' : IDL.Null });
   const Tournament = IDL.Record({
     'id' : IDL.Nat,
     'name' : IDL.Text,
     'entryFeeType' : EntryFeeType,
+    'entryFee' : IDL.Text,
     'dateTime' : IDL.Text,
-    'prizePool' : IDL.Nat,
+    'prizePool' : IDL.Text,
+  });
+  const User = IDL.Record({
+    'freefireUid' : IDL.Text,
+    'password' : IDL.Text,
+    'name' : IDL.Text,
+    'whatsapp' : IDL.Text,
+    'email' : IDL.Text,
+  });
+  const LoginUserResult = IDL.Variant({
+    'userNotFound' : IDL.Null,
+    'passwordIncorrect' : IDL.Null,
+    'success' : User,
+  });
+  const RegisterUserResult = IDL.Variant({
+    'emailExists' : IDL.Null,
+    'success' : IDL.Null,
   });
   
   return IDL.Service({
+    '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
+    'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+    'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
+    'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
     'getLeaderboard' : IDL.Func([], [IDL.Vec(LeaderboardEntry)], ['query']),
+    'getRooms' : IDL.Func([], [IDL.Vec(Room)], ['query']),
     'getTournaments' : IDL.Func([], [IDL.Vec(Tournament)], ['query']),
+    'getUserProfile' : IDL.Func(
+        [IDL.Principal],
+        [IDL.Opt(UserProfile)],
+        ['query'],
+      ),
+    'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+    'loginUser' : IDL.Func([IDL.Text, IDL.Text], [LoginUserResult], []),
     'registerPlayer' : IDL.Func(
         [IDL.Text, IDL.Text, IDL.Text, IDL.Text],
         [],
         [],
       ),
+    'registerUser' : IDL.Func(
+        [IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Text],
+        [RegisterUserResult],
+        [],
+      ),
+    'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
   });
 };
 

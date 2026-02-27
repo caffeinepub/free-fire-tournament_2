@@ -1,5 +1,6 @@
-import { Calendar, Trophy, Users } from 'lucide-react';
+import { Calendar, Trophy, Users, IndianRupee } from 'lucide-react';
 import type { Tournament, EntryFeeType } from '../backend';
+import { useRouter } from '@tanstack/react-router';
 
 interface TournamentCardProps {
   tournament: Tournament;
@@ -24,11 +25,18 @@ function isEntryFree(entryFeeType: EntryFeeType): boolean {
   return entryFeeType === 'free' || (entryFeeType as unknown as { free?: null })?.free !== undefined;
 }
 
+const PRIZE_DISTRIBUTION = [
+  { place: '1st', prize: '₹50', color: '#f6c90e' },
+  { place: '2nd', prize: '₹30', color: '#c0c0c0' },
+  { place: '3rd', prize: '₹20', color: '#cd7f32' },
+];
+
 export default function TournamentCard({ tournament }: TournamentCardProps) {
   const isFree = isEntryFree(tournament.entryFeeType);
+  const router = useRouter();
 
   const handleRegister = () => {
-    document.getElementById('register')?.scrollIntoView({ behavior: 'smooth' });
+    router.navigate({ to: '/register' });
   };
 
   return (
@@ -85,7 +93,7 @@ export default function TournamentCard({ tournament }: TournamentCardProps) {
         </div>
 
         {/* Details */}
-        <div className="space-y-3 mb-5">
+        <div className="space-y-3 mb-4">
           <div className="flex items-center gap-2">
             <Calendar className="w-4 h-4 flex-shrink-0" style={{ color: 'rgba(229,62,62,0.7)' }} />
             <span className="font-rajdhani text-sm" style={{ color: 'rgba(255,255,255,0.6)' }}>
@@ -98,7 +106,17 @@ export default function TournamentCard({ tournament }: TournamentCardProps) {
             <span className="font-rajdhani font-semibold text-sm" style={{ color: 'rgba(255,255,255,0.8)' }}>
               Prize Pool:{' '}
               <span style={{ color: '#f6c90e', fontWeight: 700 }}>
-                ${Number(tournament.prizePool).toLocaleString()}
+                {tournament.prizePool}
+              </span>
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <IndianRupee className="w-4 h-4 flex-shrink-0" style={{ color: 'rgba(229,62,62,0.7)' }} />
+            <span className="font-rajdhani font-semibold text-sm" style={{ color: 'rgba(255,255,255,0.8)' }}>
+              Entry Fee:{' '}
+              <span style={{ color: isFree ? '#22c55e' : '#e53e3e', fontWeight: 700 }}>
+                {isFree ? 'FREE' : tournament.entryFee}
               </span>
             </span>
           </div>
@@ -111,22 +129,55 @@ export default function TournamentCard({ tournament }: TournamentCardProps) {
           </div>
         </div>
 
-        {/* CTA */}
+        {/* Prize Distribution */}
+        <div
+          className="mb-5 p-3"
+          style={{
+            background: 'rgba(229, 62, 62, 0.05)',
+            border: '1px solid rgba(229, 62, 62, 0.15)',
+          }}
+        >
+          <p
+            className="font-rajdhani font-bold text-xs tracking-widest uppercase mb-2"
+            style={{ color: 'rgba(229,62,62,0.8)' }}
+          >
+            Prize Distribution
+          </p>
+          <div className="flex items-center justify-between gap-2">
+            {PRIZE_DISTRIBUTION.map(({ place, prize, color }) => (
+              <div key={place} className="flex flex-col items-center gap-0.5">
+                <span
+                  className="font-rajdhani font-bold text-base"
+                  style={{ color }}
+                >
+                  {prize}
+                </span>
+                <span
+                  className="font-rajdhani text-xs"
+                  style={{ color: 'rgba(255,255,255,0.4)' }}
+                >
+                  {place}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Register CTA */}
         <button
           onClick={handleRegister}
-          className="w-full py-2.5 font-rajdhani font-bold text-sm tracking-widest uppercase transition-all duration-200"
+          className="w-full py-3 font-orbitron font-bold text-sm tracking-widest uppercase transition-all duration-300"
           style={{
-            background: 'rgba(229, 62, 62, 0.1)',
-            border: '1px solid rgba(229, 62, 62, 0.4)',
-            color: '#e53e3e',
+            background: 'linear-gradient(135deg, #c53030 0%, #e53e3e 50%, #c53030 100%)',
+            color: '#ffffff',
+            clipPath: 'polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%)',
+            boxShadow: '0 0 16px rgba(229,62,62,0.3)',
           }}
           onMouseEnter={e => {
-            (e.currentTarget as HTMLButtonElement).style.background = '#e53e3e';
-            (e.currentTarget as HTMLButtonElement).style.color = '#ffffff';
+            (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 0 28px rgba(229,62,62,0.6)';
           }}
           onMouseLeave={e => {
-            (e.currentTarget as HTMLButtonElement).style.background = 'rgba(229, 62, 62, 0.1)';
-            (e.currentTarget as HTMLButtonElement).style.color = '#e53e3e';
+            (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 0 16px rgba(229,62,62,0.3)';
           }}
         >
           Register Now →

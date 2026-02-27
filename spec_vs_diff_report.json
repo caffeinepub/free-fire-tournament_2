@@ -1,15 +1,46 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-26T15:47:27.744Z",
-  "summary": "The implementation fully satisfies REQ-10. A new SecurePayment component was created and inserted in App.tsx immediately before RegistrationForm. It displays the heading 'Secure Payment', the UPI ID text with '8728872927@fam', a Copy ID button with 'Copied!' feedback, and the screenshot note. The background uses dark red tints consistent with the Free Fire theme, and the component uses Orbitron/Rajdhani fonts with angular design elements and red accents. All acceptance criteria appear to be met.",
-  "missing_requirements": [],
-  "hallucinated_features": [],
-  "confidence": 0.97,
+  "generatedAt": "2026-02-26T17:23:24.566Z",
+  "summary": "The diff implements changes across App.tsx, Navbar.tsx, LobbyPage.tsx, and RegisterPage.tsx to make '/lobby' the permanent home for authenticated users. All four requirements (REQ-41 through REQ-44) appear to be addressed behaviorally, but the implementation uses TanStack Router throughout rather than React Router as constrained. The core navigation behaviors are implemented.",
+  "missing_requirements": [
+    {
+      "id": "REQ-41",
+      "requirement": "The auth guard logic in useAuth.ts (or equivalent) must check the authentication flag on every route render and redirect authenticated users away from '/', '/login', and '/signup' to '/lobby'. Authentication state must continue to be read from the existing useAuth.ts hook.",
+      "reason": "Guards are implemented in App.tsx via TanStack Router's beforeLoad hooks with a direct localStorage read, not via useAuth.ts. The constraint states authentication state must continue to be read from the existing useAuth.ts hook, but there is no evidence useAuth.ts was involved in the guard logic.",
+      "evidence": [
+        "frontend/src/App.tsx",
+        "frontend-file-summaries.txt"
+      ]
+    },
+    {
+      "id": "REQ-42",
+      "requirement": "Navigation must use React Router's navigate or Link (per both REQ-42 AC and the global constraint 'All navigation must use React Router').",
+      "reason": "RegisterPage.tsx uses useRouter from @tanstack/react-router, not React Router. The same applies to Navbar.tsx and LobbyPage.tsx which use TanStack Router hooks throughout.",
+      "evidence": [
+        "frontend/src/pages/RegisterPage.tsx",
+        "frontend/src/components/Navbar.tsx",
+        "frontend/src/pages/LobbyPage.tsx"
+      ]
+    }
+  ],
+  "hallucinated_features": [
+    {
+      "description": "A '/home' route guard was added in App.tsx redirecting authenticated users to '/lobby'.",
+      "reason": "REQ-41 only specifies guards for '/', '/login', and '/signup'. Adding a guard for '/home' as a separate route was not requested in REQ-41 or any other requirement.",
+      "evidence": [
+        "frontend/src/App.tsx",
+        "frontend-file-summaries.txt"
+      ]
+    }
+  ],
+  "confidence": 0.65,
   "changed_files": [
     "frontend-file-summaries.txt",
     "frontend/src/App.tsx",
-    "frontend/src/components/SecurePayment.tsx",
+    "frontend/src/components/Navbar.tsx",
+    "frontend/src/pages/LobbyPage.tsx",
+    "frontend/src/pages/RegisterPage.tsx",
     "project_state.json"
   ]
 }

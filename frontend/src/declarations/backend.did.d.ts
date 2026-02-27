@@ -19,17 +19,70 @@ export interface LeaderboardEntry {
   'totalPoints' : bigint,
   'kills' : bigint,
 }
+export type LoginUserResult = { 'userNotFound' : null } |
+  { 'passwordIncorrect' : null } |
+  { 'success' : User };
+export type RegisterUserResult = { 'emailExists' : null } |
+  { 'success' : null };
+export interface Room {
+  'startTime' : bigint,
+  'name' : string,
+  'joinedSlots' : bigint,
+  'totalSlots' : bigint,
+  'joinStatus' : RoomJoinStatus,
+  'entryFee' : string,
+  'roomType' : RoomType,
+  'prizePool' : string,
+}
+export type RoomJoinStatus = { 'closed' : null } |
+  { 'open' : null } |
+  { 'inProgress' : null };
+export type RoomType = { 'duo' : null } |
+  { 'solo' : null } |
+  { 'clashSquad' : null } |
+  { 'squad' : null } |
+  { 'fullMap' : null };
 export interface Tournament {
   'id' : bigint,
   'name' : string,
   'entryFeeType' : EntryFeeType,
+  'entryFee' : string,
   'dateTime' : string,
-  'prizePool' : bigint,
+  'prizePool' : string,
 }
+export interface User {
+  'freefireUid' : string,
+  'password' : string,
+  'name' : string,
+  'whatsapp' : string,
+  'email' : string,
+}
+export interface UserProfile {
+  'freefireUid' : string,
+  'name' : string,
+  'whatsapp' : string,
+  'email' : string,
+}
+export type UserRole = { 'admin' : null } |
+  { 'user' : null } |
+  { 'guest' : null };
 export interface _SERVICE {
+  '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
+  'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
+  'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
+  'getCallerUserRole' : ActorMethod<[], UserRole>,
   'getLeaderboard' : ActorMethod<[], Array<LeaderboardEntry>>,
+  'getRooms' : ActorMethod<[], Array<Room>>,
   'getTournaments' : ActorMethod<[], Array<Tournament>>,
+  'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
+  'isCallerAdmin' : ActorMethod<[], boolean>,
+  'loginUser' : ActorMethod<[string, string], LoginUserResult>,
   'registerPlayer' : ActorMethod<[string, string, string, string], undefined>,
+  'registerUser' : ActorMethod<
+    [string, string, string, string, string],
+    RegisterUserResult
+  >,
+  'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];
