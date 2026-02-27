@@ -1,13 +1,33 @@
 import React, { useState } from 'react';
 import { useRouter } from '@tanstack/react-router';
 import { Eye, EyeOff, Gamepad2, ArrowLeft, Loader2 } from 'lucide-react';
-import { useLoginUser } from '../hooks/useQueries';
+import { useVerifyLogin } from '../hooks/useQueries';
 import { useAuth } from '../hooks/useAuth';
+
+// Local credential store key (set during sign-up)
+const CREDS_KEY = 'ff_creds';
+
+interface StoredCred {
+  name: string;
+  email: string;
+  uid: string;
+  password: string;
+}
+
+function getStoredCreds(): StoredCred[] {
+  try {
+    const raw = localStorage.getItem(CREDS_KEY);
+    if (raw) return JSON.parse(raw) as StoredCred[];
+  } catch {
+    // ignore
+  }
+  return [];
+}
 
 export default function LoginPage() {
   const router = useRouter();
   const { setAuth } = useAuth();
-  const loginMutation = useLoginUser();
+  const verifyMutation = useVerifyLogin();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -31,19 +51,34 @@ export default function LoginPage() {
     }
     setErrors({});
 
-    try {
-      const result = await loginMutation.mutateAsync({ email: email.trim(), password });
-      if (result.__kind__ === 'success') {
-        const user = result.success;
-        setAuth(user.name, user.email, user.freefireUid);
-        router.navigate({ to: '/lobby' });
-      } else if (result.__kind__ === 'userNotFound') {
-        setErrors({ general: 'No account found with this email.' });
-      } else if (result.__kind__ === 'passwordIncorrect') {
+    // First check locally stored credentials (set during sign-up)
+    const creds = getStoredCreds();
+    const match = creds.find((c) => c.email.toLowerCase() === email.trim().toLowerCase());
+
+    if (match) {
+      if (match.password !== password) {
         setErrors({ password: 'Incorrect password. Please try again.' });
+        return;
       }
+      // Credentials match — verify user still exists on-chain
+      try {
+        await verifyMutation.mutateAsync({ email: match.email, password });
+        setAuth(match.name, match.email, match.uid);
+        router.navigate({ to: '/lobby' });
+      } catch {
+        setErrors({ general: 'Account not found. Please sign up again.' });
+      }
+      return;
+    }
+
+    // No local credentials — try to verify existence on-chain (password not verifiable server-side)
+    try {
+      await verifyMutation.mutateAsync({ email: email.trim(), password });
+      // User exists on-chain but no local creds — log in with email as name fallback
+      setAuth(email.trim().split('@')[0], email.trim(), '');
+      router.navigate({ to: '/lobby' });
     } catch {
-      setErrors({ general: 'Something went wrong. Please try again.' });
+      setErrors({ general: 'No account found with this email. Please sign up.' });
     }
   };
 
@@ -128,10 +163,10 @@ export default function LoginPage() {
 
             <button
               type="submit"
-              disabled={loginMutation.isPending}
+              disabled={verifyMutation.isPending}
               className="w-full bg-game-red hover:bg-red-700 disabled:opacity-60 text-white font-orbitron font-bold py-3 rounded-sm transition-colors flex items-center justify-center gap-2 tracking-wider text-sm"
             >
-              {loginMutation.isPending ? (
+              {verifyMutation.isPending ? (
                 <>
                   <Loader2 size={18} className="animate-spin" />
                   LOGGING IN...

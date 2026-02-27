@@ -35,9 +35,6 @@ export interface LeaderboardEntry {
   'totalPoints' : bigint,
   'kills' : bigint,
 }
-export type LoginUserResult = { 'userNotFound' : null } |
-  { 'passwordIncorrect' : null } |
-  { 'success' : User };
 export type RegisterUserResult = { 'emailExists' : null } |
   { 'success' : null };
 export interface Room {
@@ -65,14 +62,6 @@ export interface Tournament {
   'entryFee' : string,
   'dateTime' : string,
   'prizePool' : string,
-}
-export interface User {
-  'freefireUid' : string,
-  'password' : string,
-  'name' : string,
-  'whatsapp' : string,
-  'email' : string,
-  'walletBalance' : number,
 }
 export interface UserApprovalInfo {
   'status' : ApprovalStatus,
@@ -131,7 +120,6 @@ export interface _SERVICE {
   'isCallerAdmin' : ActorMethod<[], boolean>,
   'isCallerApproved' : ActorMethod<[], boolean>,
   'listApprovals' : ActorMethod<[], Array<UserApprovalInfo>>,
-  'loginUser' : ActorMethod<[string, string], LoginUserResult>,
   'registerPlayer' : ActorMethod<[string, string, string, string], undefined>,
   'registerUser' : ActorMethod<
     [string, string, string, string, string],

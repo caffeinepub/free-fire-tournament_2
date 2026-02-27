@@ -95,19 +95,6 @@ export const UserApprovalInfo = IDL.Record({
   'status' : ApprovalStatus,
   'principal' : IDL.Principal,
 });
-export const User = IDL.Record({
-  'freefireUid' : IDL.Text,
-  'password' : IDL.Text,
-  'name' : IDL.Text,
-  'whatsapp' : IDL.Text,
-  'email' : IDL.Text,
-  'walletBalance' : IDL.Float64,
-});
-export const LoginUserResult = IDL.Variant({
-  'userNotFound' : IDL.Null,
-  'passwordIncorrect' : IDL.Null,
-  'success' : User,
-});
 export const RegisterUserResult = IDL.Variant({
   'emailExists' : IDL.Null,
   'success' : IDL.Null,
@@ -165,7 +152,6 @@ export const idlService = IDL.Service({
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
   'isCallerApproved' : IDL.Func([], [IDL.Bool], ['query']),
   'listApprovals' : IDL.Func([], [IDL.Vec(UserApprovalInfo)], ['query']),
-  'loginUser' : IDL.Func([IDL.Text, IDL.Text], [LoginUserResult], []),
   'registerPlayer' : IDL.Func([IDL.Text, IDL.Text, IDL.Text, IDL.Text], [], []),
   'registerUser' : IDL.Func(
       [IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Text],
@@ -271,19 +257,6 @@ export const idlFactory = ({ IDL }) => {
     'status' : ApprovalStatus,
     'principal' : IDL.Principal,
   });
-  const User = IDL.Record({
-    'freefireUid' : IDL.Text,
-    'password' : IDL.Text,
-    'name' : IDL.Text,
-    'whatsapp' : IDL.Text,
-    'email' : IDL.Text,
-    'walletBalance' : IDL.Float64,
-  });
-  const LoginUserResult = IDL.Variant({
-    'userNotFound' : IDL.Null,
-    'passwordIncorrect' : IDL.Null,
-    'success' : User,
-  });
   const RegisterUserResult = IDL.Variant({
     'emailExists' : IDL.Null,
     'success' : IDL.Null,
@@ -345,7 +318,6 @@ export const idlFactory = ({ IDL }) => {
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
     'isCallerApproved' : IDL.Func([], [IDL.Bool], ['query']),
     'listApprovals' : IDL.Func([], [IDL.Vec(UserApprovalInfo)], ['query']),
-    'loginUser' : IDL.Func([IDL.Text, IDL.Text], [LoginUserResult], []),
     'registerPlayer' : IDL.Func(
         [IDL.Text, IDL.Text, IDL.Text, IDL.Text],
         [],

@@ -2,29 +2,8 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-update-the-manualdepositmodal-component-to-replace-the-static-upi-id-display-with-a-upi-intent-link-button-when-the-user-enters-a-valid-amount-minimum-20-and-clicks-proceed-to-pay-construct-the-deep-link-upi-pay-pa-8728872927-fam-pn-freefiretournament-am-amount-cu-inr-and-trigger-it-via-window-location-href-or-an-anchor-tag-with-href-set-to-the-deep-link-so-the-device-automatically-presents-installed-upi-apps-gpay-phonepe-paytm-for-the-user-to-complete-payment",
-      "featureTitle": "Update the ManualDepositModal component to replace the static UPI ID display with a UPI Intent Link button. When the user enters a valid amount (minimum ₹20) and clicks 'Proceed to Pay', construct the deep link: upi://pay?pa=8728872927@fam&pn=FreeFireTournament&am={amount}&cu=INR and trigger it via window.location.href or an anchor tag with href set to the deep link, so the device automatically presents installed UPI apps (GPay, PhonePe, Paytm) for the user to complete payment.",
-      "files": [
-        "frontend/src/components/ManualDepositModal.tsx"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "authorization@4.0.0",
-        "blob-storage@4.0.0",
-        "user-approval@3.0.0"
-      ],
-      "testIds": [
-        "REQ-1"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-after-the-upi-deep-link-is-triggered-transition-the-deposit-modal-flow-to-a-dedicated-screenshot-upload-screen-this-screen-should-prompt-the-user-to-upload-a-payment-screenshot-for-manual-verification-and-allow-submission-of-the-transaction-details-screenshot-transaction-id-to-the-backend-this-replaces-the-previous-mid-flow-upi-id-copy-step-and-makes-screenshot-upload-the-next-explicit-step-after-payment-initiation",
-      "featureTitle": "After the UPI deep link is triggered, transition the deposit modal/flow to a dedicated screenshot upload screen. This screen should prompt the user to upload a payment screenshot for manual verification, and allow submission of the transaction details (screenshot + transaction ID) to the backend. This replaces the previous mid-flow UPI ID copy step and makes screenshot upload the next explicit step after payment initiation.",
+      "featureId": "feature-update-the-minimum-deposit-amount-displayed-and-enforced-in-the-manualdepositmodal-frontend-component-to-10-the-input-field-should-show-a-minimum-value-of-10-and-client-side-validation-should-prevent-submission-of-amounts-below-10-with-an-error-message-stating-the-minimum-is-10",
+      "featureTitle": "Update the minimum deposit amount displayed and enforced in the ManualDepositModal frontend component to ₹10. The input field should show a minimum value of 10, and client-side validation should prevent submission of amounts below ₹10 with an error message stating the minimum is ₹10.",
       "files": [
         "frontend/src/components/ManualDepositModal.tsx"
       ],
@@ -40,27 +19,6 @@
       ],
       "testIds": [
         "REQ-2"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-fix-the-unauthorized-error-that-occurs-on-the-deposit-page-for-logged-in-users-audit-the-deposit-related-backend-query-and-mutation-hooks-in-usequeries-ts-to-ensure-they-use-the-authenticated-actor-not-anonymous-ensure-that-when-a-logged-in-user-initiates-a-deposit-the-actor-is-called-with-the-user-s-authenticated-identity-eliminating-the-unauthorized-rejection",
-      "featureTitle": "Fix the 'Unauthorized' error that occurs on the deposit page for logged-in users. Audit the deposit-related backend query and mutation hooks in useQueries.ts to ensure they use the authenticated actor (not anonymous). Ensure that when a logged-in user initiates a deposit, the actor is called with the user's authenticated identity, eliminating the unauthorized rejection.",
-      "files": [
-        "frontend/src/components/ManualDepositModal.tsx"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "authorization@4.0.0",
-        "blob-storage@4.0.0",
-        "user-approval@3.0.0"
-      ],
-      "testIds": [
-        "REQ-3"
       ],
       "confidence": "high"
     }

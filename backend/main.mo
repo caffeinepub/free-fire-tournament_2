@@ -7,17 +7,20 @@ import Iter "mo:core/Iter";
 import Order "mo:core/Order";
 import Nat "mo:core/Nat";
 import Int "mo:core/Int";
-import Map "mo:core/Map";
 import Float "mo:core/Float";
+import Map "mo:core/Map";
 import Time "mo:core/Time";
 import Principal "mo:core/Principal";
 import AccessControl "authorization/access-control";
+import Migration "migration";
 
 import MixinAuthorization "authorization/MixinAuthorization";
 import Storage "blob-storage/Storage";
 import MixinStorage "blob-storage/Mixin";
 import UserApproval "user-approval/approval";
 
+// Migration mapping must be added when adding persistent user state variables.
+(with migration = Migration.run)
 actor {
   type Tournament = {
     id : Nat;
@@ -228,6 +231,33 @@ actor {
   include MixinAuthorization(accessControlState);
   include MixinStorage();
 
+  let minimumDepositAmount : Float = 10.0;
+
+  // ---------------------------
+  // User Profile Functions (required by instructions)
+  // ---------------------------
+
+  public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can get profiles");
+    };
+    userProfiles.get(caller);
+  };
+
+  public query ({ caller }) func getUserProfile(user : Principal) : async ?UserProfile {
+    if (caller != user and not AccessControl.isAdmin(accessControlState, caller)) {
+      Runtime.trap("Unauthorized: Can only view your own profile");
+    };
+    userProfiles.get(user);
+  };
+
+  public shared ({ caller }) func saveCallerUserProfile(profile : UserProfile) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can save profiles");
+    };
+    userProfiles.add(caller, profile);
+  };
+
   // ---------------------------
   // User Approval Functions (required by component)
   // ---------------------------
@@ -253,6 +283,10 @@ actor {
     };
     UserApproval.listApprovals(approvalState);
   };
+
+  // ---------------------------
+  // Tournament / Leaderboard / Rooms (public, no auth required)
+  // ---------------------------
 
   // Public query: anyone (including guests) can view tournaments
   public query func getTournaments() : async [Tournament] {
@@ -288,6 +322,10 @@ actor {
   public query func getRooms() : async [Room] {
     sampleRooms;
   };
+
+  // ---------------------------
+  // User Registration / Login
+  // ---------------------------
 
   public type RegisterUserResult = {
     #success;
@@ -327,77 +365,29 @@ actor {
     };
   };
 
-  // Anyone (including guests) can attempt to log in.
-  // On successful login with an authenticated principal, assign the #user role
-  // so that subsequent authenticated calls to deposit, wallet, etc. are authorized.
-  public shared ({ caller }) func loginUser(email : Text, password : Text) : async LoginUserResult {
-    switch (users.get(email)) {
-      case (?user) {
-        if (user.password == password) {
-          // Record principal -> email mapping on successful login and assign #user role
-          if (not caller.isAnonymous()) {
-            principalToEmail.add(caller, email);
-            AccessControl.assignRole(accessControlState, caller, caller, #user);
-          };
-          #success(user);
-        } else {
-          #passwordIncorrect;
-        };
-      };
-      case (null) { #userNotFound };
-    };
-  };
-
-  public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only authenticated users can view their profile");
-    };
-    userProfiles.get(caller);
-  };
-
-  public query ({ caller }) func getUserProfile(user : Principal) : async ?UserProfile {
-    if (caller != user and not AccessControl.isAdmin(accessControlState, caller)) {
-      Runtime.trap("Unauthorized: Can only view your own profile");
-    };
-    userProfiles.get(user);
-  };
-
-  public shared ({ caller }) func saveCallerUserProfile(profile : UserProfile) : async () {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only authenticated users can save their profile");
-    };
-    userProfiles.add(caller, profile);
-  };
-
   // ---------------------------
-  // Wallet Functionality
+  // Wallet Functions
   // ---------------------------
-
-  // Helper: verify that the caller owns the account identified by uid (email),
-  // or that the caller is an admin.
-  func assertWalletOwnerOrAdmin(caller : Principal, uid : Text) {
-    if (AccessControl.isAdmin(accessControlState, caller)) {
-      return; // admins can access any wallet
-    };
-    switch (principalToEmail.get(caller)) {
-      case (?email) {
-        if (email != uid) {
-          Runtime.trap("Unauthorized: You can only access your own wallet");
-        };
-      };
-      case (null) {
-        Runtime.trap("Unauthorized: Caller has no associated account");
-      };
-    };
-  };
 
   // Get wallet balance for a user identified by email uid.
-  // Only the owning user or an admin may call this.
+  // Only the owning user (matched via principalToEmail) or an admin may call this.
   public query ({ caller }) func getWalletBalance(uid : Text) : async Float {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only authenticated users can access wallet balances");
+    // Admins can query any wallet; regular users can only query their own
+    if (not AccessControl.isAdmin(accessControlState, caller)) {
+      if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+        Runtime.trap("Unauthorized: Only authenticated users can view wallet balance");
+      };
+      switch (principalToEmail.get(caller)) {
+        case (?email) {
+          if (email != uid) {
+            Runtime.trap("Unauthorized: You can only view your own wallet balance");
+          };
+        };
+        case (null) {
+          Runtime.trap("Unauthorized: No account linked to your principal");
+        };
+      };
     };
-    assertWalletOwnerOrAdmin(caller, uid);
 
     switch (users.get(uid)) {
       case (?user) { user.walletBalance };
@@ -410,13 +400,25 @@ actor {
   // Deposit funds into a user's wallet.
   // Only the owning user or an admin may call this.
   public shared ({ caller }) func deposit(uid : Text, amount : Float) : async () {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only authenticated users can deposit funds");
+    // Admins can deposit to any wallet; regular users can only deposit to their own
+    if (not AccessControl.isAdmin(accessControlState, caller)) {
+      if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+        Runtime.trap("Unauthorized: Only authenticated users can deposit");
+      };
+      switch (principalToEmail.get(caller)) {
+        case (?email) {
+          if (email != uid) {
+            Runtime.trap("Unauthorized: You can only deposit to your own wallet");
+          };
+        };
+        case (null) {
+          Runtime.trap("Unauthorized: No account linked to your principal");
+        };
+      };
     };
-    assertWalletOwnerOrAdmin(caller, uid);
 
-    if (amount <= 0.0) {
-      Runtime.trap("Deposit amount must be positive");
+    if (amount < minimumDepositAmount) {
+      Runtime.trap("Minimum deposit amount is \u{20B9}10. Please deposit \u{20B9}10 or more.");
     };
 
     switch (users.get(uid)) {
@@ -433,10 +435,22 @@ actor {
   // Withdraw funds from a user's wallet.
   // Only the owning user or an admin may call this.
   public shared ({ caller }) func withdraw(uid : Text, amount : Float) : async () {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only authenticated users can withdraw funds");
+    // Admins can withdraw from any wallet; regular users can only withdraw from their own
+    if (not AccessControl.isAdmin(accessControlState, caller)) {
+      if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+        Runtime.trap("Unauthorized: Only authenticated users can withdraw");
+      };
+      switch (principalToEmail.get(caller)) {
+        case (?email) {
+          if (email != uid) {
+            Runtime.trap("Unauthorized: You can only withdraw from your own wallet");
+          };
+        };
+        case (null) {
+          Runtime.trap("Unauthorized: No account linked to your principal");
+        };
+      };
     };
-    assertWalletOwnerOrAdmin(caller, uid);
 
     if (amount <= 0.0) {
       Runtime.trap("Withdraw amount must be positive");
@@ -466,8 +480,10 @@ actor {
       Runtime.trap("Unauthorized: Only authenticated users can submit deposits");
     };
 
-    if (amount <= 0.0) {
-      Runtime.trap("Deposit amount must be positive");
+    if (amount < minimumDepositAmount) {
+      Runtime.trap(
+        "Deposit amount must be at least \u{20B9}10. Please deposit \u{20B9}10 or more."
+      );
     };
 
     let depositId = nextDepositId;
@@ -555,11 +571,12 @@ actor {
 
   // Authenticated users can fetch their own deposit records; admins can fetch any user's records
   public query ({ caller }) func getUserDeposits(user : Principal) : async [DepositRecord] {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only authenticated users can view deposit records");
-    };
+    // Only the user themselves or an admin can view deposit records
     if (caller != user and not AccessControl.isAdmin(accessControlState, caller)) {
       Runtime.trap("Unauthorized: You can only view your own deposit records");
+    };
+    if (not AccessControl.isAdmin(accessControlState, caller) and not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only authenticated users can view deposit records");
     };
     deposits.values().toArray().filter(func(d) { d.user == user });
   };
@@ -571,7 +588,8 @@ actor {
     };
     switch (deposits.get(depositId)) {
       case (?deposit) {
-        if (caller != deposit.user and not AccessControl.isAdmin(accessControlState, caller)) {
+        // Only the owning user or an admin can view the record
+        if (deposit.user != caller and not AccessControl.isAdmin(accessControlState, caller)) {
           Runtime.trap("Unauthorized: You can only view your own deposit records");
         };
         ?deposit;

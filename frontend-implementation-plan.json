@@ -1,60 +1,21 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "UPI Intent Link on Deposit Page with Screenshot Upload Flow",
+  "title": "Change minimum deposit amount to 10 rupees",
   "requirements": [
     {
-      "id": "REQ-1",
-      "summary": "Replace static UPI ID display with UPI Intent Link button that triggers deep link to open installed UPI apps when user enters valid amount (minimum ₹20)",
-      "acceptanceCriteria": [
-        "Clicking 'Proceed to Pay' with an amount ≥ ₹20 triggers the UPI deep link upi://pay?pa=8728872927@fam&pn=FreeFireTournament&am={amount}&cu=INR",
-        "The device displays a chooser of installed UPI apps (GPay, PhonePe, Paytm) when the deep link is triggered",
-        "Entering an amount below ₹20 shows a validation error and does not trigger the deep link",
-        "The UPI ID is no longer shown as a static text-only element — the intent link replaces that step"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/ManualDepositModal.tsx",
-          "operation": "modify",
-          "description": "Replace the current UPI ID copy step with a UPI Intent Link button. Add client-side validation to ensure amount is ≥ ₹20 before allowing user to proceed. When 'Proceed to Pay' is clicked with valid amount, construct the deep link upi://pay?pa=8728872927@fam&pn=FreeFireTournament&am={amount}&cu=INR and trigger it via window.location.href to open the device's UPI app chooser. Remove the static UPI ID display and copy functionality from step 2."
-        }
-      ]
-    },
-    {
       "id": "REQ-2",
-      "summary": "Transition deposit modal to dedicated screenshot upload screen after UPI deep link is triggered, prompting user to upload payment screenshot and submit transaction details",
+      "summary": "Update the minimum deposit amount displayed and enforced in the ManualDepositModal frontend component to ₹10",
       "acceptanceCriteria": [
-        "After the UPI deep link is triggered, the UI automatically advances to the screenshot upload step",
-        "The screenshot upload screen has a file input for the payment screenshot and a transaction ID field",
-        "The user can submit the screenshot and transaction ID for admin verification",
-        "The flow does not require the user to manually navigate back to the app — the upload screen is shown upon return"
+        "The deposit amount input enforces a minimum value of 10.",
+        "Submitting an amount below ₹10 shows a validation error: 'Minimum deposit amount is ₹10'.",
+        "The modal UI clearly indicates that the minimum deposit is ₹10."
       ],
       "file_operations": [
         {
           "path": "frontend/src/components/ManualDepositModal.tsx",
           "operation": "modify",
-          "description": "After triggering the UPI deep link, automatically advance the modal flow to the screenshot upload step. Restructure the multi-step flow so that after the payment intent is launched, the user sees a screen prompting them to upload their payment screenshot and enter the transaction ID. Use the ExternalBlob.fromBytes method to handle screenshot file uploads. Wire the submit action to call the submitDeposit backend method with amount, transactionId, and screenshot parameters. Include proper loading states during upload and submission."
-        }
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "summary": "Fix 'Unauthorized' error on deposit page for logged-in users by ensuring deposit-related hooks use authenticated actor instead of anonymous",
-      "acceptanceCriteria": [
-        "A logged-in user can initiate a deposit without receiving an 'Unauthorized' error",
-        "Deposit submission (screenshot + transaction ID) reaches the backend successfully for authenticated users",
-        "No unauthorized errors appear in the deposit flow for users who are logged in via the app's auth system"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/hooks/useQueries.ts",
-          "operation": "modify",
-          "description": "Audit the useSubmitDeposit mutation hook and any other deposit-related query/mutation hooks to ensure they use the authenticated actor (not anonymous). Verify that the enabled condition properly waits for both actor availability and authentication state. Ensure the queryFn receives and uses the authenticated actor instance when calling submitDeposit. Review error handling to catch and display authorization errors appropriately."
-        },
-        {
-          "path": "frontend/src/components/ManualDepositModal.tsx",
-          "operation": "modify",
-          "description": "Ensure the ManualDepositModal component checks authentication state before allowing deposit submission. Add proper error handling and user feedback for authorization failures. Display appropriate messages if the user is not authenticated when attempting to submit a deposit."
+          "description": "Update the minimum deposit amount validation from its current value to 10. Change the input field's min attribute to 10, update the client-side validation logic to reject amounts below 10, and modify the error message to state 'Minimum deposit amount is ₹10'. Ensure the UI clearly displays the minimum deposit requirement of ₹10 to users."
         }
       ]
     }

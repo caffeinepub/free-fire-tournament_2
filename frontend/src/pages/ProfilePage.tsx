@@ -11,10 +11,10 @@ import {
   Loader2,
   Copy,
   Check,
-  IndianRupee,
+  RefreshCw,
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
-import { useWithdraw } from '../hooks/useQueries';
+import { useWithdraw, useGetWalletBalance } from '../hooks/useQueries';
 import ManualDepositModal from '../components/ManualDepositModal';
 
 export default function ProfilePage() {
@@ -22,6 +22,12 @@ export default function ProfilePage() {
   const { isAuthenticated, userName, userEmail, userUid } = useAuth();
 
   const withdrawMutation = useWithdraw();
+  const {
+    data: walletBalance,
+    isLoading: balanceLoading,
+    isError: balanceError,
+    refetch: refetchBalance,
+  } = useGetWalletBalance(userEmail);
 
   const [withdrawAmount, setWithdrawAmount] = useState('');
   const [showWithdrawInput, setShowWithdrawInput] = useState(false);
@@ -53,6 +59,7 @@ export default function ProfilePage() {
       setTxSuccess(`₹${amount.toFixed(2)} withdrawn successfully!`);
       setWithdrawAmount('');
       setShowWithdrawInput(false);
+      refetchBalance();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Withdrawal failed. Check your balance.';
       setTxError(msg);
@@ -66,6 +73,15 @@ export default function ProfilePage() {
       setTimeout(() => setUidCopied(false), 2000);
     }
   };
+
+  const displayBalance =
+    balanceLoading
+      ? null
+      : balanceError
+      ? null
+      : typeof walletBalance === 'number'
+      ? walletBalance
+      : 0;
 
   return (
     <div className="min-h-screen bg-game-black relative overflow-hidden">
@@ -161,23 +177,36 @@ export default function ProfilePage() {
 
         {/* Wallet Card */}
         <div className="bg-gray-900/80 border border-gold/30 rounded-sm p-6">
-          <div className="flex items-center gap-3 mb-5">
-            <div className="p-2 bg-gold/10 rounded-sm border border-gold/30">
-              <Wallet size={20} className="text-gold" />
+          <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-gold/10 rounded-sm border border-gold/30">
+                <Wallet size={20} className="text-gold" />
+              </div>
+              <h2 className="font-orbitron text-sm font-bold text-white tracking-wider">WALLET</h2>
             </div>
-            <h2 className="font-orbitron text-sm font-bold text-white tracking-wider">WALLET</h2>
+            <button
+              onClick={() => refetchBalance()}
+              disabled={balanceLoading}
+              className="text-gray-500 hover:text-gold transition-colors disabled:opacity-40"
+              title="Refresh balance"
+            >
+              <RefreshCw size={15} className={balanceLoading ? 'animate-spin' : ''} />
+            </button>
           </div>
 
-          {/* Add Funds instruction banner */}
-          <div className="bg-green-900/20 border border-green-500/30 rounded-sm px-4 py-3 mb-5 flex items-start gap-3">
-            <IndianRupee size={16} className="text-green-400 mt-0.5 shrink-0" />
-            <div>
-              <p className="text-green-400 font-orbitron text-xs font-bold tracking-wider">
-                ADD FUNDS
-              </p>
-              <p className="text-gray-400 font-rajdhani text-xs mt-0.5 leading-relaxed">
-                Use the Deposit button below to add funds via UPI payment.
-              </p>
+          {/* Balance display */}
+          <div className="bg-black/60 border border-gold/20 rounded-sm px-5 py-4 mb-5 flex items-center justify-between">
+            <span className="text-gray-400 font-rajdhani text-sm tracking-wider">AVAILABLE BALANCE</span>
+            <div className="flex items-center gap-1">
+              {balanceLoading ? (
+                <Loader2 size={16} className="text-gold animate-spin" />
+              ) : balanceError ? (
+                <span className="text-gray-500 font-rajdhani text-sm">—</span>
+              ) : (
+                <span className="text-gold font-orbitron font-black text-xl">
+                  ₹{(displayBalance ?? 0).toFixed(2)}
+                </span>
+              )}
             </div>
           </div>
 
@@ -294,7 +323,11 @@ export default function ProfilePage() {
       {/* Manual Deposit Modal */}
       <ManualDepositModal
         open={showDepositModal}
-        onClose={() => setShowDepositModal(false)}
+        userEmail={userEmail}
+        onClose={() => {
+          setShowDepositModal(false);
+          refetchBalance();
+        }}
       />
     </div>
   );

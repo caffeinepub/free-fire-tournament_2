@@ -9,6 +9,8 @@ import {
   Smartphone,
   ExternalLink,
   AlertCircle,
+  Copy,
+  Check,
 } from 'lucide-react';
 import {
   Dialog,
@@ -18,33 +20,58 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import { useSubmitDeposit } from '../hooks/useQueries';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface ManualDepositModalProps {
   open: boolean;
   onClose: () => void;
+  userEmail?: string;
 }
 
 const UPI_PA = '8728872927@fam';
 const UPI_PN = 'FreeFireTournament';
-const MIN_AMOUNT = 20;
+const UPI_TN = 'FFArena Wallet Deposit';
+const MIN_AMOUNT = 10;
 
 type Step = 'amount' | 'upload' | 'success';
 
-export default function ManualDepositModal({ open, onClose }: ManualDepositModalProps) {
+function triggerUpiIntent(upiLink: string) {
+  // Use a temporary anchor element to trigger the UPI intent
+  // without navigating away from the current page
+  const anchor = document.createElement('a');
+  anchor.href = upiLink;
+  anchor.style.display = 'none';
+  document.body.appendChild(anchor);
+  anchor.click();
+  document.body.removeChild(anchor);
+}
+
+export default function ManualDepositModal({ open, onClose, userEmail }: ManualDepositModalProps) {
   const [step, setStep] = useState<Step>('amount');
   const [amount, setAmount] = useState('');
   const [amountError, setAmountError] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [transactionId, setTransactionId] = useState('');
   const [submitError, setSubmitError] = useState('');
-  const [upiLaunched, setUpiLaunched] = useState(false);
+  const [upiCopied, setUpiCopied] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const queryClient = useQueryClient();
   const submitDepositMutation = useSubmitDeposit();
+
+  const buildUpiLink = (parsedAmount: number) =>
+    `upi://pay?pa=${encodeURIComponent(UPI_PA)}&pn=${encodeURIComponent(UPI_PN)}&am=${parsedAmount.toFixed(2)}&cu=INR&tn=${encodeURIComponent(UPI_TN)}`;
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] ?? null;
     setSelectedFile(file);
+  };
+
+  const handleCopyUpiId = () => {
+    navigator.clipboard.writeText(UPI_PA).then(() => {
+      setUpiCopied(true);
+      setTimeout(() => setUpiCopied(false), 2500);
+    });
   };
 
   const handleProceedToPay = () => {
@@ -55,17 +82,17 @@ export default function ManualDepositModal({ open, onClose }: ManualDepositModal
     }
     setAmountError('');
 
-    // Build UPI deep link
-    const upiLink = `upi://pay?pa=${UPI_PA}&pn=${encodeURIComponent(UPI_PN)}&am=${parsed.toFixed(2)}&cu=INR`;
+    // Build UPI deep link with all required parameters
+    const upiLink = buildUpiLink(parsed);
 
-    // Trigger the UPI intent — opens installed UPI apps chooser on mobile
-    window.location.href = upiLink;
-    setUpiLaunched(true);
+    // Trigger UPI intent via anchor click — opens installed UPI apps chooser on mobile
+    // without navigating away from the page
+    triggerUpiIntent(upiLink);
 
     // Advance to upload step after a short delay so the UPI app can open
     setTimeout(() => {
       setStep('upload');
-    }, 800);
+    }, 600);
   };
 
   const handleSubmit = async () => {
@@ -87,6 +114,13 @@ export default function ManualDepositModal({ open, onClose }: ManualDepositModal
         transactionId: transactionId.trim(),
         screenshotBytes: bytes,
       });
+
+      // Invalidate wallet balance so it refetches after submission
+      if (userEmail) {
+        queryClient.invalidateQueries({ queryKey: ['walletBalance', userEmail] });
+      }
+      queryClient.invalidateQueries({ queryKey: ['walletBalance'] });
+
       setStep('success');
     } catch (err: unknown) {
       const raw = err instanceof Error ? err.message : String(err);
@@ -108,7 +142,7 @@ export default function ManualDepositModal({ open, onClose }: ManualDepositModal
     setSelectedFile(null);
     setTransactionId('');
     setSubmitError('');
-    setUpiLaunched(false);
+    setUpiCopied(false);
     onClose();
   };
 
@@ -203,18 +237,44 @@ export default function ManualDepositModal({ open, onClose }: ManualDepositModal
                 )}
               </div>
 
-              {/* UPI apps info */}
-              <div className="bg-black/40 border border-gray-700/50 rounded-sm p-3">
-                <p className="text-gray-500 font-rajdhani text-xs tracking-widest mb-2">SUPPORTED UPI APPS</p>
-                <div className="flex items-center gap-3">
-                  {['GPay', 'PhonePe', 'Paytm', 'BHIM'].map((app) => (
-                    <span
-                      key={app}
-                      className="px-2 py-1 bg-gray-800/80 border border-gray-700/50 rounded-sm text-gray-400 font-rajdhani text-xs"
+              {/* UPI ID display with copy fallback */}
+              <div className="bg-black/40 border border-gray-700/50 rounded-sm p-3 space-y-3">
+                <div>
+                  <p className="text-gray-500 font-rajdhani text-xs tracking-widest mb-1.5">UPI ID</p>
+                  <div className="flex items-center justify-between gap-2 bg-black/60 border border-gray-700/50 rounded-sm px-3 py-2">
+                    <span className="text-white font-rajdhani text-sm font-semibold">{UPI_PA}</span>
+                    <button
+                      onClick={handleCopyUpiId}
+                      className="flex items-center gap-1.5 px-2.5 py-1 bg-gray-700/80 hover:bg-gray-600 border border-gray-600/50 rounded-sm text-xs font-rajdhani text-silver transition-all shrink-0"
+                      title="Copy UPI ID"
                     >
-                      {app}
-                    </span>
-                  ))}
+                      {upiCopied ? (
+                        <>
+                          <Check size={12} className="text-green-400" />
+                          <span className="text-green-400">Copied!</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy size={12} />
+                          Copy UPI ID
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <p className="text-gray-500 font-rajdhani text-xs tracking-widest mb-1.5">SUPPORTED UPI APPS</p>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {['GPay', 'PhonePe', 'Paytm', 'BHIM'].map((app) => (
+                      <span
+                        key={app}
+                        className="px-2 py-1 bg-gray-800/80 border border-gray-700/50 rounded-sm text-gray-400 font-rajdhani text-xs"
+                      >
+                        {app}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               </div>
 
@@ -232,14 +292,14 @@ export default function ManualDepositModal({ open, onClose }: ManualDepositModal
                   className="flex-1 flex items-center justify-center gap-2 py-3 bg-gold/20 hover:bg-gold/30 disabled:opacity-40 disabled:cursor-not-allowed border border-gold/40 text-gold font-orbitron font-bold rounded-sm transition-all tracking-wider text-xs"
                 >
                   <Smartphone size={14} />
-                  PROCEED TO PAY
+                  OPEN UPI APP
                   <ExternalLink size={12} />
                 </button>
               </div>
 
               <p className="text-gray-600 font-rajdhani text-xs text-center leading-relaxed">
-                Tapping "Proceed to Pay" will open your UPI app to complete the payment.
-                After paying, you'll be asked to upload the screenshot.
+                Tap "Open UPI App" to pay via GPay/PhonePe/BHIM, or copy the UPI ID above to pay manually.
+                After paying, tap "Open UPI App" again to proceed to screenshot upload.
               </p>
             </>
           )}
@@ -268,18 +328,34 @@ export default function ManualDepositModal({ open, onClose }: ManualDepositModal
                 </div>
               </div>
 
-              {/* Re-open UPI app link */}
-              <div className="text-center">
+              {/* Re-open UPI app + Copy UPI ID fallback */}
+              <div className="flex items-center gap-3 justify-center flex-wrap">
                 <button
                   onClick={() => {
                     const parsed = parseFloat(amount);
-                    const upiLink = `upi://pay?pa=${UPI_PA}&pn=${encodeURIComponent(UPI_PN)}&am=${parsed.toFixed(2)}&cu=INR`;
-                    window.location.href = upiLink;
+                    triggerUpiIntent(buildUpiLink(parsed));
                   }}
                   className="inline-flex items-center gap-1.5 text-gold font-rajdhani text-xs hover:underline"
                 >
                   <ExternalLink size={12} />
-                  Re-open UPI app to pay
+                  Re-open UPI app
+                </button>
+                <span className="text-gray-700 text-xs">|</span>
+                <button
+                  onClick={handleCopyUpiId}
+                  className="inline-flex items-center gap-1.5 font-rajdhani text-xs transition-colors"
+                >
+                  {upiCopied ? (
+                    <>
+                      <Check size={12} className="text-green-400" />
+                      <span className="text-green-400">UPI ID Copied!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy size={12} className="text-gray-400" />
+                      <span className="text-gray-400 hover:text-silver">Copy UPI ID</span>
+                    </>
+                  )}
                 </button>
               </div>
 
@@ -358,7 +434,6 @@ export default function ManualDepositModal({ open, onClose }: ManualDepositModal
                   onClick={() => {
                     setStep('amount');
                     setSubmitError('');
-                    setUpiLaunched(false);
                   }}
                   disabled={submitDepositMutation.isPending}
                   className="flex items-center justify-center gap-2 px-4 py-3 bg-gray-800/80 hover:bg-gray-700 disabled:opacity-40 border border-gray-600/50 text-silver font-orbitron font-bold rounded-sm transition-all tracking-wider text-xs"
@@ -368,10 +443,8 @@ export default function ManualDepositModal({ open, onClose }: ManualDepositModal
                 </button>
                 <button
                   onClick={handleSubmit}
-                  disabled={
-                    !selectedFile || !transactionId.trim() || submitDepositMutation.isPending
-                  }
-                  className="flex-1 flex items-center justify-center gap-2 py-3 bg-green-700/80 hover:bg-green-600 disabled:opacity-40 disabled:cursor-not-allowed border border-green-600/50 text-white font-orbitron font-bold rounded-sm transition-all tracking-wider text-xs"
+                  disabled={submitDepositMutation.isPending || !selectedFile || !transactionId.trim()}
+                  className="flex-1 flex items-center justify-center gap-2 py-3 bg-gold/20 hover:bg-gold/30 disabled:opacity-40 disabled:cursor-not-allowed border border-gold/40 text-gold font-orbitron font-bold rounded-sm transition-all tracking-wider text-xs"
                 >
                   {submitDepositMutation.isPending ? (
                     <>
@@ -380,8 +453,8 @@ export default function ManualDepositModal({ open, onClose }: ManualDepositModal
                     </>
                   ) : (
                     <>
-                      <Upload size={14} />
-                      SUBMIT FOR REVIEW
+                      <CheckCircle2 size={14} />
+                      SUBMIT
                     </>
                   )}
                 </button>
@@ -391,27 +464,25 @@ export default function ManualDepositModal({ open, onClose }: ManualDepositModal
 
           {/* ── STEP 3: Success ── */}
           {step === 'success' && (
-            <div className="flex flex-col items-center gap-4 py-6 text-center">
-              <div className="p-4 bg-green-900/30 rounded-full border border-green-500/40">
+            <div className="flex flex-col items-center gap-5 py-4">
+              <div className="w-16 h-16 rounded-sm bg-green-900/30 border border-green-500/40 flex items-center justify-center">
                 <CheckCircle2 size={36} className="text-green-400" />
               </div>
-              <div>
-                <p className="font-orbitron text-base font-bold text-white tracking-wider">
-                  PAYMENT SUBMITTED
+              <div className="text-center space-y-2">
+                <p className="text-white font-orbitron font-bold text-sm tracking-wider">
+                  DEPOSIT SUBMITTED
                 </p>
-                <p className="text-gray-400 font-rajdhani text-sm mt-2 leading-relaxed">
-                  Your payment screenshot is under review.{' '}
-                  <span className="text-gold font-semibold">
-                    ₹{parseFloat(amount).toFixed(2)}
-                  </span>{' '}
-                  will be credited to your wallet once verified by our team.
+                <p className="text-gray-400 font-rajdhani text-sm leading-relaxed">
+                  Your deposit of{' '}
+                  <span className="text-gold font-bold">₹{parseFloat(amount).toFixed(2)}</span>{' '}
+                  has been submitted for review. Your wallet will be credited once an admin approves it.
                 </p>
               </div>
               <button
                 onClick={handleClose}
-                className="mt-2 px-6 py-2.5 bg-gold/20 hover:bg-gold/30 border border-gold/40 text-gold font-orbitron text-xs font-bold rounded-sm transition-all tracking-wider"
+                className="w-full flex items-center justify-center gap-2 py-3 bg-gold/20 hover:bg-gold/30 border border-gold/40 text-gold font-orbitron font-bold rounded-sm transition-all tracking-wider text-xs"
               >
-                CLOSE
+                DONE
               </button>
             </div>
           )}

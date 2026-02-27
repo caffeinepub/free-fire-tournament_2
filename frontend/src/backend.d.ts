@@ -21,14 +21,6 @@ export interface LeaderboardEntry {
     totalPoints: bigint;
     kills: bigint;
 }
-export interface User {
-    freefireUid: string;
-    password: string;
-    name: string;
-    whatsapp: string;
-    email: string;
-    walletBalance: number;
-}
 export interface Tournament {
     id: bigint;
     name: string;
@@ -47,16 +39,6 @@ export interface Room {
     roomType: RoomType;
     prizePool: string;
 }
-export type LoginUserResult = {
-    __kind__: "userNotFound";
-    userNotFound: null;
-} | {
-    __kind__: "passwordIncorrect";
-    passwordIncorrect: null;
-} | {
-    __kind__: "success";
-    success: User;
-};
 export interface UserApprovalInfo {
     status: ApprovalStatus;
     principal: Principal;
@@ -123,7 +105,6 @@ export interface backendInterface {
     isCallerAdmin(): Promise<boolean>;
     isCallerApproved(): Promise<boolean>;
     listApprovals(): Promise<Array<UserApprovalInfo>>;
-    loginUser(email: string, password: string): Promise<LoginUserResult>;
     registerPlayer(playerName: string, inGameId: string, teamName: string, whatsappNumber: string): Promise<void>;
     registerUser(name: string, email: string, whatsapp: string, freefireUid: string, password: string): Promise<RegisterUserResult>;
     rejectDeposit(depositId: bigint): Promise<void>;

@@ -1,23 +1,32 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-27T02:49:59.844Z",
-  "summary": "The diff implements REQ-1 (UPI intent link with ₹20 minimum validation) and REQ-2 (screenshot upload flow after payment) in ManualDepositModal.tsx. REQ-3 (fixing Unauthorized error) is mentioned in the file summaries for useQueries.ts but the actual hook code is not visible in the diff — only the summary description mentions useSubmitDeposit. The backend main.mo is modified but its truncated content doesn't show clear auth fixes. Overall, REQ-1 and REQ-2 appear well-implemented; REQ-3 evidence is indirect.",
+  "generatedAt": "2026-02-27T14:00:30.505Z",
+  "summary": "Both REQ-1 (backend minimum deposit validation) and REQ-2 (frontend ManualDepositModal enforcement) appear to be implemented. The backend has a migration file setting minimumDepositAmount to 10.0 and the frontend component sets MIN_AMOUNT = 10 with appropriate validation. However, the error message in the frontend uses a trailing period ('Minimum deposit amount is ₹10.') while the AC specifies 'Minimum deposit amount is ₹10' (no period), and the backend main.mo is truncated so the actual rejection logic cannot be fully verified.",
   "missing_requirements": [
     {
-      "id": "REQ-3",
-      "requirement": "Fix the 'Unauthorized' error by ensuring deposit-related hooks in useQueries.ts use the authenticated actor (not anonymous).",
-      "reason": "The diff does not include the actual content of useQueries.ts — only a file summary description mentioning useSubmitDeposit exists. No code changes to useQueries.ts are shown in the diff, and the backend main.mo changes are truncated and do not demonstrate auth fixes. There is no direct evidence that the authenticated actor is being used instead of the anonymous one.",
+      "id": "REQ-2",
+      "requirement": "Submitting an amount below ₹10 shows a validation error: 'Minimum deposit amount is ₹10'.",
+      "reason": "The frontend code sets the error message as 'Minimum deposit amount is ₹${MIN_AMOUNT}.' with a trailing period, which does not exactly match the required message 'Minimum deposit amount is ₹10' (no trailing period) as specified in the acceptance criteria.",
       "evidence": [
-        "frontend/src/hooks/useQueries.ts",
+        "frontend/src/components/ManualDepositModal.tsx"
+      ]
+    }
+  ],
+  "hallucinated_features": [
+    {
+      "description": "A migration module (migration.mo) was added that introduces a persistent minimumDepositAmount state variable on the actor.",
+      "reason": "The build request only asked to update the minimum deposit validation threshold to 10 rupees. Adding a persistent stable variable via a migration module goes beyond the requirement of simply changing a validation constant, altering the actor's state schema in ways not requested.",
+      "evidence": [
+        "backend/migration.mo",
         "backend/main.mo"
       ]
     }
   ],
-  "hallucinated_features": [],
   "confidence": 0.72,
   "changed_files": [
     "backend/main.mo",
+    "backend/migration.mo",
     "frontend-file-summaries.txt",
     "frontend/src/components/ManualDepositModal.tsx",
     "project_state.json"

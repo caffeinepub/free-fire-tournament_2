@@ -1,43 +1,27 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-27T02:49:59.847Z",
+  "generatedAt": "2026-02-27T14:00:30.509Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 3,
-    "implemented": 3,
+    "total": 2,
+    "implemented": 1,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Update the ManualDepositModal component to replace the static UPI ID display with a UPI Intent Link button. When the user enters a valid amount (minimum ₹20) and clicks 'Proceed to Pay', construct the deep link: upi://pay?pa=8728872927@fam&pn=FreeFireTournament&am={amount}&cu=INR and trigger it via window.location.href or an anchor tag with href set to the deep link, so the device automatically presents installed UPI apps (GPay, PhonePe, Paytm) for the user to complete payment.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/components/ManualDepositModal.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/components/ManualDepositModal.tsx"
-        ]
+        "summary": "Update the minimum deposit amount validation in the backend from its current value to 10 rupees (₹10). Reject any deposit requests below this threshold with an appropriate error message.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       },
       {
         "id": "REQ-2",
-        "summary": "After the UPI deep link is triggered, transition the deposit modal/flow to a dedicated screenshot upload screen. This screen should prompt the user to upload a payment screenshot for manual verification, and allow submission of the transaction details (screenshot + transaction ID) to the backend. This replaces the previous mid-flow UPI ID copy step and makes screenshot upload the next explicit step after payment initiation.",
+        "summary": "Update the minimum deposit amount displayed and enforced in the ManualDepositModal frontend component to ₹10. The input field should show a minimum value of 10, and client-side validation should prevent submission of amounts below ₹10 with an error message stating the minimum is ₹10.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/components/ManualDepositModal.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/components/ManualDepositModal.tsx"
-        ]
-      },
-      {
-        "id": "REQ-3",
-        "summary": "Fix the 'Unauthorized' error that occurs on the deposit page for logged-in users. Audit the deposit-related backend query and mutation hooks in useQueries.ts to ensure they use the authenticated actor (not anonymous). Ensure that when a logged-in user initiates a deposit, the actor is called with the user's authenticated identity, eliminating the unauthorized rejection.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/hooks/useQueries.ts",
           "frontend/src/components/ManualDepositModal.tsx"
         ],
         "matchedFiles": [
@@ -48,6 +32,7 @@
   },
   "changedFiles": [
     "backend/main.mo",
+    "backend/migration.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",

@@ -90,13 +90,16 @@ export function useRegisterUser() {
   });
 }
 
-export function useLoginUser() {
+export function useVerifyLogin() {
   const { actor } = useActor();
 
   return useMutation({
-    mutationFn: async ({ email, password }: { email: string; password: string }) => {
+    mutationFn: async ({ email }: { email: string; password: string }) => {
       if (!actor) throw new Error('Actor not available');
-      return actor.loginUser(email, password);
+      // Verify the user exists by checking their wallet balance.
+      // Returns the balance (any number) if the user exists, throws if not found.
+      const balance = await actor.getWalletBalance(email);
+      return balance;
     },
   });
 }
@@ -107,10 +110,12 @@ export function useGetWalletBalance(uid: string) {
   return useQuery<number>({
     queryKey: ['walletBalance', uid],
     queryFn: async () => {
-      if (!actor) return 0;
+      if (!actor || !uid) return 0;
       return actor.getWalletBalance(uid);
     },
     enabled: !!actor && !isFetching && !!uid,
+    // Refetch when window regains focus so balance stays fresh
+    refetchOnWindowFocus: true,
   });
 }
 
@@ -164,6 +169,7 @@ export function useSubmitDeposit() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['pendingDeposits'] });
+      // Invalidate all walletBalance queries (prefix match covers ['walletBalance', uid])
       queryClient.invalidateQueries({ queryKey: ['walletBalance'] });
     },
   });
@@ -193,6 +199,7 @@ export function useApproveDeposit() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['pendingDeposits'] });
+      // Invalidate all walletBalance queries so the approved user's balance updates
       queryClient.invalidateQueries({ queryKey: ['walletBalance'] });
     },
   });

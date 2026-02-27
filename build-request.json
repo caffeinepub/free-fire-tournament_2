@@ -1,78 +1,51 @@
 {
   "kind": "build_request",
-  "title": "UPI Intent Link on Deposit Page with Screenshot Upload Flow",
-  "projectName": "FreeFire Tournament",
-  "priority": "high",
+  "title": "Change minimum deposit amount to 10 rupees",
+  "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Update the ManualDepositModal component to replace the static UPI ID display with a UPI Intent Link button. When the user enters a valid amount (minimum ₹20) and clicks 'Proceed to Pay', construct the deep link: upi://pay?pa=8728872927@fam&pn=FreeFireTournament&am={amount}&cu=INR and trigger it via window.location.href or an anchor tag with href set to the deep link, so the device automatically presents installed UPI apps (GPay, PhonePe, Paytm) for the user to complete payment.",
-      "target": "frontend",
+      "text": "Update the minimum deposit amount validation in the backend from its current value to 10 rupees (₹10). Reject any deposit requests below this threshold with an appropriate error message.",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-4"
+          "msg-7"
         ],
         "quotes": [
-          "implement a UPI Intent Link",
-          "Use this UPI deep link format: upi://pay?pa=8728872927@fam&pn=FreeFireTournament&am={amount}&cu=INR",
-          "the app should automatically open the list of UPI apps (GPay, PhonePe, Paytm) installed on their device"
+          "Change minimum deposit ammount to 10rs"
         ]
       },
       "acceptanceCriteria": [
-        "Clicking 'Proceed to Pay' with an amount ≥ ₹20 triggers the UPI deep link upi://pay?pa=8728872927@fam&pn=FreeFireTournament&am={amount}&cu=INR",
-        "The device displays a chooser of installed UPI apps (GPay, PhonePe, Paytm) when the deep link is triggered",
-        "Entering an amount below ₹20 shows a validation error and does not trigger the deep link",
-        "The UPI ID is no longer shown as a static text-only element — the intent link replaces that step"
+        "Deposit requests with an amount less than 10 are rejected by the backend with a clear error.",
+        "Deposit requests with an amount of exactly 10 or more are accepted by the backend."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "After the UPI deep link is triggered, transition the deposit modal/flow to a dedicated screenshot upload screen. This screen should prompt the user to upload a payment screenshot for manual verification, and allow submission of the transaction details (screenshot + transaction ID) to the backend. This replaces the previous mid-flow UPI ID copy step and makes screenshot upload the next explicit step after payment initiation.",
+      "text": "Update the minimum deposit amount displayed and enforced in the ManualDepositModal frontend component to ₹10. The input field should show a minimum value of 10, and client-side validation should prevent submission of amounts below ₹10 with an error message stating the minimum is ₹10.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-4"
+          "msg-7"
         ],
         "quotes": [
-          "After the user completes the payment in their external app, redirect them back to a screen where they can upload the screenshot for final verification"
+          "Change minimum deposit ammount to 10rs"
         ]
       },
       "acceptanceCriteria": [
-        "After the UPI deep link is triggered, the UI automatically advances to the screenshot upload step",
-        "The screenshot upload screen has a file input for the payment screenshot and a transaction ID field",
-        "The user can submit the screenshot and transaction ID for admin verification",
-        "The flow does not require the user to manually navigate back to the app — the upload screen is shown upon return"
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "text": "Fix the 'Unauthorized' error that occurs on the deposit page for logged-in users. Audit the deposit-related backend query and mutation hooks in useQueries.ts to ensure they use the authenticated actor (not anonymous). Ensure that when a logged-in user initiates a deposit, the actor is called with the user's authenticated identity, eliminating the unauthorized rejection.",
-      "target": "both",
-      "source": {
-        "messageIds": [
-          "msg-4"
-        ],
-        "quotes": [
-          "Ensure the 'Unauthorized' error is removed and the flow is seamless for logged-in users"
-        ]
-      },
-      "acceptanceCriteria": [
-        "A logged-in user can initiate a deposit without receiving an 'Unauthorized' error",
-        "Deposit submission (screenshot + transaction ID) reaches the backend successfully for authenticated users",
-        "No unauthorized errors appear in the deposit flow for users who are logged in via the app's auth system"
+        "The deposit amount input enforces a minimum value of 10.",
+        "Submitting an amount below ₹10 shows a validation error: 'Minimum deposit amount is ₹10'.",
+        "The modal UI clearly indicates that the minimum deposit is ₹10."
       ]
     }
   ],
   "constraints": [
-    "UPI deep link must use exactly: upi://pay?pa=8728872927@fam&pn=FreeFireTournament&am={amount}&cu=INR",
-    "Minimum deposit amount is ₹20 — enforce client-side validation before triggering the link",
-    "Do not edit files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui"
+    "Do not change any other deposit logic or UPI payment flow beyond the minimum amount threshold."
   ],
   "nonGoals": [
-    "Automated payment verification or webhook integration with UPI providers",
-    "QR code generation for UPI payments",
-    "Support for international currencies or non-UPI payment methods",
-    "Changes to tournament registration or lobby functionality"
+    "Changing the maximum deposit limit.",
+    "Modifying the deposit approval/admin flow.",
+    "Changing UPI deep link construction or screenshot upload logic."
   ],
   "imageRequirements": {
     "required": [],

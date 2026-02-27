@@ -1,37 +1,19 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "FreeFire Tournament app with UPI payment integration. Deposit page uses UPI intent links to open installed UPI apps (GPay, PhonePe, Paytm) with minimum ₹20 deposit, followed by screenshot upload for payment verification.",
+  "summary": "Project involves a payment/wallet app with deposit functionality, UPI payment integration, and admin panel features.",
   "architectural_notes": [
-    "Deposit flow: UPI deep link format upi://pay?pa=8728872927@fam&pn=FreeFireTournament&am={amount}&cu=INR, minimum deposit ₹20",
-    "After UPI payment, user is redirected to screenshot upload screen for manual verification"
+    "UPI intent link integration for payments with fallback 'Copy UPI ID' button",
+    "Wallet balance system with admin-controlled updates via payment screenshot approval"
   ],
-  "known_issues": [
-    "'Unauthorized' error occurring on deposit page for logged-in users"
-  ],
-  "isFixRequest": true,
+  "known_issues": [],
+  "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-update-the-manualdepositmodal-component-to-replace-the-static-upi-id-display-with-a-upi-intent-link-button-when-the-user-enters-a-valid-amount-minimum-20-and-clicks-proceed-to-pay-construct-the-deep-link-upi-pay-pa-8728872927-fam-pn-freefiretournament-am-amount-cu-inr-and-trigger-it-via-window-location-href-or-an-anchor-tag-with-href-set-to-the-deep-link-so-the-device-automatically-presents-installed-upi-apps-gpay-phonepe-paytm-for-the-user-to-complete-payment",
-      "title": "Update the ManualDepositModal component to replace the static UPI ID display with a UPI Intent Link button. When the user enters a valid amount (minimum ₹20) and clicks 'Proceed to Pay', construct the deep link: upi://pay?pa=8728872927@fam&pn=FreeFireTournament&am={amount}&cu=INR and trigger it via window.location.href or an anchor tag with href set to the deep link, so the device automatically presents installed UPI apps (GPay, PhonePe, Paytm) for the user to complete payment.",
-      "reqIds": [
-        "REQ-1"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-after-the-upi-deep-link-is-triggered-transition-the-deposit-modal-flow-to-a-dedicated-screenshot-upload-screen-this-screen-should-prompt-the-user-to-upload-a-payment-screenshot-for-manual-verification-and-allow-submission-of-the-transaction-details-screenshot-transaction-id-to-the-backend-this-replaces-the-previous-mid-flow-upi-id-copy-step-and-makes-screenshot-upload-the-next-explicit-step-after-payment-initiation",
-      "title": "After the UPI deep link is triggered, transition the deposit modal/flow to a dedicated screenshot upload screen. This screen should prompt the user to upload a payment screenshot for manual verification, and allow submission of the transaction details (screenshot + transaction ID) to the backend. This replaces the previous mid-flow UPI ID copy step and makes screenshot upload the next explicit step after payment initiation.",
+      "id": "feature-update-the-minimum-deposit-amount-displayed-and-enforced-in-the-manualdepositmodal-frontend-component-to-10-the-input-field-should-show-a-minimum-value-of-10-and-client-side-validation-should-prevent-submission-of-amounts-below-10-with-an-error-message-stating-the-minimum-is-10",
+      "title": "Update the minimum deposit amount displayed and enforced in the ManualDepositModal frontend component to ₹10. The input field should show a minimum value of 10, and client-side validation should prevent submission of amounts below ₹10 with an error message stating the minimum is ₹10.",
       "reqIds": [
         "REQ-2"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-fix-the-unauthorized-error-that-occurs-on-the-deposit-page-for-logged-in-users-audit-the-deposit-related-backend-query-and-mutation-hooks-in-usequeries-ts-to-ensure-they-use-the-authenticated-actor-not-anonymous-ensure-that-when-a-logged-in-user-initiates-a-deposit-the-actor-is-called-with-the-user-s-authenticated-identity-eliminating-the-unauthorized-rejection",
-      "title": "Fix the 'Unauthorized' error that occurs on the deposit page for logged-in users. Audit the deposit-related backend query and mutation hooks in useQueries.ts to ensure they use the authenticated actor (not anonymous). Ensure that when a logged-in user initiates a deposit, the actor is called with the user's authenticated identity, eliminating the unauthorized rejection.",
-      "reqIds": [
-        "REQ-3"
       ],
       "version": 1
     }
@@ -39,19 +21,21 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "UPI Intent Link on Deposit Page — open UPI apps via deep link upi://pay?pa=8728872927@fam&pn=FreeFireTournament&am={amount}&cu=INR with min ₹20, then redirect to screenshot upload screen",
+      "summary": "Change minimum deposit amount to 10 rupees",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-2",
-      "summary": "Fix 'Unauthorized' error on deposit flow for logged-in users",
-      "reqIds": [],
+      "summary": "Update the minimum deposit amount validation in the backend from its current value to 10 rupees (₹10). Reject any deposit requests below this threshold with an appropriate error message.",
+      "reqIds": [
+        "REQ-1"
+      ],
       "status": "pending"
     }
   ],
   "gameProjectType": "none",
-  "projectName": "FreeFireTournament",
+  "projectName": "Change minimum deposit amount to 10 rupees",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }
