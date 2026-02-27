@@ -102,6 +102,7 @@ export interface User {
     name: string;
     whatsapp: string;
     email: string;
+    walletBalance: number;
 }
 export interface Tournament {
     id: bigint;
@@ -165,17 +166,20 @@ export enum UserRole {
 export interface backendInterface {
     _initializeAccessControlWithSecret(userSecret: string): Promise<void>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
+    deposit(uid: string, amount: number): Promise<void>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
     getLeaderboard(): Promise<Array<LeaderboardEntry>>;
     getRooms(): Promise<Array<Room>>;
     getTournaments(): Promise<Array<Tournament>>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
+    getWalletBalance(uid: string): Promise<number>;
     isCallerAdmin(): Promise<boolean>;
     loginUser(email: string, password: string): Promise<LoginUserResult>;
     registerPlayer(playerName: string, inGameId: string, teamName: string, whatsappNumber: string): Promise<void>;
     registerUser(name: string, email: string, whatsapp: string, freefireUid: string, password: string): Promise<RegisterUserResult>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
+    withdraw(uid: string, amount: number): Promise<void>;
 }
 import type { EntryFeeType as _EntryFeeType, LoginUserResult as _LoginUserResult, RegisterUserResult as _RegisterUserResult, Room as _Room, RoomJoinStatus as _RoomJoinStatus, RoomType as _RoomType, Tournament as _Tournament, User as _User, UserProfile as _UserProfile, UserRole as _UserRole } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
@@ -205,6 +209,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.assignCallerUserRole(arg0, to_candid_UserRole_n1(this._uploadFile, this._downloadFile, arg1));
+            return result;
+        }
+    }
+    async deposit(arg0: string, arg1: number): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.deposit(arg0, arg1);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.deposit(arg0, arg1);
             return result;
         }
     }
@@ -292,6 +310,20 @@ export class Backend implements backendInterface {
             return from_candid_opt_n3(this._uploadFile, this._downloadFile, result);
         }
     }
+    async getWalletBalance(arg0: string): Promise<number> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getWalletBalance(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getWalletBalance(arg0);
+            return result;
+        }
+    }
     async isCallerAdmin(): Promise<boolean> {
         if (this.processError) {
             try {
@@ -359,6 +391,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.saveCallerUserProfile(arg0);
+            return result;
+        }
+    }
+    async withdraw(arg0: string, arg1: number): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.withdraw(arg0, arg1);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.withdraw(arg0, arg1);
             return result;
         }
     }

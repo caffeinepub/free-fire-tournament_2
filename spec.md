@@ -1,12 +1,15 @@
 # Specification
 
 ## Summary
-**Goal:** Make the Live Lobby (`/lobby`) the permanent home screen for all authenticated users, preventing any navigation back to auth or landing pages.
+**Goal:** Add a user profile/wallet side menu to the Lobby, wire "Join Now" buttons to the Registration page, and back-navigation to always return to the Lobby.
 
 **Planned changes:**
-- Update router configuration in `App.tsx` so authenticated users visiting `/`, `/login`, or `/signup` are automatically redirected to `/lobby`
-- Update `LobbyPage.tsx` history replace logic to also clear `/home` from the browser history stack, preventing back-navigation to any auth or landing screen
-- Update the "Back to Home" button in `RegisterPage.tsx` to navigate to `/lobby` instead of `/` or any auth screen
-- Update `Navbar.tsx` so the "Home" link routes authenticated users to `/lobby` instead of `/` or `/home`
+- Add a profile icon button to the top-right of the LobbyPage header (dark red/black/gold theme)
+- Create a `/profile` route and ProfilePage showing: Account Details (Player Name + UID), Wallet balance (₹0.00), Deposit and Withdraw buttons, and a Terms & Conditions link to `/rules`
+- Register `/profile` in the TanStack Router with the same auth guard as other protected routes
+- Wire "Join Now" button on TournamentCard and RoomCard components to navigate to `/register`
+- Ensure Back buttons on both ProfilePage and RegisterPage navigate to `/lobby`
+- Add `walletBalance: Float` field (defaulting to 0.0) to the backend User type in `main.mo`
+- Add backend query/update stubs: `getWalletBalance`, `deposit`, and `withdraw` (with no-negative-balance validation)
 
-**User-visible outcome:** Once logged in, users always land on and remain within the Live Lobby. The browser back button, manual URL navigation, and all in-app links never send an authenticated user back to the welcome, login, or signup screens.
+**User-visible outcome:** Players on the Lobby can click their profile icon to view account details and wallet balance, use Deposit/Withdraw stubs, and clicking "Join Now" on any tournament card correctly opens the Registration page. Back navigation always returns to the Live Lobby.

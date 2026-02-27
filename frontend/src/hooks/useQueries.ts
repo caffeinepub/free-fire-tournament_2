@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useActor } from './useActor';
-import type { Tournament, LeaderboardEntry, Room, RegisterUserResult, LoginUserResult } from '../backend';
+import type { Tournament, LeaderboardEntry, Room } from '../backend';
 
 export function useGetTournaments() {
   const { actor, isFetching } = useActor();
@@ -57,7 +57,7 @@ export function useRegisterPlayer() {
       teamName: string;
       whatsappNumber: string;
     }) => {
-      if (!actor) throw new Error('Actor not initialized');
+      if (!actor) throw new Error('Actor not available');
       return actor.registerPlayer(playerName, inGameId, teamName, whatsappNumber);
     },
     onSuccess: () => {
@@ -69,13 +69,21 @@ export function useRegisterPlayer() {
 export function useRegisterUser() {
   const { actor } = useActor();
 
-  return useMutation<
-    RegisterUserResult,
-    Error,
-    { name: string; email: string; whatsapp: string; freefireUid: string; password: string }
-  >({
-    mutationFn: async ({ name, email, whatsapp, freefireUid, password }) => {
-      if (!actor) throw new Error('Actor not initialized');
+  return useMutation({
+    mutationFn: async ({
+      name,
+      email,
+      whatsapp,
+      freefireUid,
+      password,
+    }: {
+      name: string;
+      email: string;
+      whatsapp: string;
+      freefireUid: string;
+      password: string;
+    }) => {
+      if (!actor) throw new Error('Actor not available');
       return actor.registerUser(name, email, whatsapp, freefireUid, password);
     },
   });
@@ -84,10 +92,53 @@ export function useRegisterUser() {
 export function useLoginUser() {
   const { actor } = useActor();
 
-  return useMutation<LoginUserResult, Error, { email: string; password: string }>({
-    mutationFn: async ({ email, password }) => {
-      if (!actor) throw new Error('Actor not initialized');
+  return useMutation({
+    mutationFn: async ({ email, password }: { email: string; password: string }) => {
+      if (!actor) throw new Error('Actor not available');
       return actor.loginUser(email, password);
+    },
+  });
+}
+
+export function useGetWalletBalance(uid: string) {
+  const { actor, isFetching } = useActor();
+
+  return useQuery<number>({
+    queryKey: ['walletBalance', uid],
+    queryFn: async () => {
+      if (!actor) return 0;
+      return actor.getWalletBalance(uid);
+    },
+    enabled: !!actor && !isFetching && !!uid,
+  });
+}
+
+export function useDeposit() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ uid, amount }: { uid: string; amount: number }) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.deposit(uid, amount);
+    },
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['walletBalance', variables.uid] });
+    },
+  });
+}
+
+export function useWithdraw() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ uid, amount }: { uid: string; amount: number }) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.withdraw(uid, amount);
+    },
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['walletBalance', variables.uid] });
     },
   });
 }

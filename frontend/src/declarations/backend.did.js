@@ -66,6 +66,7 @@ export const User = IDL.Record({
   'name' : IDL.Text,
   'whatsapp' : IDL.Text,
   'email' : IDL.Text,
+  'walletBalance' : IDL.Float64,
 });
 export const LoginUserResult = IDL.Variant({
   'userNotFound' : IDL.Null,
@@ -80,6 +81,7 @@ export const RegisterUserResult = IDL.Variant({
 export const idlService = IDL.Service({
   '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+  'deposit' : IDL.Func([IDL.Text, IDL.Float64], [], []),
   'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
   'getLeaderboard' : IDL.Func([], [IDL.Vec(LeaderboardEntry)], ['query']),
@@ -90,6 +92,7 @@ export const idlService = IDL.Service({
       [IDL.Opt(UserProfile)],
       ['query'],
     ),
+  'getWalletBalance' : IDL.Func([IDL.Text], [IDL.Float64], ['query']),
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
   'loginUser' : IDL.Func([IDL.Text, IDL.Text], [LoginUserResult], []),
   'registerPlayer' : IDL.Func([IDL.Text, IDL.Text, IDL.Text, IDL.Text], [], []),
@@ -99,6 +102,7 @@ export const idlService = IDL.Service({
       [],
     ),
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+  'withdraw' : IDL.Func([IDL.Text, IDL.Float64], [], []),
 });
 
 export const idlInitArgs = [];
@@ -159,6 +163,7 @@ export const idlFactory = ({ IDL }) => {
     'name' : IDL.Text,
     'whatsapp' : IDL.Text,
     'email' : IDL.Text,
+    'walletBalance' : IDL.Float64,
   });
   const LoginUserResult = IDL.Variant({
     'userNotFound' : IDL.Null,
@@ -173,6 +178,7 @@ export const idlFactory = ({ IDL }) => {
   return IDL.Service({
     '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+    'deposit' : IDL.Func([IDL.Text, IDL.Float64], [], []),
     'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
     'getLeaderboard' : IDL.Func([], [IDL.Vec(LeaderboardEntry)], ['query']),
@@ -183,6 +189,7 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Opt(UserProfile)],
         ['query'],
       ),
+    'getWalletBalance' : IDL.Func([IDL.Text], [IDL.Float64], ['query']),
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
     'loginUser' : IDL.Func([IDL.Text, IDL.Text], [LoginUserResult], []),
     'registerPlayer' : IDL.Func(
@@ -196,6 +203,7 @@ export const idlFactory = ({ IDL }) => {
         [],
       ),
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+    'withdraw' : IDL.Func([IDL.Text, IDL.Float64], [], []),
   });
 };
 

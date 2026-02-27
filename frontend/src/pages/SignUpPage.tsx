@@ -1,347 +1,202 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from '@tanstack/react-router';
-import { Flame, Eye, EyeOff, UserPlus, AlertCircle, Loader2, CheckCircle2 } from 'lucide-react';
+import { Eye, EyeOff, Gamepad2, ArrowLeft, Loader2 } from 'lucide-react';
 import { useRegisterUser } from '../hooks/useQueries';
 import { useAuth } from '../hooks/useAuth';
 import { RegisterUserResult } from '../backend';
-
-interface FormErrors {
-  name?: string;
-  email?: string;
-  whatsapp?: string;
-  freefireUid?: string;
-  password?: string;
-  general?: string;
-}
 
 export default function SignUpPage() {
   const router = useRouter();
   const { setAuth } = useAuth();
   const registerMutation = useRegisterUser();
 
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [whatsapp, setWhatsapp] = useState('');
-  const [freefireUid, setFreefireUid] = useState('');
-  const [password, setPassword] = useState('');
+  const [form, setForm] = useState({
+    name: '',
+    email: '',
+    whatsapp: '',
+    freefireUid: '',
+    password: '',
+    confirmPassword: '',
+  });
   const [showPassword, setShowPassword] = useState(false);
-  const [errors, setErrors] = useState<FormErrors>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const validate = (): boolean => {
-    const newErrors: FormErrors = {};
-    if (!name.trim()) newErrors.name = 'Full name is required';
-    if (!email.trim()) {
-      newErrors.email = 'Email is required';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-      newErrors.email = 'Enter a valid email address';
-    }
-    if (!whatsapp.trim()) {
-      newErrors.whatsapp = 'WhatsApp number is required';
-    } else if (!/^\+?[\d\s\-()]{7,15}$/.test(whatsapp.trim())) {
+  const handleChange = (field: string, value: string) => {
+    setForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const validate = () => {
+    const newErrors: Record<string, string> = {};
+    if (!form.name.trim()) newErrors.name = 'Full name is required';
+    if (!form.email.trim()) newErrors.email = 'Email is required';
+    else if (!/\S+@\S+\.\S+/.test(form.email)) newErrors.email = 'Enter a valid email';
+    if (!form.whatsapp.trim()) newErrors.whatsapp = 'WhatsApp number is required';
+    else if (!/^\d{10,15}$/.test(form.whatsapp.replace(/\s/g, '')))
       newErrors.whatsapp = 'Enter a valid phone number';
-    }
-    if (!freefireUid.trim()) newErrors.freefireUid = 'Free Fire UID is required';
-    if (!password) {
-      newErrors.password = 'Password is required';
-    } else if (password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
-    }
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    if (!form.freefireUid.trim()) newErrors.freefireUid = 'Free Fire UID is required';
+    if (!form.password) newErrors.password = 'Password is required';
+    else if (form.password.length < 6) newErrors.password = 'Password must be at least 6 characters';
+    if (form.password !== form.confirmPassword) newErrors.confirmPassword = 'Passwords do not match';
+    return newErrors;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validate()) return;
+    const validationErrors = validate();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+    setErrors({});
 
     try {
       const result = await registerMutation.mutateAsync({
-        name: name.trim(),
-        email: email.trim(),
-        whatsapp: whatsapp.trim(),
-        freefireUid: freefireUid.trim(),
-        password,
+        name: form.name.trim(),
+        email: form.email.trim(),
+        whatsapp: form.whatsapp.trim(),
+        freefireUid: form.freefireUid.trim(),
+        password: form.password,
       });
 
       if (result === RegisterUserResult.success) {
-        setAuth(name.trim(), email.trim());
+        setAuth(form.name.trim(), form.email.trim(), form.freefireUid.trim());
         router.navigate({ to: '/lobby' });
       } else if (result === RegisterUserResult.emailExists) {
-        setErrors({ general: 'An account with this email already exists. Please login instead.' });
+        setErrors({ email: 'An account with this email already exists.' });
       }
     } catch {
       setErrors({ general: 'Something went wrong. Please try again.' });
     }
   };
 
-  const inputStyle = (hasError: boolean) => ({
-    background: 'rgba(255,255,255,0.04)',
-    border: `1px solid ${hasError ? '#e53e3e' : 'rgba(255,255,255,0.12)'}`,
-    color: '#ffffff',
-    outline: 'none',
-    transition: 'border-color 0.2s',
-  });
-
-  const fields = [
-    {
-      id: 'name',
-      label: 'Full Name',
-      type: 'text',
-      value: name,
-      onChange: (v: string) => { setName(v); if (errors.name) setErrors((p) => ({ ...p, name: undefined })); },
-      placeholder: 'Your in-game name',
-      error: errors.name,
-      autoComplete: 'name',
-    },
-    {
-      id: 'email',
-      label: 'Email Address',
-      type: 'email',
-      value: email,
-      onChange: (v: string) => { setEmail(v); if (errors.email) setErrors((p) => ({ ...p, email: undefined })); },
-      placeholder: 'your@email.com',
-      error: errors.email,
-      autoComplete: 'email',
-    },
-    {
-      id: 'whatsapp',
-      label: 'WhatsApp Number',
-      type: 'tel',
-      value: whatsapp,
-      onChange: (v: string) => { setWhatsapp(v); if (errors.whatsapp) setErrors((p) => ({ ...p, whatsapp: undefined })); },
-      placeholder: '+91 98765 43210',
-      error: errors.whatsapp,
-      autoComplete: 'tel',
-    },
-    {
-      id: 'freefireUid',
-      label: 'Free Fire UID',
-      type: 'text',
-      value: freefireUid,
-      onChange: (v: string) => { setFreefireUid(v); if (errors.freefireUid) setErrors((p) => ({ ...p, freefireUid: undefined })); },
-      placeholder: 'e.g. 123456789',
-      error: errors.freefireUid,
-      autoComplete: 'off',
-    },
-  ];
-
   return (
-    <div
-      className="min-h-screen relative overflow-hidden flex flex-col"
-      style={{ background: '#0a0a0a' }}
-    >
+    <div className="min-h-screen bg-game-black flex flex-col items-center justify-center px-4 py-12 relative overflow-hidden">
       {/* Background grid */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          backgroundImage:
-            'linear-gradient(rgba(229,62,62,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(229,62,62,0.03) 1px, transparent 1px)',
-          backgroundSize: '40px 40px',
-          zIndex: 0,
-        }}
-      />
+      <div className="absolute inset-0 grid-pattern opacity-20 pointer-events-none" />
 
-      {/* Character image — faded background */}
-      <div
-        className="absolute inset-y-0 right-0 pointer-events-none hidden lg:block"
-        style={{ width: '40%', zIndex: 1 }}
+      {/* Back button */}
+      <button
+        onClick={() => router.navigate({ to: '/' })}
+        className="absolute top-6 left-6 flex items-center gap-2 text-silver hover:text-gold transition-colors font-rajdhani text-sm"
       >
-        <img
-          src="/assets/generated/free-fire-character.dim_800x1200.png"
-          alt=""
-          className="w-full h-full object-cover object-top"
-          style={{ opacity: 0.15 }}
-        />
-        <div
-          className="absolute inset-0"
-          style={{
-            background: 'linear-gradient(to right, #0a0a0a 0%, rgba(10,10,10,0.8) 50%, transparent 100%)',
-          }}
-        />
-      </div>
+        <ArrowLeft size={18} />
+        Back
+      </button>
 
-      <div className="relative z-10 flex flex-col min-h-screen">
-        {/* Header */}
-        <header className="flex items-center justify-between px-6 sm:px-10 py-5">
-          <button
-            onClick={() => router.navigate({ to: '/' })}
-            className="flex items-center gap-2 transition-opacity hover:opacity-80"
-          >
-            <Flame
-              className="w-5 h-5"
-              style={{ color: '#e53e3e', filter: 'drop-shadow(0 0 6px rgba(229,62,62,0.8))' }}
-            />
-            <span
-              className="font-orbitron font-black text-sm tracking-widest uppercase"
-              style={{ color: '#e53e3e' }}
-            >
-              FREE FIRE
-            </span>
-          </button>
-        </header>
+      <div className="w-full max-w-md relative z-10">
+        {/* Logo */}
+        <div className="flex items-center justify-center gap-3 mb-8">
+          <Gamepad2 className="text-game-red" size={36} />
+          <span className="font-orbitron text-2xl font-black text-white tracking-widest">
+            FF<span className="text-game-red">ARENA</span>
+          </span>
+        </div>
 
-        {/* Form area */}
-        <main className="flex-1 flex items-center justify-center px-4 py-8">
-          <div className="w-full max-w-md">
-            {/* Card */}
-            <div
-              className="p-6 sm:p-8"
-              style={{
-                background: 'rgba(17,17,17,0.95)',
-                border: '1px solid rgba(229,62,62,0.2)',
-                borderTop: '3px solid #e53e3e',
-                boxShadow: '0 0 40px rgba(0,0,0,0.6), 0 0 20px rgba(229,62,62,0.05)',
-              }}
-            >
-              {/* Title */}
-              <div className="mb-7">
-                <div className="flex items-center gap-2 mb-2">
-                  <UserPlus className="w-5 h-5" style={{ color: '#e53e3e' }} />
-                  <h1
-                    className="font-orbitron font-black text-xl sm:text-2xl tracking-widest uppercase"
-                    style={{ color: '#ffffff' }}
-                  >
-                    SIGN UP
-                  </h1>
-                </div>
-                <p className="font-rajdhani text-sm" style={{ color: 'rgba(255,255,255,0.4)' }}>
-                  Create your account and join the battle.
-                </p>
-                <div
-                  className="w-16 h-0.5 mt-3"
-                  style={{ background: 'linear-gradient(90deg, #e53e3e, transparent)' }}
-                />
-              </div>
+        <div className="bg-gray-900/80 border border-game-red/30 rounded-sm p-8 shadow-red-glow">
+          <h1 className="font-orbitron text-xl font-bold text-white mb-2 text-center">
+            CREATE ACCOUNT
+          </h1>
+          <p className="text-silver text-sm text-center font-rajdhani mb-6">
+            Join the arena and compete for glory
+          </p>
 
-              {/* General error */}
-              {errors.general && (
-                <div
-                  className="flex items-center gap-2 px-4 py-3 mb-5"
-                  style={{
-                    background: 'rgba(229,62,62,0.08)',
-                    border: '1px solid rgba(229,62,62,0.3)',
-                  }}
-                >
-                  <AlertCircle className="w-4 h-4 flex-shrink-0" style={{ color: '#e53e3e' }} />
-                  <p className="font-rajdhani text-sm" style={{ color: '#e53e3e' }}>
-                    {errors.general}
-                  </p>
-                </div>
-              )}
-
-              <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                {/* Regular fields */}
-                {fields.map((field) => (
-                  <div key={field.id} className="flex flex-col gap-1.5">
-                    <label
-                      className="font-rajdhani font-bold text-xs tracking-widest uppercase"
-                      style={{ color: 'rgba(255,255,255,0.5)' }}
-                    >
-                      {field.label}
-                    </label>
-                    <input
-                      type={field.type}
-                      value={field.value}
-                      onChange={(e) => field.onChange(e.target.value)}
-                      placeholder={field.placeholder}
-                      className="w-full px-4 py-3 font-rajdhani text-sm"
-                      style={inputStyle(!!field.error)}
-                      autoComplete={field.autoComplete}
-                    />
-                    {field.error && (
-                      <p className="font-rajdhani text-xs" style={{ color: '#e53e3e' }}>
-                        {field.error}
-                      </p>
-                    )}
-                  </div>
-                ))}
-
-                {/* Password field */}
-                <div className="flex flex-col gap-1.5">
-                  <label
-                    className="font-rajdhani font-bold text-xs tracking-widest uppercase"
-                    style={{ color: 'rgba(255,255,255,0.5)' }}
-                  >
-                    Password
-                  </label>
-                  <div className="relative">
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      value={password}
-                      onChange={(e) => {
-                        setPassword(e.target.value);
-                        if (errors.password) setErrors((p) => ({ ...p, password: undefined }));
-                      }}
-                      placeholder="Min. 6 characters"
-                      className="w-full px-4 py-3 pr-12 font-rajdhani text-sm"
-                      style={inputStyle(!!errors.password)}
-                      autoComplete="new-password"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword((v) => !v)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 transition-opacity hover:opacity-70"
-                      style={{ color: 'rgba(255,255,255,0.4)' }}
-                    >
-                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                  </div>
-                  {errors.password && (
-                    <p className="font-rajdhani text-xs" style={{ color: '#e53e3e' }}>
-                      {errors.password}
-                    </p>
-                  )}
-                </div>
-
-                {/* Submit */}
-                <button
-                  type="submit"
-                  disabled={registerMutation.isPending}
-                  className="w-full flex items-center justify-center gap-2 px-6 py-4 font-orbitron font-bold text-sm tracking-widest uppercase transition-all duration-200 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed mt-2"
-                  style={{
-                    background: registerMutation.isPending
-                      ? 'rgba(229,62,62,0.5)'
-                      : 'linear-gradient(135deg, #e53e3e 0%, #c0392b 100%)',
-                    color: '#ffffff',
-                    border: '1px solid rgba(229,62,62,0.6)',
-                    boxShadow: registerMutation.isPending ? 'none' : '0 0 20px rgba(229,62,62,0.3)',
-                  }}
-                >
-                  {registerMutation.isPending ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      CREATING ACCOUNT...
-                    </>
-                  ) : registerMutation.isSuccess ? (
-                    <>
-                      <CheckCircle2 className="w-4 h-4" />
-                      ACCOUNT CREATED!
-                    </>
-                  ) : (
-                    <>
-                      <UserPlus className="w-4 h-4" />
-                      CREATE ACCOUNT
-                    </>
-                  )}
-                </button>
-              </form>
-
-              {/* Login link */}
-              <div className="mt-6 pt-5" style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}>
-                <p className="font-rajdhani text-sm text-center" style={{ color: 'rgba(255,255,255,0.4)' }}>
-                  Already have an account?{' '}
-                  <button
-                    onClick={() => router.navigate({ to: '/login' })}
-                    className="font-bold transition-colors hover:underline"
-                    style={{ color: '#e53e3e' }}
-                  >
-                    Login here
-                  </button>
-                </p>
-              </div>
+          {errors.general && (
+            <div className="bg-game-red/20 border border-game-red/50 rounded-sm px-4 py-3 mb-4 text-game-red text-sm font-rajdhani">
+              {errors.general}
             </div>
-          </div>
-        </main>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {[
+              { field: 'name', label: 'FULL NAME', type: 'text', placeholder: 'Your full name' },
+              { field: 'email', label: 'EMAIL', type: 'email', placeholder: 'your@email.com' },
+              { field: 'whatsapp', label: 'WHATSAPP NUMBER', type: 'tel', placeholder: '10-digit number' },
+              { field: 'freefireUid', label: 'FREE FIRE UID', type: 'text', placeholder: 'Your in-game UID' },
+            ].map(({ field, label, type, placeholder }) => (
+              <div key={field}>
+                <label className="block text-silver text-xs font-orbitron mb-1 tracking-wider">
+                  {label}
+                </label>
+                <input
+                  type={type}
+                  value={form[field as keyof typeof form]}
+                  onChange={(e) => handleChange(field, e.target.value)}
+                  placeholder={placeholder}
+                  className="w-full bg-black/60 border border-gray-700 focus:border-game-red rounded-sm px-4 py-3 text-white font-rajdhani text-sm outline-none transition-colors placeholder:text-gray-600"
+                />
+                {errors[field] && (
+                  <p className="text-game-red text-xs mt-1 font-rajdhani">{errors[field]}</p>
+                )}
+              </div>
+            ))}
+
+            <div>
+              <label className="block text-silver text-xs font-orbitron mb-1 tracking-wider">
+                PASSWORD
+              </label>
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={form.password}
+                  onChange={(e) => handleChange('password', e.target.value)}
+                  placeholder="Min. 6 characters"
+                  className="w-full bg-black/60 border border-gray-700 focus:border-game-red rounded-sm px-4 py-3 pr-12 text-white font-rajdhani text-sm outline-none transition-colors placeholder:text-gray-600"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-silver transition-colors"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+              {errors.password && (
+                <p className="text-game-red text-xs mt-1 font-rajdhani">{errors.password}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-silver text-xs font-orbitron mb-1 tracking-wider">
+                CONFIRM PASSWORD
+              </label>
+              <input
+                type="password"
+                value={form.confirmPassword}
+                onChange={(e) => handleChange('confirmPassword', e.target.value)}
+                placeholder="Re-enter password"
+                className="w-full bg-black/60 border border-gray-700 focus:border-game-red rounded-sm px-4 py-3 text-white font-rajdhani text-sm outline-none transition-colors placeholder:text-gray-600"
+              />
+              {errors.confirmPassword && (
+                <p className="text-game-red text-xs mt-1 font-rajdhani">{errors.confirmPassword}</p>
+              )}
+            </div>
+
+            <button
+              type="submit"
+              disabled={registerMutation.isPending}
+              className="w-full bg-game-red hover:bg-red-700 disabled:opacity-60 text-white font-orbitron font-bold py-3 rounded-sm transition-colors flex items-center justify-center gap-2 tracking-wider text-sm mt-2"
+            >
+              {registerMutation.isPending ? (
+                <>
+                  <Loader2 size={18} className="animate-spin" />
+                  CREATING ACCOUNT...
+                </>
+              ) : (
+                'CREATE ACCOUNT'
+              )}
+            </button>
+          </form>
+
+          <p className="text-center text-silver text-sm font-rajdhani mt-6">
+            Already have an account?{' '}
+            <button
+              onClick={() => router.navigate({ to: '/login' })}
+              className="text-gold hover:text-yellow-300 transition-colors font-semibold"
+            >
+              Login
+            </button>
+          </p>
+        </div>
       </div>
     </div>
   );

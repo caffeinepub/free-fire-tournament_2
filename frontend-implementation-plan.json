@@ -1,71 +1,103 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Make Live Lobby the permanent home for authenticated users",
+  "title": "Lobby Profile & Wallet Menu + Join Now Navigation",
   "requirements": [
     {
-      "id": "REQ-41",
-      "summary": "Update App.tsx router configuration so that '/lobby' is the default destination for authenticated users, with automatic redirects from '/', '/login', and '/signup' to '/lobby' when logged in",
+      "id": "REQ-1",
+      "summary": "Wire TournamentCard and RoomCard 'Join Now' buttons to navigate to /register",
       "acceptanceCriteria": [
-        "An authenticated user who manually navigates to '/' is immediately redirected to '/lobby'",
-        "An authenticated user who manually navigates to '/login' is immediately redirected to '/lobby'",
-        "An authenticated user who manually navigates to '/signup' is immediately redirected to '/lobby'",
-        "The WelcomePage, LoginPage, and SignUpPage are never rendered for authenticated users",
-        "Unauthenticated users are still correctly redirected from '/lobby' to '/' (WelcomePage)"
+        "Clicking 'Join Now' on any TournamentCard navigates to /register",
+        "Clicking the join button on any RoomCard navigates to /register",
+        "The Registration/Payment page loads correctly after clicking Join Now"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/App.tsx",
+          "path": "frontend/src/components/TournamentCard.tsx",
           "operation": "modify",
-          "description": "Add redirect logic to the routes for '/', '/login', and '/signup' so that authenticated users are automatically redirected to '/lobby'. Read the authentication state from the useInternetIdentity hook (identity field). When rendering WelcomePage, LoginPage, or SignUpPage, check if identity exists and redirect to '/lobby' using React Router's Navigate component or useNavigate hook. Ensure the existing auth guard on '/lobby' (redirecting unauthenticated users to '/') continues to work correctly."
+          "description": "Update the register button onClick handler to use router.navigate('/register') to ensure consistent navigation to the registration page when the Join Now button is clicked."
+        },
+        {
+          "path": "frontend/src/components/RoomCard.tsx",
+          "operation": "modify",
+          "description": "Verify the existing navigation to '/register' on the join button click is working correctly. Ensure the router.navigate call is present and properly wired."
         }
       ]
     },
     {
-      "id": "REQ-42",
-      "summary": "Update the 'Back to Home' button in RegisterPage.tsx to navigate to '/lobby' instead of '/' or any auth screen",
+      "id": "REQ-2",
+      "summary": "Add a User Profile icon button to the top-right corner of LobbyPage header",
       "acceptanceCriteria": [
-        "Clicking 'Back to Home' on RegisterPage navigates the user to '/lobby'",
-        "The button does not navigate to '/', '/login', '/signup', or '/home'",
-        "Navigation uses React Router (no full page reload)"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/pages/RegisterPage.tsx",
-          "operation": "modify",
-          "description": "Update the back navigation control in the sticky header to navigate to '/lobby' instead of '/' or any other route. Use React Router's Link component or navigate function to route to '/lobby'. Ensure the navigation label remains appropriate (e.g., 'Back to Lobby' or 'Back to Home')."
-        }
-      ]
-    },
-    {
-      "id": "REQ-43",
-      "summary": "Update LobbyPage.tsx history replacement logic to prevent back-navigation to '/', '/login', '/signup', or '/home'",
-      "acceptanceCriteria": [
-        "Pressing the browser back button while on LobbyPage does not navigate to WelcomePage, LoginPage, or SignUpPage",
-        "Pressing the browser back button while on LobbyPage does not navigate to '/home' or '/'",
-        "The history replace strategy on LobbyPage mount prevents any back-navigation to auth screens"
+        "A profile icon is visible at the top-right of the LobbyPage",
+        "The icon is styled with the existing dark red/black/gold theme",
+        "The icon is tappable and responds to click events"
       ],
       "file_operations": [
         {
           "path": "frontend/src/pages/LobbyPage.tsx",
           "operation": "modify",
-          "description": "Enhance the existing useEffect that replaces browser history on mount to cover all auth and landing page routes ('/', '/login', '/signup', '/home'). Use navigate('/', { replace: true }) or a similar strategy to clear the history stack so that pressing the browser back button from the lobby never lands on auth or landing pages. Consider checking window.history state or implementing a more robust history clearing mechanism if needed."
+          "description": "Add a header section at the top of the page containing a user profile icon button positioned at the top-right. Use a recognizable user/avatar icon (e.g., from lucide-react icons) styled with the dark red/black/gold gaming theme. Wire the button's onClick to navigate to '/profile'."
         }
       ]
     },
     {
-      "id": "REQ-44",
-      "summary": "Update Navbar.tsx so that the 'Home' navigation link redirects authenticated users to '/lobby' instead of '/' or '/home'",
+      "id": "REQ-3",
+      "summary": "Create ProfilePage displaying account details, wallet balance, deposit/withdraw buttons, and terms link",
       "acceptanceCriteria": [
-        "Clicking the 'Home' Navbar link while authenticated navigates to '/lobby'",
-        "No Navbar link routes an authenticated user to '/', '/login', or '/signup'",
-        "Other Navbar links (Tournaments, Rules, Leaderboard, Contact) continue to function correctly for authenticated users"
+        "Profile menu/page opens when profile icon is clicked",
+        "Account Details section shows the player's name and UID from auth/localStorage state",
+        "Wallet section shows balance formatted as ₹0.00",
+        "Deposit button is visible and styled",
+        "Withdraw button is visible and styled",
+        "Terms & Conditions link navigates to the rules/tournament rules page"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/Navbar.tsx",
+          "path": "frontend/src/pages/ProfilePage.tsx",
+          "operation": "create",
+          "description": "Create a new ProfilePage component that displays: (1) A header with a back button that navigates to '/lobby', (2) Account Details section showing the logged-in user's name and Free Fire UID retrieved from useAuth or localStorage, (3) Wallet section displaying the current balance formatted as ₹0.00 fetched via a query hook calling getWalletBalance(uid), (4) Two action buttons labeled 'Deposit' and 'Withdraw' styled with the dark red/black/gold gaming theme, (5) A 'Terms & Conditions' link that navigates to '/rules'. Style the page consistently with the existing gaming theme using Tailwind classes and the custom color palette."
+        },
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Update the 'Home' navigation link (and any other links pointing to '/home' or '/') to conditionally route authenticated users to '/lobby'. Read the authentication state from the useInternetIdentity hook (identity field). If the user is authenticated, the home link should navigate to '/lobby'; otherwise, it should navigate to '/' or '/home' as before. Ensure the link remains highlighted correctly when the user is on the lobby page. Verify that other navigation links (Tournaments, Rules, Leaderboard, Contact) are not affected by this change."
+          "description": "Add a new useWalletBalance query hook that calls actor.getWalletBalance(uid) to fetch the current wallet balance for the authenticated user. Include proper loading, error, and enabled states. Also add mutation hooks for deposit and withdraw operations that call actor.deposit(uid, amount) and actor.withdraw(uid, amount), with optimistic updates and query invalidation on success."
+        }
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "summary": "Ensure Back button on ProfilePage and RegisterPage always navigates to /lobby",
+      "acceptanceCriteria": [
+        "Back button on RegisterPage navigates to /lobby",
+        "Back button on ProfilePage navigates to /lobby",
+        "Pressing the browser back button from these pages does not land on the login or welcome screen"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/ProfilePage.tsx",
+          "operation": "modify",
+          "description": "Ensure the back button uses router.navigate('/lobby', { replace: true }) to force navigation to the lobby and prevent browser back from returning to login/welcome pages. Apply the same navigation lock pattern used in LobbyPage if necessary."
+        },
+        {
+          "path": "frontend/src/pages/RegisterPage.tsx",
+          "operation": "modify",
+          "description": "Verify the existing back button navigation to '/lobby' is using router.navigate('/lobby', { replace: true }) or equivalent to prevent returning to login/welcome screens. Ensure the navigation lock pattern from LobbyPage is applied consistently."
+        }
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "summary": "Add /profile route to TanStack Router configuration with auth guard",
+      "acceptanceCriteria": [
+        "/profile route is defined in App.tsx",
+        "Unauthenticated users visiting /profile are redirected to login/welcome",
+        "Authenticated users can access /profile"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Add a new /profile route to the TanStack Router configuration that renders the ProfilePage component. Include the same beforeLoad auth guard pattern used for other protected routes (/lobby, /register) to redirect unauthenticated users to the login or welcome page and allow authenticated users to access the profile."
         }
       ]
     }

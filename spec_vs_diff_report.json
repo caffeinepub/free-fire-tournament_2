@@ -1,46 +1,56 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-26T17:23:24.566Z",
-  "summary": "The diff implements changes across App.tsx, Navbar.tsx, LobbyPage.tsx, and RegisterPage.tsx to make '/lobby' the permanent home for authenticated users. All four requirements (REQ-41 through REQ-44) appear to be addressed behaviorally, but the implementation uses TanStack Router throughout rather than React Router as constrained. The core navigation behaviors are implemented.",
+  "generatedAt": "2026-02-27T02:02:32.568Z",
+  "summary": "The diff implements nearly all requested requirements. REQ-1 through REQ-6 are largely addressed: TournamentCard navigates to /register, LobbyPage has a profile icon, ProfilePage is created with account details/wallet/deposit/withdraw/T&C, backend User type gains walletBalance with getWalletBalance/deposit/withdraw functions, back buttons navigate to /lobby, and /profile route is added to App.tsx with auth guard. One notable gap is the RoomCard component — the diff does not show it was modified to navigate to /register on join button click, which is explicitly required by REQ-1.",
   "missing_requirements": [
     {
-      "id": "REQ-41",
-      "requirement": "The auth guard logic in useAuth.ts (or equivalent) must check the authentication flag on every route render and redirect authenticated users away from '/', '/login', and '/signup' to '/lobby'. Authentication state must continue to be read from the existing useAuth.ts hook.",
-      "reason": "Guards are implemented in App.tsx via TanStack Router's beforeLoad hooks with a direct localStorage read, not via useAuth.ts. The constraint states authentication state must continue to be read from the existing useAuth.ts hook, but there is no evidence useAuth.ts was involved in the guard logic.",
+      "id": "REQ-1",
+      "requirement": "The RoomCard component must route to '/register' on button click.",
+      "reason": "The diff shows TournamentCard was updated to navigate to /register, and LobbyPage uses RoomCard, but there is no diff entry showing RoomCard.tsx was modified to add /register navigation on its join button.",
       "evidence": [
-        "frontend/src/App.tsx",
-        "frontend-file-summaries.txt"
-      ]
-    },
-    {
-      "id": "REQ-42",
-      "requirement": "Navigation must use React Router's navigate or Link (per both REQ-42 AC and the global constraint 'All navigation must use React Router').",
-      "reason": "RegisterPage.tsx uses useRouter from @tanstack/react-router, not React Router. The same applies to Navbar.tsx and LobbyPage.tsx which use TanStack Router hooks throughout.",
-      "evidence": [
-        "frontend/src/pages/RegisterPage.tsx",
-        "frontend/src/components/Navbar.tsx",
+        "frontend/src/components/TournamentCard.tsx",
         "frontend/src/pages/LobbyPage.tsx"
       ]
     }
   ],
   "hallucinated_features": [
     {
-      "description": "A '/home' route guard was added in App.tsx redirecting authenticated users to '/lobby'.",
-      "reason": "REQ-41 only specifies guards for '/', '/login', and '/signup'. Adding a guard for '/home' as a separate route was not requested in REQ-41 or any other requirement.",
+      "description": "A migration module (backend/migration.mo) was added to handle schema migration of existing User records to include walletBalance.",
+      "reason": "The build request only asked to add walletBalance to the User type and expose wallet functions. A separate migration module was not requested.",
       "evidence": [
-        "frontend/src/App.tsx",
-        "frontend-file-summaries.txt"
+        "backend/migration.mo"
+      ]
+    },
+    {
+      "description": "ProfilePage includes interactive deposit/withdraw input fields with amount entry, confirmation, and success/error feedback UI beyond simple stub buttons.",
+      "reason": "REQ-3 only asked for Deposit and Withdraw buttons to be visible and styled. The non-goal explicitly states Deposit/Withdraw are UI stubs only. The implementation goes beyond stubs by wiring full mutation flows with input fields and feedback messages.",
+      "evidence": [
+        "frontend/src/pages/ProfilePage.tsx"
+      ]
+    },
+    {
+      "description": "ProfilePage includes a UID copy-to-clipboard button with visual feedback.",
+      "reason": "The build request did not request a copy-to-clipboard feature for the UID on the ProfilePage.",
+      "evidence": [
+        "frontend/src/pages/ProfilePage.tsx"
       ]
     }
   ],
-  "confidence": 0.65,
+  "confidence": 0.82,
   "changed_files": [
+    "backend/main.mo",
+    "backend/migration.mo",
     "frontend-file-summaries.txt",
     "frontend/src/App.tsx",
-    "frontend/src/components/Navbar.tsx",
+    "frontend/src/components/TournamentCard.tsx",
+    "frontend/src/hooks/useAuth.ts",
+    "frontend/src/hooks/useQueries.ts",
     "frontend/src/pages/LobbyPage.tsx",
+    "frontend/src/pages/LoginPage.tsx",
+    "frontend/src/pages/ProfilePage.tsx",
     "frontend/src/pages/RegisterPage.tsx",
+    "frontend/src/pages/SignUpPage.tsx",
     "project_state.json"
   ]
 }

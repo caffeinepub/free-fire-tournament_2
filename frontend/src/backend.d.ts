@@ -20,6 +20,7 @@ export interface User {
     name: string;
     whatsapp: string;
     email: string;
+    walletBalance: number;
 }
 export interface Tournament {
     id: bigint;
@@ -82,15 +83,18 @@ export enum UserRole {
 }
 export interface backendInterface {
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
+    deposit(uid: string, amount: number): Promise<void>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
     getLeaderboard(): Promise<Array<LeaderboardEntry>>;
     getRooms(): Promise<Array<Room>>;
     getTournaments(): Promise<Array<Tournament>>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
+    getWalletBalance(uid: string): Promise<number>;
     isCallerAdmin(): Promise<boolean>;
     loginUser(email: string, password: string): Promise<LoginUserResult>;
     registerPlayer(playerName: string, inGameId: string, teamName: string, whatsappNumber: string): Promise<void>;
     registerUser(name: string, email: string, whatsapp: string, freefireUid: string, password: string): Promise<RegisterUserResult>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
+    withdraw(uid: string, amount: number): Promise<void>;
 }

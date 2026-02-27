@@ -1,40 +1,30 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-26T17:23:24.570Z",
+  "generatedAt": "2026-02-27T02:02:32.571Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 4,
-    "implemented": 4,
+    "total": 6,
+    "implemented": 5,
     "items": [
       {
-        "id": "REQ-41",
-        "summary": "Update App.tsx router configuration so that the '/lobby' route is the default destination for all authenticated users. When a logged-in user navigates to '/' (WelcomePage), '/login', or '/signup', they must be automatically redirected to '/lobby' instead of seeing the auth/splash screens. The auth guard logic in useAuth.ts (or equivalent) must check the authentication flag on every route render and redirect authenticated users away from '/', '/login', and '/signup' to '/lobby'.",
+        "id": "REQ-1",
+        "summary": "On the LobbyPage, ensure that clicking the 'Join Now' button on any tournament card navigates the user to the Registration/Payment page (/register). The TournamentCard and RoomCard components must both route to '/register' on button click.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/App.tsx"
+          "frontend/src/components/TournamentCard.tsx",
+          "frontend/src/components/RoomCard.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/App.tsx"
+          "frontend/src/components/TournamentCard.tsx"
         ]
       },
       {
-        "id": "REQ-42",
-        "summary": "Update the 'Back to Home' button in frontend/src/pages/RegisterPage.tsx (and any other location on the registration/payment page that contains a back/home navigation control) so that it navigates to '/lobby' instead of '/' or any auth screen. The navigation must use React Router's navigate or Link.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/pages/RegisterPage.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/pages/RegisterPage.tsx"
-        ]
-      },
-      {
-        "id": "REQ-43",
-        "summary": "In frontend/src/pages/LobbyPage.tsx, update the `useEffect` that replaces the browser history entry on mount so that it also covers cases where the user might have navigated from '/home'. The replace navigation must clear the entire auth+landing page history stack so that pressing the browser back button from the lobby never lands on '/', '/login', '/signup', or '/home'. Authenticated users must remain within the lobby/register/rules/leaderboard flow at all times.",
+        "id": "REQ-2",
+        "summary": "Add a User Profile icon button at the top-right corner of the LobbyPage header. The icon should be a recognizable user/avatar icon styled consistently with the dark red/black gaming theme.",
         "status": "implemented",
         "plannedFiles": [
           "frontend/src/pages/LobbyPage.tsx"
@@ -44,27 +34,71 @@
         ]
       },
       {
-        "id": "REQ-44",
-        "summary": "Update Navbar.tsx so that the 'Home' navigation link (and any other links that currently point to '/home' or '/') redirect authenticated users to '/lobby' instead. If the user is not authenticated, those links should continue to function as before (pointing to '/' or '/home'). The Navbar must not expose any link that sends an authenticated user to an auth or landing page.",
+        "id": "REQ-3",
+        "summary": "Create a ProfilePage (or slide-in side drawer/panel) that opens when the profile icon is clicked. It must contain: (1) Account Details section showing the logged-in Player Name and UID (Free Fire UID from auth state/localStorage), (2) Wallet section displaying current balance formatted as ₹0.00, (3) Two action buttons: 'Deposit' and 'Withdraw', (4) A 'Terms & Conditions' link that navigates to the Rules page (/rules). The profile view must have its own route (/profile) or be accessible as an overlay from /lobby.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/components/Navbar.tsx"
+          "frontend/src/pages/ProfilePage.tsx",
+          "frontend/src/hooks/useQueries.ts"
         ],
         "matchedFiles": [
-          "frontend/src/components/Navbar.tsx"
+          "frontend/src/pages/ProfilePage.tsx",
+          "frontend/src/hooks/useQueries.ts"
+        ]
+      },
+      {
+        "id": "REQ-4",
+        "summary": "Add a wallet balance field to the backend User type in main.mo (e.g., walletBalance: Float defaulting to 0.0). Expose query and update functions: getWalletBalance(uid: Text) -> Float and deposit/withdraw stubs that adjust the balance (with basic validation: no negative balance on withdraw).",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-5",
+        "summary": "Ensure the 'Back' button on both the ProfilePage and the RegisterPage always navigates the user back to the Live Lobby (/lobby), never to the login or welcome page. Use router.navigate('/lobby') or history replacement to enforce this, consistent with the existing back-navigation pattern in RegisterPage.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/ProfilePage.tsx",
+          "frontend/src/pages/RegisterPage.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/ProfilePage.tsx",
+          "frontend/src/pages/RegisterPage.tsx"
+        ]
+      },
+      {
+        "id": "REQ-6",
+        "summary": "Add the /profile route to the TanStack Router configuration in App.tsx with the same auth guard pattern as other protected routes (redirect unauthenticated users away, allow authenticated users in).",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/App.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/App.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
+    "backend/main.mo",
+    "backend/migration.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
     "frontend/src/App.tsx",
-    "frontend/src/components/Navbar.tsx",
+    "frontend/src/backend.d.ts",
+    "frontend/src/backend.ts",
+    "frontend/src/components/TournamentCard.tsx",
+    "frontend/src/declarations/backend.did.d.ts",
+    "frontend/src/declarations/backend.did.js",
+    "frontend/src/hooks/useAuth.ts",
+    "frontend/src/hooks/useQueries.ts",
     "frontend/src/pages/LobbyPage.tsx",
+    "frontend/src/pages/LoginPage.tsx",
+    "frontend/src/pages/ProfilePage.tsx",
     "frontend/src/pages/RegisterPage.tsx",
+    "frontend/src/pages/SignUpPage.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

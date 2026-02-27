@@ -1,39 +1,52 @@
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 
-const AUTH_KEY = 'isAuthenticated';
-const USER_NAME_KEY = 'userName';
-const USER_EMAIL_KEY = 'userEmail';
+const AUTH_KEY = 'ff_auth';
+
+interface AuthState {
+  isAuthenticated: boolean;
+  userName: string;
+  userEmail: string;
+  userUid: string;
+}
+
+function getStoredAuth(): AuthState {
+  try {
+    const raw = localStorage.getItem(AUTH_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      return {
+        isAuthenticated: true,
+        userName: parsed.name || '',
+        userEmail: parsed.email || '',
+        userUid: parsed.uid || '',
+      };
+    }
+  } catch {
+    // ignore
+  }
+  return { isAuthenticated: false, userName: '', userEmail: '', userUid: '' };
+}
 
 export function useAuth() {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
-    return localStorage.getItem(AUTH_KEY) === 'true';
-  });
+  const [authState, setAuthState] = useState<AuthState>(getStoredAuth);
 
-  const [userName, setUserNameState] = useState<string>(() => {
-    return localStorage.getItem(USER_NAME_KEY) ?? '';
-  });
+  const setAuth = (name: string, email: string, uid: string = '') => {
+    const data = { name, email, uid };
+    localStorage.setItem(AUTH_KEY, JSON.stringify(data));
+    setAuthState({ isAuthenticated: true, userName: name, userEmail: email, userUid: uid });
+  };
 
-  const [userEmail, setUserEmailState] = useState<string>(() => {
-    return localStorage.getItem(USER_EMAIL_KEY) ?? '';
-  });
-
-  const setAuth = useCallback((name: string, email: string) => {
-    localStorage.setItem(AUTH_KEY, 'true');
-    localStorage.setItem(USER_NAME_KEY, name);
-    localStorage.setItem(USER_EMAIL_KEY, email);
-    setIsAuthenticated(true);
-    setUserNameState(name);
-    setUserEmailState(email);
-  }, []);
-
-  const clearAuth = useCallback(() => {
+  const clearAuth = () => {
     localStorage.removeItem(AUTH_KEY);
-    localStorage.removeItem(USER_NAME_KEY);
-    localStorage.removeItem(USER_EMAIL_KEY);
-    setIsAuthenticated(false);
-    setUserNameState('');
-    setUserEmailState('');
-  }, []);
+    setAuthState({ isAuthenticated: false, userName: '', userEmail: '', userUid: '' });
+  };
 
-  return { isAuthenticated, userName, userEmail, setAuth, clearAuth };
+  return {
+    isAuthenticated: authState.isAuthenticated,
+    userName: authState.userName,
+    userEmail: authState.userEmail,
+    userUid: authState.userUid,
+    setAuth,
+    clearAuth,
+  };
 }

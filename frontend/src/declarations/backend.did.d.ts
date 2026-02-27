@@ -56,6 +56,7 @@ export interface User {
   'name' : string,
   'whatsapp' : string,
   'email' : string,
+  'walletBalance' : number,
 }
 export interface UserProfile {
   'freefireUid' : string,
@@ -69,12 +70,14 @@ export type UserRole = { 'admin' : null } |
 export interface _SERVICE {
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
+  'deposit' : ActorMethod<[string, number], undefined>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
   'getLeaderboard' : ActorMethod<[], Array<LeaderboardEntry>>,
   'getRooms' : ActorMethod<[], Array<Room>>,
   'getTournaments' : ActorMethod<[], Array<Tournament>>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
+  'getWalletBalance' : ActorMethod<[string], number>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
   'loginUser' : ActorMethod<[string, string], LoginUserResult>,
   'registerPlayer' : ActorMethod<[string, string, string, string], undefined>,
@@ -83,6 +86,7 @@ export interface _SERVICE {
     RegisterUserResult
   >,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
+  'withdraw' : ActorMethod<[string, number], undefined>,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

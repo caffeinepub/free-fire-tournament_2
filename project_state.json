@@ -1,337 +1,48 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 23,
-  "summary": "Professional dark-themed Free Fire gaming tournament website with red and black accents. App flow: Welcome screen (first screen for unauthenticated users) with Login and Sign Up options; Sign Up collects Name, Email, WhatsApp Number, and Free Fire UID; Login uses Email and Password. After successful login/signup, user is redirected to the Live Lobby screen which serves as the permanent home for authenticated users. The Live Lobby shows a vertical scrollable list of Active Tournament/Room Cards (Solo, Duo, Squad, Clash Squad, Full Map) with entry fee, prize pool, slots progress bar, countdown timer, and a 'Join Now' button. 'Back to Home' on registration/payment page redirects to /lobby (not auth screens). Authenticated users are never redirected to login/splash screens — the old landing page is disabled/hidden for logged-in users. Other features: Tournaments List, Registration Form, Rules Page, Leaderboard, and Contact/Support sections. Mobile-responsive design with dark Free Fire-themed backgrounds.",
-  "architectural_notes": [
-    "Dark theme with aggressive/modern design using red and black accents",
-    "Mobile-responsive layout so players can register from phones",
-    "All monetary values use Indian Rupees (₹) — no USD ($) anywhere on the site",
-    "Registration form is a separate routed page (e.g., /register) — 'Register Now' navigates there instead of scrolling",
-    "Post-login screen is a gaming lobby (WinZO World War style): vertical scrollable Room Cards list instead of a registration form",
-    "Auth flow: Welcome screen → Login (Email+Password) or Sign Up (Name, Email, WhatsApp, Free Fire UID) → /lobby on success",
-    "Lobby is a one-way destination: no back navigation to auth screens once user is logged in",
-    "Live Lobby (/lobby) is the permanent home screen for authenticated users — 'Back to Home' navigates to /lobby, not '/'"
-  ],
+  "projectStateVersion": 3,
+  "summary": "Tournament lobby app with user profile, wallet system, and registration/payment flow. Features include profile icon with side menu (account details, wallet balance, deposit/withdraw), Join Now action linking to Registration/Payment page, and proper back navigation to Live Lobby.",
+  "architectural_notes": [],
   "known_issues": [],
   "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-apply-a-dark-aggressive-modern-visual-theme-throughout-the-entire-site-using-a-red-and-black-color-palette-use-deep-black-0a0a0a-111111-as-backgrounds-vivid-red-e53e3e-c0392b-as-primary-accent-color-and-white-light-gray-for-text-typography-should-be-bold-and-impactful-e-g-heavy-weight-sans-serif-fonts-include-subtle-glitch-neon-effects-sharp-angular-design-elements-and-flame-or-combat-inspired-decorative-motifs-consistent-with-free-fire-s-aesthetic-all-pages-must-be-fully-mobile-responsive",
-      "title": "Apply a dark, aggressive, modern visual theme throughout the entire site using a red and black color palette. Use deep black (#0a0a0a, #111111) as backgrounds, vivid red (#e53e3e, #c0392b) as primary accent color, and white/light gray for text. Typography should be bold and impactful (e.g., heavy-weight sans-serif fonts). Include subtle glitch/neon effects, sharp angular design elements, and flame or combat-inspired decorative motifs consistent with Free Fire's aesthetic. All pages must be fully mobile-responsive.",
+      "id": "feature-on-the-lobbypage-ensure-that-clicking-the-join-now-button-on-any-tournament-card-navigates-the-user-to-the-registration-payment-page-register-the-tournamentcard-and-roomcard-components-must-both-route-to-register-on-button-click",
+      "title": "On the LobbyPage, ensure that clicking the 'Join Now' button on any tournament card navigates the user to the Registration/Payment page (/register). The TournamentCard and RoomCard components must both route to '/register' on button click.",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-build-a-full-page-hero-section-on-the-home-page-featuring-a-large-headline-announcing-the-free-fire-tournament-a-subtitle-with-tournament-date-tagline-a-prominent-register-now-call-to-action-button-styled-in-red-and-a-countdown-timer-counting-down-to-the-next-tournament-date-the-hero-should-use-the-generated-background-image-as-its-background",
-      "title": "Build a full-page Hero section on the Home page featuring: a large headline announcing the Free Fire tournament, a subtitle with tournament date/tagline, a prominent 'Register Now' call-to-action button styled in red, and a countdown timer counting down to the next tournament date. The hero should use the generated background image as its background.",
+      "id": "feature-add-a-user-profile-icon-button-at-the-top-right-corner-of-the-lobbypage-header-the-icon-should-be-a-recognizable-user-avatar-icon-styled-consistently-with-the-dark-red-black-gaming-theme",
+      "title": "Add a User Profile icon button at the top-right corner of the LobbyPage header. The icon should be a recognizable user/avatar icon styled consistently with the dark red/black gaming theme.",
       "reqIds": [
         "REQ-2"
       ],
       "version": 1
     },
     {
-      "id": "feature-create-a-tournaments-list-section-displaying-upcoming-tournaments-in-a-responsive-grid-layout-each-tournament-card-must-show-tournament-name-match-date-time-entry-fee-badge-labeled-free-in-green-or-paid-in-red-gold-and-prize-pool-amount-store-a-static-list-of-at-least-4-sample-tournaments-in-the-backend-and-expose-a-query-to-retrieve-them",
-      "title": "Create a Tournaments List section displaying upcoming tournaments in a responsive grid layout. Each tournament card must show: tournament name, match date/time, entry fee badge (labeled 'FREE' in green or 'PAID' in red/gold), and prize pool amount. Store a static list of at least 4 sample tournaments in the backend and expose a query to retrieve them.",
+      "id": "feature-create-a-profilepage-or-slide-in-side-drawer-panel-that-opens-when-the-profile-icon-is-clicked-it-must-contain-1-account-details-section-showing-the-logged-in-player-name-and-uid-free-fire-uid-from-auth-state-localstorage-2-wallet-section-displaying-current-balance-formatted-as-0-00-3-two-action-buttons-deposit-and-withdraw-4-a-terms-conditions-link-that-navigates-to-the-rules-page-rules-the-profile-view-must-have-its-own-route-profile-or-be-accessible-as-an-overlay-from-lobby",
+      "title": "Create a ProfilePage (or slide-in side drawer/panel) that opens when the profile icon is clicked. It must contain: (1) Account Details section showing the logged-in Player Name and UID (Free Fire UID from auth state/localStorage), (2) Wallet section displaying current balance formatted as ₹0.00, (3) Two action buttons: 'Deposit' and 'Withdraw', (4) A 'Terms & Conditions' link that navigates to the Rules page (/rules). The profile view must have its own route (/profile) or be accessible as an overlay from /lobby.",
       "reqIds": [
         "REQ-3"
       ],
       "version": 1
     },
     {
-      "id": "feature-create-a-registration-form-section-page-that-collects-player-name-text-in-game-id-text-team-name-text-and-whatsapp-number-tel-input-on-submission-save-the-registration-entry-to-the-backend-show-a-success-confirmation-message-after-successful-submission-validate-that-all-fields-are-non-empty-before-submitting",
-      "title": "Create a Registration Form section/page that collects: Player Name (text), In-Game ID (text), Team Name (text), and WhatsApp Number (tel input). On submission, save the registration entry to the backend. Show a success confirmation message after successful submission. Validate that all fields are non-empty before submitting.",
-      "reqIds": [
-        "REQ-4"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-create-a-rules-page-with-two-sections-1-a-numbered-list-of-gameplay-rules-at-least-8-rules-covering-fair-play-squad-rules-disconnection-policy-cheating-policy-etc-and-2-a-points-table-showing-rank-to-points-mapping-e-g-1st-place-12-pts-2nd-9-pts-etc-styled-as-a-clearly-readable-table-with-alternating-row-colors",
-      "title": "Create a Rules page with two sections: (1) a numbered list of gameplay rules (at least 8 rules covering fair play, squad rules, disconnection policy, cheating policy, etc.), and (2) a Points Table showing rank-to-points mapping (e.g., 1st place = 12 pts, 2nd = 9 pts, etc.) styled as a clearly readable table with alternating row colors.",
+      "id": "feature-ensure-the-back-button-on-both-the-profilepage-and-the-registerpage-always-navigates-the-user-back-to-the-live-lobby-lobby-never-to-the-login-or-welcome-page-use-router-navigate-lobby-or-history-replacement-to-enforce-this-consistent-with-the-existing-back-navigation-pattern-in-registerpage",
+      "title": "Ensure the 'Back' button on both the ProfilePage and the RegisterPage always navigates the user back to the Live Lobby (/lobby), never to the login or welcome page. Use router.navigate('/lobby') or history replacement to enforce this, consistent with the existing back-navigation pattern in RegisterPage.",
       "reqIds": [
         "REQ-5"
       ],
       "version": 1
     },
     {
-      "id": "feature-create-a-leaderboard-section-page-displaying-a-ranked-table-of-top-players-include-columns-for-rank-player-name-team-name-total-points-and-kills-store-at-least-10-sample-leaderboard-entries-in-the-backend-and-expose-a-query-to-retrieve-them-sorted-by-total-points-descending-highlight-the-top-3-entries-with-gold-silver-and-bronze-styling-respectively",
-      "title": "Create a Leaderboard section/page displaying a ranked table of top players. Include columns for Rank, Player Name, Team Name, Total Points, and Kills. Store at least 10 sample leaderboard entries in the backend and expose a query to retrieve them sorted by total points descending. Highlight the top 3 entries with gold, silver, and bronze styling respectively.",
+      "id": "feature-add-the-profile-route-to-the-tanstack-router-configuration-in-app-tsx-with-the-same-auth-guard-pattern-as-other-protected-routes-redirect-unauthenticated-users-away-allow-authenticated-users-in",
+      "title": "Add the /profile route to the TanStack Router configuration in App.tsx with the same auth guard pattern as other protected routes (redirect unauthenticated users away, allow authenticated users in).",
       "reqIds": [
         "REQ-6"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-create-a-contact-support-section-at-the-bottom-of-the-site-or-as-a-dedicated-page-that-includes-social-media-icon-links-youtube-instagram-facebook-using-placeholder-urls-a-large-join-our-whatsapp-group-button-and-a-join-discord-button-both-join-buttons-should-be-styled-prominently-in-contrasting-colors-and-open-links-in-a-new-tab",
-      "title": "Create a Contact/Support section at the bottom of the site (or as a dedicated page) that includes: social media icon links (YouTube, Instagram, Facebook — using placeholder URLs), a large 'Join Our WhatsApp Group' button, and a 'Join Discord' button. Both join buttons should be styled prominently in contrasting colors and open links in a new tab.",
-      "reqIds": [
-        "REQ-7"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-build-a-persistent-navigation-bar-fixed-at-the-top-of-every-page-with-links-to-home-tournaments-register-rules-leaderboard-and-contact-sections-pages-the-nav-should-collapse-into-a-hamburger-menu-on-mobile-style-it-with-a-dark-semi-transparent-background-and-red-accent-on-the-active-hover-link",
-      "title": "Build a persistent navigation bar fixed at the top of every page with links to: Home, Tournaments, Register, Rules, Leaderboard, and Contact sections/pages. The nav should collapse into a hamburger menu on mobile. Style it with a dark semi-transparent background and red accent on the active/hover link.",
-      "reqIds": [
-        "REQ-8"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-render-the-generated-hero-background-image-as-a-static-asset-at-frontend-public-assets-generated-and-use-it-as-the-full-bleed-background-of-the-home-page-hero-section",
-      "title": "Render the generated hero background image as a static asset at frontend/public/assets/generated/ and use it as the full-bleed background of the Home page hero section.",
-      "reqIds": [
-        "REQ-9"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-create-a-new-secure-payment-section-component-and-insert-it-in-app-tsx-immediately-before-the-registrationform-section-the-section-must-display-1-a-heading-secure-payment-2-the-text-pay-the-entry-fee-to-the-following-upi-id-to-participate-8728872927-fam-3-a-copy-id-button-that-copies-8728872927-fam-to-the-clipboard-and-shows-a-brief-confirmation-feedback-e-g-text-changes-to-copied-and-4-a-note-reading-please-keep-the-transaction-screenshot-ready-for-the-form-the-section-background-should-use-a-slightly-red-tint-e-g-a-dark-red-overlay-or-bg-color-like-1a0505-or-rgba-229-62-62-0-10-consistent-with-the-existing-red-black-free-fire-theme-style-with-bold-orbitron-rajdhani-fonts-sharp-angular-design-elements-and-red-accent-borders-highlights-matching-the-site-s-existing-aesthetic",
-      "title": "Create a new 'Secure Payment' section component and insert it in App.tsx immediately before the RegistrationForm section. The section must display: (1) a heading 'Secure Payment', (2) the text 'Pay the entry fee to the following UPI ID to participate: 8728872927@fam', (3) a 'Copy ID' button that copies '8728872927@fam' to the clipboard and shows a brief confirmation feedback (e.g., text changes to 'Copied!'), and (4) a note reading 'Please keep the transaction screenshot ready for the form'. The section background should use a slightly red tint (e.g., a dark red overlay or bg color like #1a0505 or rgba(229,62,62,0.10)) consistent with the existing red/black Free Fire theme. Style with bold Orbitron/Rajdhani fonts, sharp angular design elements, and red accent borders/highlights matching the site's existing aesthetic.",
-      "reqIds": [
-        "REQ-10"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-update-tournamentcard-tsx-to-display-the-prize-pool-and-any-entry-fee-amounts-using-the-indian-rupee-symbol-instead-of-usd-wherever-a-currency-symbol-is-hardcoded-or-prepended-to-monetary-values-in-the-component-replace-with",
-      "title": "Update TournamentCard.tsx to display the prize pool and any entry fee amounts using the Indian Rupee symbol (₹) instead of USD ($). Wherever a currency symbol is hardcoded or prepended to monetary values in the component, replace $ with ₹.",
-      "reqIds": [
-        "REQ-12"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-audit-and-update-all-remaining-frontend-components-including-but-not-limited-to-hero-tsx-tournamentslist-tsx-leaderboard-tsx-securepayment-tsx-registrationform-tsx-rules-tsx-contact-tsx-app-tsx-and-any-other-files-to-replace-every-occurrence-of-the-usd-dollar-sign-used-as-a-currency-symbol-with-the-indian-rupee-symbol-this-includes-any-hardcoded-prize-pool-figures-entry-fee-labels-or-monetary-references-displayed-to-the-user",
-      "title": "Audit and update all remaining frontend components (including but not limited to Hero.tsx, TournamentsList.tsx, Leaderboard.tsx, SecurePayment.tsx, RegistrationForm.tsx, Rules.tsx, Contact.tsx, App.tsx, and any other files) to replace every occurrence of the USD dollar sign ($) used as a currency symbol with the Indian Rupee symbol (₹). This includes any hardcoded prize pool figures, entry fee labels, or monetary references displayed to the user.",
-      "reqIds": [
-        "REQ-13"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-update-tournamentcard-tsx-and-any-relevant-frontend-components-to-display-a-prize-distribution-breakdown-showing-1st-prize-50-2nd-prize-30-3rd-prize-20-this-breakdown-should-be-visible-on-each-tournament-card-in-the-tournament-grid-either-as-an-expanded-detail-section-or-within-the-card-body",
-      "title": "Update TournamentCard.tsx and any relevant frontend components to display a prize distribution breakdown showing: 1st Prize: ₹50, 2nd Prize: ₹30, 3rd Prize: ₹20. This breakdown should be visible on each tournament card in the tournament grid, either as an expanded detail section or within the card body.",
-      "reqIds": [
-        "REQ-15"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-update-hero-tsx-to-reflect-the-updated-prize-pool-of-100-and-entry-fee-of-10-if-those-values-are-hardcoded-or-referenced-in-the-hero-section-text-tagline-or-subtitle-on-the-home-page",
-      "title": "Update Hero.tsx to reflect the updated prize pool of ₹100 and entry fee of ₹10 if those values are hardcoded or referenced in the hero section text, tagline, or subtitle on the home page.",
-      "reqIds": [
-        "REQ-16"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-create-a-reusable-whatsappchannelbanner-component-that-displays-a-prominent-green-button-with-a-whatsapp-icon-and-the-label-join-our-whatsapp-channel-for-room-id-passwords-the-button-must-link-to-https-whatsapp-com-channel-0029vbc9jof6rgjdlrygqr0j-and-open-in-a-new-tab-style-it-with-a-solid-green-background-e-g-25d366-white-text-bold-orbitron-rajdhani-font-a-whatsapp-svg-icon-on-the-left-and-subtle-hover-glow-or-scale-effect-consistent-with-the-site-s-gaming-theme",
-      "title": "Create a reusable 'WhatsAppChannelBanner' component that displays a prominent green button with a WhatsApp icon and the label 'Join our WhatsApp Channel for Room ID & Passwords'. The button must link to https://whatsapp.com/channel/0029VbC9jOf6RGJDlryGqR0j and open in a new tab. Style it with a solid green background (e.g., #25D366), white text, bold Orbitron/Rajdhani font, a WhatsApp SVG/icon on the left, and subtle hover glow or scale effect consistent with the site's gaming theme.",
-      "reqIds": [
-        "REQ-17"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-in-app-tsx-insert-the-whatsappchannelbanner-component-in-two-locations-1-inside-or-immediately-below-the-hero-section-on-the-home-page-and-2-immediately-above-the-registrationform-section-and-above-or-below-securepayment-both-placements-must-be-fully-visible-on-mobile-and-desktop",
-      "title": "In App.tsx, insert the 'WhatsAppChannelBanner' component in two locations: (1) inside or immediately below the Hero section on the Home page, and (2) immediately above the RegistrationForm section (and above or below SecurePayment). Both placements must be fully visible on mobile and desktop.",
-      "reqIds": [
-        "REQ-18"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-create-a-landinggate-component-or-equivalent-gating-logic-in-app-tsx-that-controls-the-app-s-entry-flow-when-a-user-first-opens-the-app-they-must-see-a-dedicated-registration-login-screen-immediately-before-any-other-content-hero-tournaments-leaderboard-etc-is-visible-the-gate-screen-should-be-styled-consistently-with-the-existing-dark-red-and-black-free-fire-theme-display-the-site-tournament-name-prominently-and-offer-two-clear-options-1-a-register-action-that-either-scrolls-to-or-reveals-the-registrationform-and-2-a-login-already-registered-action-until-the-user-interacts-with-one-of-these-options-or-completes-registration-the-main-landing-page-content-must-remain-hidden",
-      "title": "Create a LandingGate component (or equivalent gating logic in App.tsx) that controls the app's entry flow. When a user first opens the app, they must see a dedicated Registration/Login screen immediately — before any other content (Hero, Tournaments, Leaderboard, etc.) is visible. The gate screen should be styled consistently with the existing dark red-and-black Free Fire theme, display the site/tournament name prominently, and offer two clear options: (1) a 'Register' action that either scrolls to or reveals the RegistrationForm, and (2) a 'Login' / 'Already Registered' action. Until the user interacts with one of these options (or completes registration), the main landing page content must remain hidden.",
-      "reqIds": [
-        "REQ-19"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-install-and-configure-react-router-react-router-dom-in-the-frontend-wrap-the-application-in-a-browserrouter-in-main-tsx-or-app-tsx-and-define-at-minimum-two-routes-for-the-main-landing-page-and-register-for-the-registration-page",
-      "title": "Install and configure React Router (react-router-dom) in the frontend. Wrap the application in a BrowserRouter in main.tsx or App.tsx and define at minimum two routes: '/' for the main landing page and '/register' for the Registration page.",
-      "reqIds": [
-        "REQ-20"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-create-a-new-frontend-page-component-at-frontend-src-pages-registerpage-tsx-that-renders-the-full-registration-flow-in-a-standalone-page-this-page-must-include-the-securepayment-component-the-whatsappchannelbanner-component-and-the-registrationform-component-all-styled-consistently-with-the-existing-dark-red-and-black-free-fire-theme-the-page-must-include-a-back-home-navigation-link-or-button",
-      "title": "Create a new frontend page component at frontend/src/pages/RegisterPage.tsx that renders the full registration flow in a standalone page. This page must include the SecurePayment component, the WhatsAppChannelBanner component, and the RegistrationForm component, all styled consistently with the existing dark red-and-black Free Fire theme. The page must include a back/home navigation link or button.",
-      "reqIds": [
-        "REQ-21"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-update-hero-tsx-so-that-the-register-now-cta-button-uses-react-router-s-navigation-e-g-usenavigate-or-a-link-component-to-redirect-the-user-to-register-instead-of-performing-a-smooth-scroll-to-the-registration-section-on-the-same-page-remove-any-scroll-to-register-behavior-from-this-button",
-      "title": "Update Hero.tsx so that the 'Register Now' CTA button uses React Router's navigation (e.g., useNavigate or a Link component) to redirect the user to '/register' instead of performing a smooth-scroll to the registration section on the same page. Remove any scroll-to-register behavior from this button.",
-      "reqIds": [
-        "REQ-22"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-update-tournamentcard-tsx-so-that-the-register-button-on-each-tournament-card-navigates-to-register-using-react-router-instead-of-scrolling-to-the-registration-section",
-      "title": "Update TournamentCard.tsx so that the 'Register' button on each tournament card navigates to '/register' using React Router instead of scrolling to the registration section.",
-      "reqIds": [
-        "REQ-23"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-update-landinggate-tsx-so-that-the-register-action-within-the-gate-navigates-to-register-using-react-router-instead-of-scrolling-or-revealing-the-registrationform-inline-the-login-already-registered-action-should-dismiss-the-gate-and-show-the-main-landing-page-at",
-      "title": "Update LandingGate.tsx so that the 'Register' action within the gate navigates to '/register' using React Router instead of scrolling or revealing the RegistrationForm inline. The 'Login / Already Registered' action should dismiss the gate and show the main landing page at '/'.",
-      "reqIds": [
-        "REQ-24"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-update-navbar-tsx-so-that-the-register-navigation-link-routes-to-register-using-a-react-router-link-instead-of-a-smooth-scroll-anchor-all-other-nav-links-home-tournaments-rules-leaderboard-contact-should-continue-to-smooth-scroll-to-their-respective-sections-on-the-main-page",
-      "title": "Update Navbar.tsx so that the 'Register' navigation link routes to '/register' using a React Router Link instead of a smooth-scroll anchor. All other nav links (Home, Tournaments, Rules, Leaderboard, Contact) should continue to smooth-scroll to their respective sections on the main '/' page.",
-      "reqIds": [
-        "REQ-25"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-remove-the-inline-securepayment-whatsappchannelbanner-the-pre-registration-placement-and-registrationform-components-from-app-tsx-s-main-page-layout-since-they-are-now-rendered-exclusively-on-the-register-page-the-main-page-should-no-longer-include-these-inline-sections",
-      "title": "Remove the inline SecurePayment, WhatsAppChannelBanner (the pre-registration placement), and RegistrationForm components from App.tsx's main page layout, since they are now rendered exclusively on the '/register' page. The main '/' page should no longer include these inline sections.",
-      "reqIds": [
-        "REQ-26"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-add-a-getrooms-query-hook-in-frontend-src-hooks-usequeries-ts-that-fetches-room-data-from-the-backend-actor-s-getrooms-function-using-react-query-following-the-same-pattern-as-the-existing-gettournaments-hook",
-      "title": "Add a 'getRooms' query hook in frontend/src/hooks/useQueries.ts that fetches room data from the backend actor's 'getRooms' function using React Query, following the same pattern as the existing 'getTournaments' hook.",
-      "reqIds": [
-        "REQ-28"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-create-a-new-frontend-component-frontend-src-components-roomcard-tsx-that-displays-a-single-active-tournament-room-the-card-must-show-1-a-bold-room-type-label-solo-duo-squad-clash-squad-full-map-with-a-distinct-color-badge-per-type-2-entry-fee-10-3-prize-pool-100-4-slots-left-a-line-showing-e-g-10-48-joined-with-a-colored-horizontal-progress-bar-showing-fill-percentage-5-a-live-countdown-timer-showing-time-remaining-until-the-room-starts-days-hours-minutes-seconds-and-6-a-bright-high-contrast-join-now-button-clicking-join-now-should-navigate-to-register-using-react-router-style-the-card-with-the-existing-dark-red-and-black-free-fire-theme-orbitron-rajdhani-fonts-sharp-angular-borders-red-neon-accents-the-card-should-have-a-visually-distinct-vibrant-look-reminiscent-of-a-winzo-gaming-lobby-card",
-      "title": "Create a new frontend component frontend/src/components/RoomCard.tsx that displays a single active tournament room. The card must show: (1) a bold Room Type label (Solo / Duo / Squad / Clash Squad / Full Map) with a distinct color badge per type, (2) Entry Fee: ₹10, (3) Prize Pool: ₹100, (4) Slots Left: a line showing e.g. '10/48 Joined' with a colored horizontal progress bar showing fill percentage, (5) a live countdown timer showing time remaining until the room starts (days/hours/minutes/seconds), and (6) a bright, high-contrast 'Join Now' button. Clicking 'Join Now' should navigate to '/register' using React Router. Style the card with the existing dark red-and-black Free Fire theme (Orbitron/Rajdhani fonts, sharp angular borders, red/neon accents). The card should have a visually distinct, vibrant look reminiscent of a WinZO gaming lobby card.",
-      "reqIds": [
-        "REQ-29"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-create-a-new-frontend-page-component-frontend-src-pages-lobbypage-tsx-that-serves-as-the-post-login-post-gate-screen-this-page-must-1-display-a-header-reading-active-rooms-or-live-tournament-lobby-in-bold-orbitron-font-with-a-red-accent-2-fetch-rooms-using-the-getrooms-hook-3-render-a-vertically-scrollable-list-of-roomcard-components-one-per-room-full-width-on-mobile-max-width-constrained-on-desktop-4-show-loading-skeletons-while-fetching-and-an-error-state-if-the-fetch-fails-5-include-a-whatsappchannelbanner-at-the-top-of-the-list-reminding-players-to-join-for-room-id-passwords-and-6-include-a-sticky-or-fixed-top-bar-with-the-site-tournament-name-and-a-back-home-navigation-button-the-overall-aesthetic-must-match-the-winzo-world-war-gaming-lobby-dark-background-bright-colored-action-buttons-bold-typography-and-a-sense-of-urgency-energy",
-      "title": "Create a new frontend page component frontend/src/pages/LobbyPage.tsx that serves as the post-login/post-gate screen. This page must: (1) display a header reading 'Active Rooms' or 'Live Tournament Lobby' in bold Orbitron font with a red accent, (2) fetch rooms using the getRooms hook, (3) render a vertically scrollable list of RoomCard components (one per room, full-width on mobile, max-width constrained on desktop), (4) show loading skeletons while fetching and an error state if the fetch fails, (5) include a WhatsAppChannelBanner at the top of the list reminding players to join for Room ID & Passwords, and (6) include a sticky or fixed top bar with the site/tournament name and a back/home navigation button. The overall aesthetic must match the WinZO World War gaming lobby: dark background, bright colored action buttons, bold typography, and a sense of urgency/energy.",
-      "reqIds": [
-        "REQ-30"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-add-a-new-route-lobby-in-app-tsx-or-the-router-configuration-that-renders-lobbypage-update-landinggate-tsx-so-that-after-the-user-clicks-login-already-registered-i-e-dismisses-the-gate-they-are-navigated-to-lobby-instead-of-or-the-main-landing-page-reveals-the-lobby-at-the-main-landing-page-hero-tournaments-leaderboard-etc-should-remain-accessible-via-the-navbar-s-home-link-the-overall-app-flow-must-be-gate-screen-lobby-lobby-on-login-or-register-on-register",
-      "title": "Add a new route '/lobby' in App.tsx (or the router configuration) that renders LobbyPage. Update LandingGate.tsx so that after the user clicks 'Login / Already Registered' (i.e., dismisses the gate), they are navigated to '/lobby' instead of '/' (or the main landing page reveals the lobby at '/'). The main '/' landing page (Hero, Tournaments, Leaderboard, etc.) should remain accessible via the Navbar's 'Home' link. The overall app flow must be: Gate screen → Lobby ('/lobby') on login, or → '/register' on register.",
-      "reqIds": [
-        "REQ-31"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-create-a-new-frontend-page-component-at-frontend-src-pages-welcomepage-tsx-that-serves-as-the-initial-screen-of-the-app-it-must-display-the-tournament-site-name-prominently-and-two-clear-call-to-action-buttons-login-for-existing-players-and-sign-up-for-new-players-the-background-must-be-dark-themed-matching-the-existing-0a0a0a-111111-palette-with-a-generated-free-fire-character-image-rendered-as-a-full-bleed-or-large-background-foreground-element-typography-must-use-orbitron-rajdhani-fonts-with-red-e53e3e-accents-consistent-with-the-existing-free-fire-theme-both-buttons-must-be-styled-distinctly-e-g-sign-up-in-vivid-red-and-login-in-a-dark-outlined-style-and-be-fully-responsive-on-mobile",
-      "title": "Create a new frontend page component at frontend/src/pages/WelcomePage.tsx that serves as the initial screen of the app. It must display the tournament/site name prominently, and two clear call-to-action buttons: 'Login' (for existing players) and 'Sign Up' (for new players). The background must be dark-themed (matching the existing #0a0a0a / #111111 palette) with a generated Free Fire character image rendered as a full-bleed or large background/foreground element. Typography must use Orbitron/Rajdhani fonts with red (#e53e3e) accents consistent with the existing Free Fire theme. Both buttons must be styled distinctly — e.g., 'Sign Up' in vivid red and 'Login' in a dark outlined style — and be fully responsive on mobile.",
-      "reqIds": [
-        "REQ-32"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-create-a-new-frontend-page-component-at-frontend-src-pages-signuppage-tsx-it-must-display-a-sign-up-form-collecting-full-name-text-email-email-input-whatsapp-number-tel-input-and-free-fire-uid-text-on-successful-submission-store-the-new-user-s-credentials-profile-in-the-backend-and-redirect-the-user-to-lobby-validate-that-all-fields-are-non-empty-and-that-the-email-field-contains-a-valid-email-format-before-submitting-show-inline-validation-errors-style-the-page-consistently-with-the-dark-free-fire-theme-dark-background-red-accents-orbitron-rajdhani-fonts-angular-design-elements",
-      "title": "Create a new frontend page component at frontend/src/pages/SignUpPage.tsx. It must display a Sign Up form collecting: Full Name (text), Email (email input), WhatsApp Number (tel input), and Free Fire UID (text). On successful submission, store the new user's credentials/profile in the backend and redirect the user to '/lobby'. Validate that all fields are non-empty and that the email field contains a valid email format before submitting. Show inline validation errors. Style the page consistently with the dark Free Fire theme (dark background, red accents, Orbitron/Rajdhani fonts, angular design elements).",
-      "reqIds": [
-        "REQ-33"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-create-a-new-frontend-page-component-at-frontend-src-pages-loginpage-tsx-it-must-display-a-login-form-with-two-fields-email-email-input-and-password-password-input-on-successful-authentication-match-against-stored-user-records-in-the-backend-redirect-the-user-to-lobby-show-an-error-message-if-credentials-do-not-match-include-a-link-button-to-navigate-to-signup-for-users-who-don-t-have-an-account-style-consistently-with-the-dark-free-fire-theme-dark-background-red-accents-orbitron-rajdhani-fonts",
-      "title": "Create a new frontend page component at frontend/src/pages/LoginPage.tsx. It must display a Login form with two fields: Email (email input) and Password (password input). On successful authentication (match against stored user records in the backend), redirect the user to '/lobby'. Show an error message if credentials do not match. Include a link/button to navigate to '/signup' for users who don't have an account. Style consistently with the dark Free Fire theme (dark background, red accents, Orbitron/Rajdhani fonts).",
-      "reqIds": [
-        "REQ-34"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-update-the-frontend-router-configuration-in-app-tsx-to-replace-the-current-landinggate-based-flow-with-the-new-welcome-login-signup-page-flow-add-routes-welcomepage-login-loginpage-signup-signuppage-the-lobby-route-must-remain-protected-unauthenticated-users-who-navigate-directly-to-lobby-should-be-redirected-to-the-register-route-registerpage-and-all-other-existing-routes-must-remain-intact-remove-the-landinggate-component-from-the-home-page-layout-since-it-is-replaced-by-the-welcomepage-the-homepage-hero-tournaments-leaderboard-etc-remains-accessible-at-a-route-such-as-home-or-via-the-navbar-s-home-link-after-login",
-      "title": "Update the frontend router configuration in App.tsx to replace the current LandingGate-based flow with the new Welcome/Login/SignUp page flow. Add routes: '/' → WelcomePage, '/login' → LoginPage, '/signup' → SignUpPage. The '/lobby' route must remain protected — unauthenticated users who navigate directly to '/lobby' should be redirected to '/'. The '/register' route (RegisterPage) and all other existing routes must remain intact. Remove the LandingGate component from the home page layout since it is replaced by the WelcomePage. The HomePage (Hero, Tournaments, Leaderboard, etc.) remains accessible at a route such as '/home' or via the Navbar's 'Home' link after login.",
-      "reqIds": [
-        "REQ-36"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-add-react-query-mutation-hooks-in-frontend-src-hooks-usequeries-ts-for-registeruser-and-loginuser-backend-calls-following-the-same-pattern-as-the-existing-registerplayer-mutation-hook-useregisteruser-must-call-the-backend-registeruser-function-and-return-success-error-state-useloginuser-must-call-the-backend-loginuser-function-and-return-success-error-state-on-success-of-either-mutation-store-a-simple-authenticated-session-flag-e-g-in-localstorage-or-react-context-so-the-app-knows-the-user-is-logged-in",
-      "title": "Add React Query mutation hooks in frontend/src/hooks/useQueries.ts for 'registerUser' and 'loginUser' backend calls, following the same pattern as the existing 'registerPlayer' mutation hook. 'useRegisterUser' must call the backend 'registerUser' function and return success/error state. 'useLoginUser' must call the backend 'loginUser' function and return success/error state. On success of either mutation, store a simple authenticated session flag (e.g., in localStorage or React context) so the app knows the user is logged in.",
-      "reqIds": [
-        "REQ-37"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-in-frontend-src-pages-lobbypage-tsx-remove-the-back-arrow-button-or-any-back-home-navigation-button-from-the-sticky-fixed-top-header-bar-the-header-should-only-display-the-site-tournament-name-without-any-back-navigation-control",
-      "title": "In frontend/src/pages/LobbyPage.tsx, remove the back arrow button (← or any back/home navigation button) from the sticky/fixed top header bar. The header should only display the site/tournament name without any back navigation control.",
-      "reqIds": [
-        "REQ-38"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-in-frontend-src-pages-lobbypage-tsx-remove-the-whatsappchannelbanner-component-that-is-currently-rendered-at-the-top-of-the-rooms-list-the-lobby-should-display-only-the-list-of-roomcard-components-plus-loading-error-states-without-any-whatsapp-banner",
-      "title": "In frontend/src/pages/LobbyPage.tsx, remove the WhatsAppChannelBanner component that is currently rendered at the top of the rooms list. The lobby should display only the list of RoomCard components (plus loading/error states) without any WhatsApp banner.",
-      "reqIds": [
-        "REQ-39"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-in-frontend-src-pages-lobbypage-tsx-prevent-the-browser-s-default-back-navigation-gesture-from-returning-the-user-to-the-authentication-screens-welcomepage-loginpage-signuppage-achieve-this-by-replacing-the-current-history-entry-on-mount-using-the-router-s-replace-navigation-so-that-pressing-the-browser-back-button-does-not-land-on-an-auth-page-ensure-no-programmatic-navigation-or-gesture-within-the-lobby-routes-back-to-login-or-signup",
-      "title": "In frontend/src/pages/LobbyPage.tsx, prevent the browser's default back-navigation gesture from returning the user to the authentication screens (WelcomePage, LoginPage, SignUpPage). Achieve this by replacing the current history entry on mount using the router's replace navigation so that pressing the browser back button does not land on an auth page. Ensure no programmatic navigation or gesture within the lobby routes back to '/', '/login', or '/signup'.",
-      "reqIds": [
-        "REQ-40"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-update-app-tsx-router-configuration-so-that-the-lobby-route-is-the-default-destination-for-all-authenticated-users-when-a-logged-in-user-navigates-to-welcomepage-login-or-signup-they-must-be-automatically-redirected-to-lobby-instead-of-seeing-the-auth-splash-screens-the-auth-guard-logic-in-useauth-ts-or-equivalent-must-check-the-authentication-flag-on-every-route-render-and-redirect-authenticated-users-away-from-login-and-signup-to-lobby",
-      "title": "Update App.tsx router configuration so that the '/lobby' route is the default destination for all authenticated users. When a logged-in user navigates to '/' (WelcomePage), '/login', or '/signup', they must be automatically redirected to '/lobby' instead of seeing the auth/splash screens. The auth guard logic in useAuth.ts (or equivalent) must check the authentication flag on every route render and redirect authenticated users away from '/', '/login', and '/signup' to '/lobby'.",
-      "reqIds": [
-        "REQ-41"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-update-the-back-to-home-button-in-frontend-src-pages-registerpage-tsx-and-any-other-location-on-the-registration-payment-page-that-contains-a-back-home-navigation-control-so-that-it-navigates-to-lobby-instead-of-or-any-auth-screen-the-navigation-must-use-react-router-s-navigate-or-link",
-      "title": "Update the 'Back to Home' button in frontend/src/pages/RegisterPage.tsx (and any other location on the registration/payment page that contains a back/home navigation control) so that it navigates to '/lobby' instead of '/' or any auth screen. The navigation must use React Router's navigate or Link.",
-      "reqIds": [
-        "REQ-42"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-in-frontend-src-pages-lobbypage-tsx-update-the-useeffect-that-replaces-the-browser-history-entry-on-mount-so-that-it-also-covers-cases-where-the-user-might-have-navigated-from-home-the-replace-navigation-must-clear-the-entire-auth-landing-page-history-stack-so-that-pressing-the-browser-back-button-from-the-lobby-never-lands-on-login-signup-or-home-authenticated-users-must-remain-within-the-lobby-register-rules-leaderboard-flow-at-all-times",
-      "title": "In frontend/src/pages/LobbyPage.tsx, update the `useEffect` that replaces the browser history entry on mount so that it also covers cases where the user might have navigated from '/home'. The replace navigation must clear the entire auth+landing page history stack so that pressing the browser back button from the lobby never lands on '/', '/login', '/signup', or '/home'. Authenticated users must remain within the lobby/register/rules/leaderboard flow at all times.",
-      "reqIds": [
-        "REQ-43"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-update-navbar-tsx-so-that-the-home-navigation-link-and-any-other-links-that-currently-point-to-home-or-redirect-authenticated-users-to-lobby-instead-if-the-user-is-not-authenticated-those-links-should-continue-to-function-as-before-pointing-to-or-home-the-navbar-must-not-expose-any-link-that-sends-an-authenticated-user-to-an-auth-or-landing-page",
-      "title": "Update Navbar.tsx so that the 'Home' navigation link (and any other links that currently point to '/home' or '/') redirect authenticated users to '/lobby' instead. If the user is not authenticated, those links should continue to function as before (pointing to '/' or '/home'). The Navbar must not expose any link that sends an authenticated user to an auth or landing page.",
-      "reqIds": [
-        "REQ-44"
       ],
       "version": 1
     }
@@ -339,124 +50,34 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Home Page: Bold hero section with 'Register Now' button and countdown timer for next tournament",
+      "summary": "Join Now button on tournament cards opens Registration/Payment page",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-2",
-      "summary": "Tournaments List: Grid view showing upcoming matches, entry fees (Free/Paid), and prize pools",
+      "summary": "Add User Profile icon at top-right of Live Lobby",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-3",
-      "summary": "Registration Form: Collect Player Name, In-game ID, Team Name, and WhatsApp number",
+      "summary": "Profile menu with Account Details (Player Name, UID), Wallet balance, Deposit & Withdraw buttons, and Terms & Conditions link",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-4",
-      "summary": "Rules Page: Gameplay rules list and points table system",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-5",
-      "summary": "Leaderboard: Table showing top players and previous winners",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-6",
-      "summary": "Contact/Support: Social media links and 'Join Discord/WhatsApp' button",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-7",
-      "summary": "Secure Payment section before registration form: UPI ID '8728872927@fam', 'Copy ID' button, transaction screenshot note, slightly red background matching Free Fire theme",
+      "summary": "Back button from Profile or Registration page returns to Live Lobby, not login screen",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-8",
-      "summary": "Change all currency displays from USD ($) to INR (₹) site-wide, including Grand Prize Pool and entry fee mentions",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-9",
-      "summary": "Update the backend sample tournament data in backend/main.mo so that all prize pool amounts and entry fee values are expressed in Indian Rupees (₹). Replace any USD ($) currency symbols or values with INR (₹) equivalents (e.g., ₹5,000 instead of $5,000). Ensure the prizePool field and any entry fee fields in the Tournament type use ₹-prefixed strings.",
+      "summary": "Add a wallet balance field to the backend User type in main.mo (e.g., walletBalance: Float defaulting to 0.0). Expose query and update functions: getWalletBalance(uid: Text) -> Float and deposit/withdraw stubs that adjust the balance (with basic validation: no negative balance on withdraw).",
       "reqIds": [
-        "REQ-11"
+        "REQ-4"
       ],
-      "status": "pending"
-    },
-    {
-      "id": "AR-10",
-      "summary": "Update tournament details: Entry Fee ₹10, Total Prize Pool ₹100, prize distribution 1st ₹50 / 2nd ₹30 / 3rd ₹20. Reflect on home page and tournament grid.",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-11",
-      "summary": "Update the sample tournament data in backend/main.mo to set the Entry Fee to ₹10 and the Total Prize Pool to ₹100 for the tournament(s). Update the prizePool field to '₹100' and the entryFee field to '₹10' (or equivalent paid indicator) in all relevant Tournament records.",
-      "reqIds": [
-        "REQ-14"
-      ],
-      "status": "pending"
-    },
-    {
-      "id": "AR-12",
-      "summary": "Add a prominent green WhatsApp button with icon on Home page and near Registration form saying 'Join our WhatsApp Channel for Room ID & Passwords', linking to https://whatsapp.com/channel/0029VbC9jOf6RGJDlryGqR0j",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-14",
-      "summary": "Make Registration form a separate page with its own URL route. 'Register Now' button should navigate/redirect to that page instead of scrolling down.",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-15",
-      "summary": "Redesign post-login screen as WinZO World War-style gaming lobby: vertical scrollable list of Active Room Cards showing Room Type (Solo/Duo/Squad/Clash Squad/Full Map), Entry Fee ₹10, Prize Pool ₹100, Slots Left with progress bar, countdown timer, and 'Join Now' button that opens payment/registration details. Bright colored Join buttons.",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-16",
-      "summary": "Create a new 'Room' data type and static sample data in the backend (backend/main.mo) representing 5 active tournament rooms with the following fields: roomType (variant: Solo, Duo, Squad, ClashSquad, FullMap), entryFee (Text, '₹10'), prizePool (Text, '₹100'), totalSlots (Nat, e.g. 48), joinedSlots (Nat, e.g. varying values like 10, 24, 38, 5, 42), startTime (Int, Unix timestamp in nanoseconds, each room starting at a different near-future time). Expose a query function 'getRooms' that returns all room records.",
-      "reqIds": [
-        "REQ-27"
-      ],
-      "status": "pending"
-    },
-    {
-      "id": "AR-17",
-      "summary": "Replace the current LandingGate with a 'Welcome' page showing Login and Sign Up buttons. Sign Up page collects Name, Email, WhatsApp Number, and Free Fire UID. Login page uses Email and Password. After successful login/signup, redirect to /lobby. Background must be dark-themed with a Free Fire character image.",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-21",
-      "summary": "Add a 'User' type and supporting backend functions to backend/main.mo. The User type must include: name (Text), email (Text), whatsapp (Text), freefireUid (Text), and passwordHash (Text). Expose two update functions: 'registerUser' (accepts name, email, whatsapp, freefireUid, password — stores the user, returns a success/error variant) and 'loginUser' (accepts email and password — returns a success variant with user info or an error variant if credentials don't match). Passwords should be stored as plain text for now (no external crypto dependency). Prevent duplicate registrations by the same email.",
-      "reqIds": [
-        "REQ-35"
-      ],
-      "status": "pending"
-    },
-    {
-      "id": "AR-22",
-      "summary": "OTP verification flow: generate 6-digit OTP on signup/login, store server-side, show OTP verification screen before session starts. Email OTP (simulated/displayed in UI for now). Mobile shows 'OTP sent to mobile' message.",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-24",
-      "summary": "Make Live Lobby (/lobby) the permanent home for logged-in users. Update 'Back to Home' button on registration/payment page to redirect to /lobby. Ensure authenticated users are never redirected to login or splash screens. Disable/hide old landing page for authenticated users.",
-      "reqIds": [],
       "status": "pending"
     }
   ],

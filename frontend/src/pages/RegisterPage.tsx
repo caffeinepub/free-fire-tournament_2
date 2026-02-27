@@ -1,175 +1,71 @@
+import React from 'react';
 import { useRouter } from '@tanstack/react-router';
-import { ArrowLeft, Flame } from 'lucide-react';
-import SecurePayment from '../components/SecurePayment';
-import WhatsAppChannelBanner from '../components/WhatsAppChannelBanner';
+import { ArrowLeft, Gamepad2 } from 'lucide-react';
 import RegistrationForm from '../components/RegistrationForm';
-import { Heart } from 'lucide-react';
-
-function RegisterFooter() {
-  const year = new Date().getFullYear();
-  const appId = encodeURIComponent(
-    typeof window !== 'undefined' ? window.location.hostname : 'freefire-tournament'
-  );
-  return (
-    <footer
-      className="py-8 px-4 sm:px-6"
-      style={{
-        background: '#080808',
-        borderTop: '1px solid rgba(229,62,62,0.15)',
-      }}
-    >
-      <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
-        <p className="font-rajdhani text-xs" style={{ color: 'rgba(255,255,255,0.25)' }}>
-          © {year} Free Fire Tournament. All rights reserved.
-        </p>
-        <p className="font-rajdhani text-xs flex items-center gap-1" style={{ color: 'rgba(255,255,255,0.25)' }}>
-          Built with{' '}
-          <Heart
-            className="w-3 h-3 inline"
-            style={{ color: '#e53e3e', fill: '#e53e3e' }}
-          />{' '}
-          using{' '}
-          <a
-            href={`https://caffeine.ai/?utm_source=Caffeine-footer&utm_medium=referral&utm_content=${appId}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="transition-colors duration-200 hover:underline"
-            style={{ color: '#e53e3e' }}
-          >
-            caffeine.ai
-          </a>
-        </p>
-      </div>
-    </footer>
-  );
-}
+import SecurePayment from '../components/SecurePayment';
 
 export default function RegisterPage() {
   const router = useRouter();
 
-  // Always navigate back to the Live Lobby, never to auth/landing pages
-  const handleBackToHome = () => {
-    router.navigate({ to: '/lobby' });
+  const handleBack = () => {
+    router.navigate({ to: '/lobby', replace: true });
   };
 
   return (
-    <div className="min-h-screen" style={{ background: '#0a0a0a' }}>
-      {/* Top bar */}
-      <header
-        className="sticky top-0 z-50 px-4 sm:px-6"
-        style={{
-          background: 'rgba(10,10,10,0.97)',
-          backdropFilter: 'blur(12px)',
-          borderBottom: '1px solid rgba(229,62,62,0.3)',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
-        }}
-      >
-        <div className="max-w-7xl mx-auto h-16 flex items-center justify-between">
-          {/* Back button */}
-          <button
-            onClick={handleBackToHome}
-            className="flex items-center gap-2 font-rajdhani font-semibold text-sm tracking-wider uppercase transition-all duration-200 group"
-            style={{ color: 'rgba(255,255,255,0.7)' }}
-            onMouseEnter={e => {
-              (e.currentTarget as HTMLButtonElement).style.color = '#e53e3e';
-            }}
-            onMouseLeave={e => {
-              (e.currentTarget as HTMLButtonElement).style.color = 'rgba(255,255,255,0.7)';
-            }}
-          >
-            <ArrowLeft
-              className="w-4 h-4 transition-transform duration-200 group-hover:-translate-x-1"
-            />
-            Back to Lobby
-          </button>
+    <div className="min-h-screen bg-game-black relative overflow-hidden">
+      {/* Background grid */}
+      <div className="absolute inset-0 grid-pattern opacity-10 pointer-events-none" />
 
-          {/* Brand */}
+      {/* Sticky header */}
+      <header className="sticky top-0 z-50 bg-black/90 border-b border-game-red/30 px-4 py-3">
+        <div className="max-w-4xl mx-auto flex items-center gap-4">
           <button
-            onClick={handleBackToHome}
-            className="flex items-center gap-2 group"
+            onClick={handleBack}
+            className="flex items-center gap-2 text-silver hover:text-gold transition-colors font-rajdhani text-sm"
           >
-            <Flame
-              className="w-5 h-5 transition-all duration-300 group-hover:scale-110"
-              style={{ color: '#e53e3e', filter: 'drop-shadow(0 0 6px rgba(229,62,62,0.7))' }}
-            />
-            <span
-              className="font-orbitron font-bold text-base tracking-wider"
-              style={{ color: '#e53e3e', textShadow: '0 0 10px rgba(229,62,62,0.4)' }}
-            >
-              FREE FIRE
-            </span>
-            <span
-              className="hidden sm:inline font-rajdhani font-semibold text-sm tracking-widest"
-              style={{ color: 'rgba(255,255,255,0.6)' }}
-            >
-              TOURNAMENT
-            </span>
+            <ArrowLeft size={20} />
+            <span className="hidden sm:inline">Back to Lobby</span>
           </button>
+          <div className="flex items-center gap-2 flex-1 justify-center">
+            <Gamepad2 className="text-game-red" size={22} />
+            <span className="font-orbitron text-base font-black text-white tracking-widest">
+              FF<span className="text-game-red">ARENA</span>
+            </span>
+          </div>
+          <div className="w-24" />
         </div>
       </header>
 
-      {/* Page title */}
-      <div
-        className="py-10 px-4 sm:px-6 text-center"
-        style={{
-          background: 'linear-gradient(180deg, #0a0a0a 0%, #150303 100%)',
-          borderBottom: '1px solid rgba(229,62,62,0.15)',
-        }}
-      >
-        {/* Accent line */}
-        <div
-          className="h-1 w-24 mx-auto mb-6"
-          style={{
-            background: 'linear-gradient(90deg, transparent, #e53e3e, transparent)',
-            boxShadow: '0 0 12px rgba(229,62,62,0.6)',
-          }}
-        />
-        <h1
-          className="font-orbitron font-black text-3xl sm:text-4xl md:text-5xl tracking-widest uppercase"
-          style={{
-            color: '#ffffff',
-            textShadow: '0 0 30px rgba(229,62,62,0.4), 0 2px 4px rgba(0,0,0,0.8)',
-          }}
-        >
-          TOURNAMENT{' '}
-          <span
-            style={{
-              color: '#e53e3e',
-              textShadow: '0 0 40px rgba(229,62,62,0.7)',
-            }}
-          >
-            REGISTRATION
-          </span>
-        </h1>
-        <p
-          className="font-rajdhani text-base sm:text-lg mt-3"
-          style={{ color: 'rgba(255,255,255,0.5)' }}
-        >
-          Complete payment first, then fill in your details below.
-        </p>
-      </div>
-
-      {/* Main content */}
-      <main>
-        {/* Step 1: Secure Payment */}
-        <SecurePayment />
-
-        {/* WhatsApp Channel Banner */}
-        <div
-          style={{
-            background: 'rgba(0,0,0,0.5)',
-            borderTop: '1px solid rgba(37,211,102,0.15)',
-            borderBottom: '1px solid rgba(37,211,102,0.15)',
-          }}
-        >
-          <WhatsAppChannelBanner />
+      <main className="relative z-10 max-w-4xl mx-auto px-4 py-8">
+        <div className="text-center mb-8">
+          <h1 className="font-orbitron text-2xl sm:text-3xl font-black text-white tracking-widest">
+            TOURNAMENT <span className="text-game-red">REGISTRATION</span>
+          </h1>
+          <p className="text-silver font-rajdhani text-sm mt-2">
+            Complete payment and fill in your details to secure your slot
+          </p>
         </div>
 
-        {/* Step 2: Registration Form */}
-        <RegistrationForm />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <SecurePayment />
+          <RegistrationForm />
+        </div>
       </main>
 
-      <RegisterFooter />
+      {/* Footer */}
+      <footer className="relative z-10 border-t border-gray-800 mt-8 py-6 text-center">
+        <p className="text-gray-600 font-rajdhani text-xs">
+          © {new Date().getFullYear()} FFArena. Built with ❤️ using{' '}
+          <a
+            href={`https://caffeine.ai/?utm_source=Caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(window.location.hostname)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-gold hover:underline"
+          >
+            caffeine.ai
+          </a>
+        </p>
+      </footer>
     </div>
   );
 }

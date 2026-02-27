@@ -1,98 +1,137 @@
 {
   "kind": "build_request",
-  "title": "Make Live Lobby the permanent home for authenticated users",
+  "title": "Lobby Profile & Wallet Menu + Join Now Navigation",
   "projectName": "Free Fire Tournament",
-  "priority": "high",
+  "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-41",
-      "text": "Update App.tsx router configuration so that the '/lobby' route is the default destination for all authenticated users. When a logged-in user navigates to '/' (WelcomePage), '/login', or '/signup', they must be automatically redirected to '/lobby' instead of seeing the auth/splash screens. The auth guard logic in useAuth.ts (or equivalent) must check the authentication flag on every route render and redirect authenticated users away from '/', '/login', and '/signup' to '/lobby'.",
+      "id": "REQ-1",
+      "text": "On the LobbyPage, ensure that clicking the 'Join Now' button on any tournament card navigates the user to the Registration/Payment page (/register). The TournamentCard and RoomCard components must both route to '/register' on button click.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-latest"
         ],
         "quotes": [
-          "Make the 'Live Lobby' screen the permanent Home Page for logged-in users.",
-          "Ensure that once a user is logged in, they are never redirected back to the login or splash screen.",
-          "Delete or disable the old landing page entirely for authenticated users so they stay within the tournament list"
+          "When a user clicks 'Join Now' on any tournament card, it must open the Registration/Payment page."
         ]
       },
       "acceptanceCriteria": [
-        "An authenticated user who manually navigates to '/' is immediately redirected to '/lobby'",
-        "An authenticated user who manually navigates to '/login' is immediately redirected to '/lobby'",
-        "An authenticated user who manually navigates to '/signup' is immediately redirected to '/lobby'",
-        "The WelcomePage, LoginPage, and SignUpPage are never rendered for authenticated users",
-        "Unauthenticated users are still correctly redirected from '/lobby' to '/' (WelcomePage)"
+        "Clicking 'Join Now' on any TournamentCard navigates to /register",
+        "Clicking the join button on any RoomCard navigates to /register",
+        "The Registration/Payment page loads correctly after clicking Join Now"
       ]
     },
     {
-      "id": "REQ-42",
-      "text": "Update the 'Back to Home' button in frontend/src/pages/RegisterPage.tsx (and any other location on the registration/payment page that contains a back/home navigation control) so that it navigates to '/lobby' instead of '/' or any auth screen. The navigation must use React Router's navigate or Link.",
+      "id": "REQ-2",
+      "text": "Add a User Profile icon button at the top-right corner of the LobbyPage header. The icon should be a recognizable user/avatar icon styled consistently with the dark red/black gaming theme.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-latest"
         ],
         "quotes": [
-          "Update the 'Back to Home' button (on the registration/payment page) to redirect strictly to this Live Lobby screen, NOT the authentication/landing page."
+          "Add a 'User Profile' icon at the top-right corner of the Live Lobby."
         ]
       },
       "acceptanceCriteria": [
-        "Clicking 'Back to Home' on RegisterPage navigates the user to '/lobby'",
-        "The button does not navigate to '/', '/login', '/signup', or '/home'",
-        "Navigation uses React Router (no full page reload)"
+        "A profile icon is visible at the top-right of the LobbyPage",
+        "The icon is styled with the existing dark red/black/gold theme",
+        "The icon is tappable and responds to click events"
       ]
     },
     {
-      "id": "REQ-43",
-      "text": "In frontend/src/pages/LobbyPage.tsx, update the `useEffect` that replaces the browser history entry on mount so that it also covers cases where the user might have navigated from '/home'. The replace navigation must clear the entire auth+landing page history stack so that pressing the browser back button from the lobby never lands on '/', '/login', '/signup', or '/home'. Authenticated users must remain within the lobby/register/rules/leaderboard flow at all times.",
+      "id": "REQ-3",
+      "text": "Create a ProfilePage (or slide-in side drawer/panel) that opens when the profile icon is clicked. It must contain: (1) Account Details section showing the logged-in Player Name and UID (Free Fire UID from auth state/localStorage), (2) Wallet section displaying current balance formatted as ₹0.00, (3) Two action buttons: 'Deposit' and 'Withdraw', (4) A 'Terms & Conditions' link that navigates to the Rules page (/rules). The profile view must have its own route (/profile) or be accessible as an overlay from /lobby.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-latest"
         ],
         "quotes": [
-          "Ensure that once a user is logged in, they are never redirected back to the login or splash screen.",
-          "Delete or disable the old landing page entirely for authenticated users so they stay within the tournament list"
+          "When the icon is clicked, open a side menu or new page with these options",
+          "Account Details: Show Player Name and UID.",
+          "Wallet: Display current balance (e.g., ₹0.00).",
+          "Deposit & Withdraw: Add two buttons for adding or taking out money.",
+          "Terms & Conditions: A link to the tournament rules."
         ]
       },
       "acceptanceCriteria": [
-        "Pressing the browser back button while on LobbyPage does not navigate to WelcomePage, LoginPage, or SignUpPage",
-        "Pressing the browser back button while on LobbyPage does not navigate to '/home' or '/'",
-        "The history replace strategy on LobbyPage mount prevents any back-navigation to auth screens"
+        "Profile menu/page opens when profile icon is clicked",
+        "Account Details section shows the player's name and UID from auth/localStorage state",
+        "Wallet section shows balance formatted as ₹0.00",
+        "Deposit button is visible and styled",
+        "Withdraw button is visible and styled",
+        "Terms & Conditions link navigates to the rules/tournament rules page"
       ]
     },
     {
-      "id": "REQ-44",
-      "text": "Update Navbar.tsx so that the 'Home' navigation link (and any other links that currently point to '/home' or '/') redirect authenticated users to '/lobby' instead. If the user is not authenticated, those links should continue to function as before (pointing to '/' or '/home'). The Navbar must not expose any link that sends an authenticated user to an auth or landing page.",
-      "target": "frontend",
+      "id": "REQ-4",
+      "text": "Add a wallet balance field to the backend User type in main.mo (e.g., walletBalance: Float defaulting to 0.0). Expose query and update functions: getWalletBalance(uid: Text) -> Float and deposit/withdraw stubs that adjust the balance (with basic validation: no negative balance on withdraw).",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-latest"
         ],
         "quotes": [
-          "Make the 'Live Lobby' screen the permanent Home Page for logged-in users.",
-          "Delete or disable the old landing page entirely for authenticated users so they stay within the tournament list"
+          "Wallet: Display current balance (e.g., ₹0.00).",
+          "Deposit & Withdraw: Add two buttons for adding or taking out money."
         ]
       },
       "acceptanceCriteria": [
-        "Clicking the 'Home' Navbar link while authenticated navigates to '/lobby'",
-        "No Navbar link routes an authenticated user to '/', '/login', or '/signup'",
-        "Other Navbar links (Tournaments, Rules, Leaderboard, Contact) continue to function correctly for authenticated users"
+        "User type includes a walletBalance field",
+        "getWalletBalance returns the current balance for a user",
+        "deposit function increases wallet balance",
+        "withdraw function decreases wallet balance and rejects if insufficient funds"
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "text": "Ensure the 'Back' button on both the ProfilePage and the RegisterPage always navigates the user back to the Live Lobby (/lobby), never to the login or welcome page. Use router.navigate('/lobby') or history replacement to enforce this, consistent with the existing back-navigation pattern in RegisterPage.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-latest"
+        ],
+        "quotes": [
+          "Ensure the 'Back' button from the Profile or Registration page always returns to the Live Lobby, not the login screen."
+        ]
+      },
+      "acceptanceCriteria": [
+        "Back button on RegisterPage navigates to /lobby",
+        "Back button on ProfilePage navigates to /lobby",
+        "Pressing the browser back button from these pages does not land on the login or welcome screen"
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "text": "Add the /profile route to the TanStack Router configuration in App.tsx with the same auth guard pattern as other protected routes (redirect unauthenticated users away, allow authenticated users in).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-latest"
+        ],
+        "quotes": [
+          "open a side menu or new page"
+        ]
+      },
+      "acceptanceCriteria": [
+        "/profile route is defined in App.tsx",
+        "Unauthenticated users visiting /profile are redirected to login/welcome",
+        "Authenticated users can access /profile"
       ]
     }
   ],
   "constraints": [
-    "Do not modify any files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui",
-    "Authentication state must continue to be read from the existing useAuth.ts hook and localStorage flag — do not introduce a new auth mechanism",
-    "All navigation must use React Router — no full page reloads"
+    "Do not modify files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui",
+    "Wallet balance must be displayed in Indian Rupee format (₹) consistent with existing pricing style",
+    "Maintain existing dark red/black/gold gaming theme across all new UI components"
   ],
   "nonGoals": [
-    "Adding new pages or route definitions not already present",
-    "Changing the visual design or layout of LobbyPage, RegisterPage, or Navbar beyond navigation behavior",
-    "Implementing server-side session management or JWT tokens",
-    "Modifying backend authentication logic"
+    "Real payment gateway integration (Deposit/Withdraw are UI stubs only unless backend stubs are wired)",
+    "Internet Identity / ICP wallet integration",
+    "SMS or email notifications for wallet transactions",
+    "Admin panel for managing wallet balances"
   ],
   "imageRequirements": {
     "required": [],

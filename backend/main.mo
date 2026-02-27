@@ -9,12 +9,9 @@ import Int "mo:core/Int";
 import Map "mo:core/Map";
 import Principal "mo:core/Principal";
 import AccessControl "authorization/access-control";
-
+import Migration "migration";
 import MixinAuthorization "authorization/MixinAuthorization";
-
-// Use with clause with the correct include, then create actor block
- actor {
-  // Initialize access control state
+(with migration = Migration.run) actor {
   let accessControlState = AccessControl.initState();
   include MixinAuthorization(accessControlState);
 
@@ -84,6 +81,7 @@ import MixinAuthorization "authorization/MixinAuthorization";
     whatsapp : Text;
     freefireUid : Text;
     password : Text;
+    walletBalance : Float;
   };
 
   type UserProfile = {
@@ -197,7 +195,8 @@ import MixinAuthorization "authorization/MixinAuthorization";
   ];
 
   let users = Map.empty<Text, User>();
-
+  // Maps Principal -> email (uid) so we can verify ownership of wallet operations
+  let principalToEmail = Map.empty<Principal, Text>();
   let userProfiles = Map.empty<Principal, UserProfile>();
 
   // Public query: anyone (including guests) can view tournaments
@@ -247,7 +246,7 @@ import MixinAuthorization "authorization/MixinAuthorization";
   };
 
   // Anyone (including guests) can register a new account
-  public shared func registerUser(name : Text, email : Text, whatsapp : Text, freefireUid : Text, password : Text) : async RegisterUserResult {
+  public shared ({ caller }) func registerUser(name : Text, email : Text, whatsapp : Text, freefireUid : Text, password : Text) : async RegisterUserResult {
     switch (users.get(email)) {
       case (?_) { return #emailExists };
       case (null) {
@@ -257,18 +256,27 @@ import MixinAuthorization "authorization/MixinAuthorization";
           whatsapp;
           freefireUid;
           password;
+          walletBalance = 0.0;
         };
         users.add(email, user);
+        // If the caller is an authenticated principal (not anonymous), record the mapping
+        if (not caller.isAnonymous()) {
+          principalToEmail.add(caller, email);
+        };
         #success;
       };
     };
   };
 
   // Anyone (including guests) can attempt to log in
-  public shared func loginUser(email : Text, password : Text) : async LoginUserResult {
+  public shared ({ caller }) func loginUser(email : Text, password : Text) : async LoginUserResult {
     switch (users.get(email)) {
       case (?user) {
         if (user.password == password) {
+          // Record principal -> email mapping on successful login
+          if (not caller.isAnonymous()) {
+            principalToEmail.add(caller, email);
+          };
           #success(user);
         } else {
           #passwordIncorrect;
@@ -285,7 +293,6 @@ import MixinAuthorization "authorization/MixinAuthorization";
     userProfiles.get(caller);
   };
 
-  // Get another user's profile — caller must be that user or an admin
   public query ({ caller }) func getUserProfile(user : Principal) : async ?UserProfile {
     if (caller != user and not AccessControl.isAdmin(accessControlState, caller)) {
       Runtime.trap("Unauthorized: Can only view your own profile");
@@ -293,11 +300,97 @@ import MixinAuthorization "authorization/MixinAuthorization";
     userProfiles.get(user);
   };
 
-  // Save the caller's own user profile — requires #user role
   public shared ({ caller }) func saveCallerUserProfile(profile : UserProfile) : async () {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only authenticated users can save their profile");
     };
     userProfiles.add(caller, profile);
+  };
+
+  // ---------------------------
+  // Wallet Functionality
+  // ---------------------------
+
+  // Helper: verify that the caller owns the account identified by uid (email),
+  // or that the caller is an admin.
+  func assertWalletOwnerOrAdmin(caller : Principal, uid : Text) {
+    if (AccessControl.isAdmin(accessControlState, caller)) {
+      return; // admins can access any wallet
+    };
+    switch (principalToEmail.get(caller)) {
+      case (?email) {
+        if (email != uid) {
+          Runtime.trap("Unauthorized: You can only access your own wallet");
+        };
+      };
+      case (null) {
+        Runtime.trap("Unauthorized: Caller has no associated account");
+      };
+    };
+  };
+
+  // Get wallet balance for a user identified by email uid.
+  // Only the owning user or an admin may call this.
+  public query ({ caller }) func getWalletBalance(uid : Text) : async Float {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only authenticated users can access wallet balances");
+    };
+    assertWalletOwnerOrAdmin(caller, uid);
+
+    switch (users.get(uid)) {
+      case (?user) { user.walletBalance };
+      case (null) {
+        Runtime.trap("User not found");
+      };
+    };
+  };
+
+  // Deposit funds into a user's wallet.
+  // Only the owning user or an admin may call this.
+  public shared ({ caller }) func deposit(uid : Text, amount : Float) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only authenticated users can deposit funds");
+    };
+    assertWalletOwnerOrAdmin(caller, uid);
+
+    if (amount <= 0.0) {
+      Runtime.trap("Deposit amount must be positive");
+    };
+
+    switch (users.get(uid)) {
+      case (?user) {
+        let updatedUser = { user with walletBalance = user.walletBalance + amount };
+        users.add(uid, updatedUser);
+      };
+      case (null) {
+        Runtime.trap("User not found");
+      };
+    };
+  };
+
+  // Withdraw funds from a user's wallet.
+  // Only the owning user or an admin may call this.
+  public shared ({ caller }) func withdraw(uid : Text, amount : Float) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only authenticated users can withdraw funds");
+    };
+    assertWalletOwnerOrAdmin(caller, uid);
+
+    if (amount <= 0.0) {
+      Runtime.trap("Withdraw amount must be positive");
+    };
+
+    switch (users.get(uid)) {
+      case (?user) {
+        if (user.walletBalance < amount) {
+          Runtime.trap("Insufficient balance");
+        };
+        let updatedUser = { user with walletBalance = user.walletBalance - amount };
+        users.add(uid, updatedUser);
+      };
+      case (null) {
+        Runtime.trap("User not found");
+      };
+    };
   };
 };
