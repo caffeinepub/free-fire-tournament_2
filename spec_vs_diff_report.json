@@ -1,56 +1,25 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-27T02:02:32.568Z",
-  "summary": "The diff implements nearly all requested requirements. REQ-1 through REQ-6 are largely addressed: TournamentCard navigates to /register, LobbyPage has a profile icon, ProfilePage is created with account details/wallet/deposit/withdraw/T&C, backend User type gains walletBalance with getWalletBalance/deposit/withdraw functions, back buttons navigate to /lobby, and /profile route is added to App.tsx with auth guard. One notable gap is the RoomCard component — the diff does not show it was modified to navigate to /register on join button click, which is explicitly required by REQ-1.",
+  "generatedAt": "2026-02-27T02:49:59.844Z",
+  "summary": "The diff implements REQ-1 (UPI intent link with ₹20 minimum validation) and REQ-2 (screenshot upload flow after payment) in ManualDepositModal.tsx. REQ-3 (fixing Unauthorized error) is mentioned in the file summaries for useQueries.ts but the actual hook code is not visible in the diff — only the summary description mentions useSubmitDeposit. The backend main.mo is modified but its truncated content doesn't show clear auth fixes. Overall, REQ-1 and REQ-2 appear well-implemented; REQ-3 evidence is indirect.",
   "missing_requirements": [
     {
-      "id": "REQ-1",
-      "requirement": "The RoomCard component must route to '/register' on button click.",
-      "reason": "The diff shows TournamentCard was updated to navigate to /register, and LobbyPage uses RoomCard, but there is no diff entry showing RoomCard.tsx was modified to add /register navigation on its join button.",
+      "id": "REQ-3",
+      "requirement": "Fix the 'Unauthorized' error by ensuring deposit-related hooks in useQueries.ts use the authenticated actor (not anonymous).",
+      "reason": "The diff does not include the actual content of useQueries.ts — only a file summary description mentioning useSubmitDeposit exists. No code changes to useQueries.ts are shown in the diff, and the backend main.mo changes are truncated and do not demonstrate auth fixes. There is no direct evidence that the authenticated actor is being used instead of the anonymous one.",
       "evidence": [
-        "frontend/src/components/TournamentCard.tsx",
-        "frontend/src/pages/LobbyPage.tsx"
+        "frontend/src/hooks/useQueries.ts",
+        "backend/main.mo"
       ]
     }
   ],
-  "hallucinated_features": [
-    {
-      "description": "A migration module (backend/migration.mo) was added to handle schema migration of existing User records to include walletBalance.",
-      "reason": "The build request only asked to add walletBalance to the User type and expose wallet functions. A separate migration module was not requested.",
-      "evidence": [
-        "backend/migration.mo"
-      ]
-    },
-    {
-      "description": "ProfilePage includes interactive deposit/withdraw input fields with amount entry, confirmation, and success/error feedback UI beyond simple stub buttons.",
-      "reason": "REQ-3 only asked for Deposit and Withdraw buttons to be visible and styled. The non-goal explicitly states Deposit/Withdraw are UI stubs only. The implementation goes beyond stubs by wiring full mutation flows with input fields and feedback messages.",
-      "evidence": [
-        "frontend/src/pages/ProfilePage.tsx"
-      ]
-    },
-    {
-      "description": "ProfilePage includes a UID copy-to-clipboard button with visual feedback.",
-      "reason": "The build request did not request a copy-to-clipboard feature for the UID on the ProfilePage.",
-      "evidence": [
-        "frontend/src/pages/ProfilePage.tsx"
-      ]
-    }
-  ],
-  "confidence": 0.82,
+  "hallucinated_features": [],
+  "confidence": 0.72,
   "changed_files": [
     "backend/main.mo",
-    "backend/migration.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/App.tsx",
-    "frontend/src/components/TournamentCard.tsx",
-    "frontend/src/hooks/useAuth.ts",
-    "frontend/src/hooks/useQueries.ts",
-    "frontend/src/pages/LobbyPage.tsx",
-    "frontend/src/pages/LoginPage.tsx",
-    "frontend/src/pages/ProfilePage.tsx",
-    "frontend/src/pages/RegisterPage.tsx",
-    "frontend/src/pages/SignUpPage.tsx",
+    "frontend/src/components/ManualDepositModal.tsx",
     "project_state.json"
   ]
 }

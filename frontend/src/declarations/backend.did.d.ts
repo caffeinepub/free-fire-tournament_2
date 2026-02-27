@@ -10,8 +10,24 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
+export type ApprovalStatus = { 'pending' : null } |
+  { 'approved' : null } |
+  { 'rejected' : null };
+export interface DepositRecord {
+  'id' : bigint,
+  'status' : DepositStatus,
+  'user' : Principal,
+  'submittedAt' : bigint,
+  'amount' : number,
+  'screenshot' : ExternalBlob,
+  'transactionId' : string,
+}
+export type DepositStatus = { 'pending' : null } |
+  { 'approved' : null } |
+  { 'rejected' : null };
 export type EntryFeeType = { 'free' : null } |
   { 'paid' : null };
+export type ExternalBlob = Uint8Array;
 export interface LeaderboardEntry {
   'teamName' : string,
   'rank' : bigint,
@@ -58,6 +74,10 @@ export interface User {
   'email' : string,
   'walletBalance' : number,
 }
+export interface UserApprovalInfo {
+  'status' : ApprovalStatus,
+  'principal' : Principal,
+}
 export interface UserProfile {
   'freefireUid' : string,
   'name' : string,
@@ -67,25 +87,61 @@ export interface UserProfile {
 export type UserRole = { 'admin' : null } |
   { 'user' : null } |
   { 'guest' : null };
+export interface _CaffeineStorageCreateCertificateResult {
+  'method' : string,
+  'blob_hash' : string,
+}
+export interface _CaffeineStorageRefillInformation {
+  'proposed_top_up_amount' : [] | [bigint],
+}
+export interface _CaffeineStorageRefillResult {
+  'success' : [] | [boolean],
+  'topped_up_amount' : [] | [bigint],
+}
 export interface _SERVICE {
+  '_caffeineStorageBlobIsLive' : ActorMethod<[Uint8Array], boolean>,
+  '_caffeineStorageBlobsToDelete' : ActorMethod<[], Array<Uint8Array>>,
+  '_caffeineStorageConfirmBlobDeletion' : ActorMethod<
+    [Array<Uint8Array>],
+    undefined
+  >,
+  '_caffeineStorageCreateCertificate' : ActorMethod<
+    [string],
+    _CaffeineStorageCreateCertificateResult
+  >,
+  '_caffeineStorageRefillCashier' : ActorMethod<
+    [[] | [_CaffeineStorageRefillInformation]],
+    _CaffeineStorageRefillResult
+  >,
+  '_caffeineStorageUpdateGatewayPrincipals' : ActorMethod<[], undefined>,
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
+  'approveDeposit' : ActorMethod<[bigint], undefined>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
   'deposit' : ActorMethod<[string, number], undefined>,
+  'getAllPendingDeposits' : ActorMethod<[], Array<DepositRecord>>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
+  'getDepositRecord' : ActorMethod<[bigint], [] | [DepositRecord]>,
   'getLeaderboard' : ActorMethod<[], Array<LeaderboardEntry>>,
   'getRooms' : ActorMethod<[], Array<Room>>,
   'getTournaments' : ActorMethod<[], Array<Tournament>>,
+  'getUserDeposits' : ActorMethod<[Principal], Array<DepositRecord>>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'getWalletBalance' : ActorMethod<[string], number>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
+  'isCallerApproved' : ActorMethod<[], boolean>,
+  'listApprovals' : ActorMethod<[], Array<UserApprovalInfo>>,
   'loginUser' : ActorMethod<[string, string], LoginUserResult>,
   'registerPlayer' : ActorMethod<[string, string, string, string], undefined>,
   'registerUser' : ActorMethod<
     [string, string, string, string, string],
     RegisterUserResult
   >,
+  'rejectDeposit' : ActorMethod<[bigint], undefined>,
+  'requestApproval' : ActorMethod<[], undefined>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
+  'setApproval' : ActorMethod<[Principal, ApprovalStatus], undefined>,
+  'submitDeposit' : ActorMethod<[number, string, ExternalBlob], bigint>,
   'withdraw' : ActorMethod<[string, number], undefined>,
 }
 export declare const idlService: IDL.ServiceClass;

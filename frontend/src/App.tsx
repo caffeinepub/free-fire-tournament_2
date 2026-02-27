@@ -15,6 +15,7 @@ import SignUpPage from './pages/SignUpPage';
 import LobbyPage from './pages/LobbyPage';
 import RegisterPage from './pages/RegisterPage';
 import ProfilePage from './pages/ProfilePage';
+import AdminPage from './pages/AdminPage';
 
 // Pages for the main site
 import Rules from './pages/Rules';
@@ -110,6 +111,18 @@ const rulesRoute = createRoute({
   component: Rules,
 });
 
+// Hidden admin route — not linked from navigation
+const adminRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/admin',
+  beforeLoad: () => {
+    if (!isAuthenticated()) {
+      throw redirect({ to: '/' });
+    }
+  },
+  component: AdminPage,
+});
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
   loginRoute,
@@ -118,6 +131,7 @@ const routeTree = rootRoute.addChildren([
   registerRoute,
   profileRoute,
   rulesRoute,
+  adminRoute,
 ]);
 
 const router = createRouter({ routeTree });

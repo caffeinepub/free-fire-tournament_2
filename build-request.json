@@ -1,137 +1,78 @@
 {
   "kind": "build_request",
-  "title": "Lobby Profile & Wallet Menu + Join Now Navigation",
-  "projectName": "Free Fire Tournament",
-  "priority": "normal",
+  "title": "UPI Intent Link on Deposit Page with Screenshot Upload Flow",
+  "projectName": "FreeFire Tournament",
+  "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "On the LobbyPage, ensure that clicking the 'Join Now' button on any tournament card navigates the user to the Registration/Payment page (/register). The TournamentCard and RoomCard components must both route to '/register' on button click.",
+      "text": "Update the ManualDepositModal component to replace the static UPI ID display with a UPI Intent Link button. When the user enters a valid amount (minimum ₹20) and clicks 'Proceed to Pay', construct the deep link: upi://pay?pa=8728872927@fam&pn=FreeFireTournament&am={amount}&cu=INR and trigger it via window.location.href or an anchor tag with href set to the deep link, so the device automatically presents installed UPI apps (GPay, PhonePe, Paytm) for the user to complete payment.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-latest"
+          "msg-4"
         ],
         "quotes": [
-          "When a user clicks 'Join Now' on any tournament card, it must open the Registration/Payment page."
+          "implement a UPI Intent Link",
+          "Use this UPI deep link format: upi://pay?pa=8728872927@fam&pn=FreeFireTournament&am={amount}&cu=INR",
+          "the app should automatically open the list of UPI apps (GPay, PhonePe, Paytm) installed on their device"
         ]
       },
       "acceptanceCriteria": [
-        "Clicking 'Join Now' on any TournamentCard navigates to /register",
-        "Clicking the join button on any RoomCard navigates to /register",
-        "The Registration/Payment page loads correctly after clicking Join Now"
+        "Clicking 'Proceed to Pay' with an amount ≥ ₹20 triggers the UPI deep link upi://pay?pa=8728872927@fam&pn=FreeFireTournament&am={amount}&cu=INR",
+        "The device displays a chooser of installed UPI apps (GPay, PhonePe, Paytm) when the deep link is triggered",
+        "Entering an amount below ₹20 shows a validation error and does not trigger the deep link",
+        "The UPI ID is no longer shown as a static text-only element — the intent link replaces that step"
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Add a User Profile icon button at the top-right corner of the LobbyPage header. The icon should be a recognizable user/avatar icon styled consistently with the dark red/black gaming theme.",
+      "text": "After the UPI deep link is triggered, transition the deposit modal/flow to a dedicated screenshot upload screen. This screen should prompt the user to upload a payment screenshot for manual verification, and allow submission of the transaction details (screenshot + transaction ID) to the backend. This replaces the previous mid-flow UPI ID copy step and makes screenshot upload the next explicit step after payment initiation.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-latest"
+          "msg-4"
         ],
         "quotes": [
-          "Add a 'User Profile' icon at the top-right corner of the Live Lobby."
+          "After the user completes the payment in their external app, redirect them back to a screen where they can upload the screenshot for final verification"
         ]
       },
       "acceptanceCriteria": [
-        "A profile icon is visible at the top-right of the LobbyPage",
-        "The icon is styled with the existing dark red/black/gold theme",
-        "The icon is tappable and responds to click events"
+        "After the UPI deep link is triggered, the UI automatically advances to the screenshot upload step",
+        "The screenshot upload screen has a file input for the payment screenshot and a transaction ID field",
+        "The user can submit the screenshot and transaction ID for admin verification",
+        "The flow does not require the user to manually navigate back to the app — the upload screen is shown upon return"
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Create a ProfilePage (or slide-in side drawer/panel) that opens when the profile icon is clicked. It must contain: (1) Account Details section showing the logged-in Player Name and UID (Free Fire UID from auth state/localStorage), (2) Wallet section displaying current balance formatted as ₹0.00, (3) Two action buttons: 'Deposit' and 'Withdraw', (4) A 'Terms & Conditions' link that navigates to the Rules page (/rules). The profile view must have its own route (/profile) or be accessible as an overlay from /lobby.",
-      "target": "frontend",
+      "text": "Fix the 'Unauthorized' error that occurs on the deposit page for logged-in users. Audit the deposit-related backend query and mutation hooks in useQueries.ts to ensure they use the authenticated actor (not anonymous). Ensure that when a logged-in user initiates a deposit, the actor is called with the user's authenticated identity, eliminating the unauthorized rejection.",
+      "target": "both",
       "source": {
         "messageIds": [
-          "msg-latest"
+          "msg-4"
         ],
         "quotes": [
-          "When the icon is clicked, open a side menu or new page with these options",
-          "Account Details: Show Player Name and UID.",
-          "Wallet: Display current balance (e.g., ₹0.00).",
-          "Deposit & Withdraw: Add two buttons for adding or taking out money.",
-          "Terms & Conditions: A link to the tournament rules."
+          "Ensure the 'Unauthorized' error is removed and the flow is seamless for logged-in users"
         ]
       },
       "acceptanceCriteria": [
-        "Profile menu/page opens when profile icon is clicked",
-        "Account Details section shows the player's name and UID from auth/localStorage state",
-        "Wallet section shows balance formatted as ₹0.00",
-        "Deposit button is visible and styled",
-        "Withdraw button is visible and styled",
-        "Terms & Conditions link navigates to the rules/tournament rules page"
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "text": "Add a wallet balance field to the backend User type in main.mo (e.g., walletBalance: Float defaulting to 0.0). Expose query and update functions: getWalletBalance(uid: Text) -> Float and deposit/withdraw stubs that adjust the balance (with basic validation: no negative balance on withdraw).",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-latest"
-        ],
-        "quotes": [
-          "Wallet: Display current balance (e.g., ₹0.00).",
-          "Deposit & Withdraw: Add two buttons for adding or taking out money."
-        ]
-      },
-      "acceptanceCriteria": [
-        "User type includes a walletBalance field",
-        "getWalletBalance returns the current balance for a user",
-        "deposit function increases wallet balance",
-        "withdraw function decreases wallet balance and rejects if insufficient funds"
-      ]
-    },
-    {
-      "id": "REQ-5",
-      "text": "Ensure the 'Back' button on both the ProfilePage and the RegisterPage always navigates the user back to the Live Lobby (/lobby), never to the login or welcome page. Use router.navigate('/lobby') or history replacement to enforce this, consistent with the existing back-navigation pattern in RegisterPage.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-latest"
-        ],
-        "quotes": [
-          "Ensure the 'Back' button from the Profile or Registration page always returns to the Live Lobby, not the login screen."
-        ]
-      },
-      "acceptanceCriteria": [
-        "Back button on RegisterPage navigates to /lobby",
-        "Back button on ProfilePage navigates to /lobby",
-        "Pressing the browser back button from these pages does not land on the login or welcome screen"
-      ]
-    },
-    {
-      "id": "REQ-6",
-      "text": "Add the /profile route to the TanStack Router configuration in App.tsx with the same auth guard pattern as other protected routes (redirect unauthenticated users away, allow authenticated users in).",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-latest"
-        ],
-        "quotes": [
-          "open a side menu or new page"
-        ]
-      },
-      "acceptanceCriteria": [
-        "/profile route is defined in App.tsx",
-        "Unauthenticated users visiting /profile are redirected to login/welcome",
-        "Authenticated users can access /profile"
+        "A logged-in user can initiate a deposit without receiving an 'Unauthorized' error",
+        "Deposit submission (screenshot + transaction ID) reaches the backend successfully for authenticated users",
+        "No unauthorized errors appear in the deposit flow for users who are logged in via the app's auth system"
       ]
     }
   ],
   "constraints": [
-    "Do not modify files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui",
-    "Wallet balance must be displayed in Indian Rupee format (₹) consistent with existing pricing style",
-    "Maintain existing dark red/black/gold gaming theme across all new UI components"
+    "UPI deep link must use exactly: upi://pay?pa=8728872927@fam&pn=FreeFireTournament&am={amount}&cu=INR",
+    "Minimum deposit amount is ₹20 — enforce client-side validation before triggering the link",
+    "Do not edit files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui"
   ],
   "nonGoals": [
-    "Real payment gateway integration (Deposit/Withdraw are UI stubs only unless backend stubs are wired)",
-    "Internet Identity / ICP wallet integration",
-    "SMS or email notifications for wallet transactions",
-    "Admin panel for managing wallet balances"
+    "Automated payment verification or webhook integration with UPI providers",
+    "QR code generation for UPI payments",
+    "Support for international currencies or non-UPI payment methods",
+    "Changes to tournament registration or lobby functionality"
   ],
   "imageRequirements": {
     "required": [],

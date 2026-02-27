@@ -1,15 +1,13 @@
 # Specification
 
 ## Summary
-**Goal:** Add a user profile/wallet side menu to the Lobby, wire "Join Now" buttons to the Registration page, and back-navigation to always return to the Lobby.
+**Goal:** Update the deposit flow in the FreeFire Tournament app to use a UPI Intent Link, add a screenshot upload step after payment, and fix the "Unauthorized" error for logged-in users on the deposit page.
 
 **Planned changes:**
-- Add a profile icon button to the top-right of the LobbyPage header (dark red/black/gold theme)
-- Create a `/profile` route and ProfilePage showing: Account Details (Player Name + UID), Wallet balance (₹0.00), Deposit and Withdraw buttons, and a Terms & Conditions link to `/rules`
-- Register `/profile` in the TanStack Router with the same auth guard as other protected routes
-- Wire "Join Now" button on TournamentCard and RoomCard components to navigate to `/register`
-- Ensure Back buttons on both ProfilePage and RegisterPage navigate to `/lobby`
-- Add `walletBalance: Float` field (defaulting to 0.0) to the backend User type in `main.mo`
-- Add backend query/update stubs: `getWalletBalance`, `deposit`, and `withdraw` (with no-negative-balance validation)
+- Replace the static UPI ID display in `ManualDepositModal` with a "Proceed to Pay" button that constructs and triggers the UPI deep link `upi://pay?pa=8728872927@fam&pn=FreeFireTournament&am={amount}&cu=INR` via `window.location.href`
+- Enforce a minimum amount of ₹20 client-side before triggering the deep link, showing a validation error if the amount is below the minimum
+- After the deep link is triggered, automatically advance the modal to a screenshot upload screen with a file input for the payment screenshot and a transaction ID field
+- Allow the user to submit the screenshot and transaction ID from that screen for admin verification
+- Audit deposit-related query and mutation hooks in `useQueries.ts` to ensure they use the authenticated actor for logged-in users, eliminating the "Unauthorized" error during deposit flow
 
-**User-visible outcome:** Players on the Lobby can click their profile icon to view account details and wallet balance, use Deposit/Withdraw stubs, and clicking "Join Now" on any tournament card correctly opens the Registration page. Back navigation always returns to the Live Lobby.
+**User-visible outcome:** Logged-in users can enter a deposit amount, tap "Proceed to Pay" to open their installed UPI apps (GPay, PhonePe, Paytm), and upon returning to the app are presented with a screenshot upload screen to submit proof of payment — all without encountering an "Unauthorized" error.

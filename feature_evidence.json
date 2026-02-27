@@ -2,10 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-on-the-lobbypage-ensure-that-clicking-the-join-now-button-on-any-tournament-card-navigates-the-user-to-the-registration-payment-page-register-the-tournamentcard-and-roomcard-components-must-both-route-to-register-on-button-click",
-      "featureTitle": "On the LobbyPage, ensure that clicking the 'Join Now' button on any tournament card navigates the user to the Registration/Payment page (/register). The TournamentCard and RoomCard components must both route to '/register' on button click.",
+      "featureId": "feature-update-the-manualdepositmodal-component-to-replace-the-static-upi-id-display-with-a-upi-intent-link-button-when-the-user-enters-a-valid-amount-minimum-20-and-clicks-proceed-to-pay-construct-the-deep-link-upi-pay-pa-8728872927-fam-pn-freefiretournament-am-amount-cu-inr-and-trigger-it-via-window-location-href-or-an-anchor-tag-with-href-set-to-the-deep-link-so-the-device-automatically-presents-installed-upi-apps-gpay-phonepe-paytm-for-the-user-to-complete-payment",
+      "featureTitle": "Update the ManualDepositModal component to replace the static UPI ID display with a UPI Intent Link button. When the user enters a valid amount (minimum ₹20) and clicks 'Proceed to Pay', construct the deep link: upi://pay?pa=8728872927@fam&pn=FreeFireTournament&am={amount}&cu=INR and trigger it via window.location.href or an anchor tag with href set to the deep link, so the device automatically presents installed UPI apps (GPay, PhonePe, Paytm) for the user to complete payment.",
       "files": [
-        "frontend/src/components/TournamentCard.tsx"
+        "frontend/src/components/ManualDepositModal.tsx"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -13,7 +13,9 @@
         "build-template-react@1.0.0",
         "initial-app@1.0.0",
         "github-export-icp-cli@1.0.0",
-        "authorization@4.0.0"
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "user-approval@3.0.0"
       ],
       "testIds": [
         "REQ-1"
@@ -21,10 +23,10 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-add-a-user-profile-icon-button-at-the-top-right-corner-of-the-lobbypage-header-the-icon-should-be-a-recognizable-user-avatar-icon-styled-consistently-with-the-dark-red-black-gaming-theme",
-      "featureTitle": "Add a User Profile icon button at the top-right corner of the LobbyPage header. The icon should be a recognizable user/avatar icon styled consistently with the dark red/black gaming theme.",
+      "featureId": "feature-after-the-upi-deep-link-is-triggered-transition-the-deposit-modal-flow-to-a-dedicated-screenshot-upload-screen-this-screen-should-prompt-the-user-to-upload-a-payment-screenshot-for-manual-verification-and-allow-submission-of-the-transaction-details-screenshot-transaction-id-to-the-backend-this-replaces-the-previous-mid-flow-upi-id-copy-step-and-makes-screenshot-upload-the-next-explicit-step-after-payment-initiation",
+      "featureTitle": "After the UPI deep link is triggered, transition the deposit modal/flow to a dedicated screenshot upload screen. This screen should prompt the user to upload a payment screenshot for manual verification, and allow submission of the transaction details (screenshot + transaction ID) to the backend. This replaces the previous mid-flow UPI ID copy step and makes screenshot upload the next explicit step after payment initiation.",
       "files": [
-        "frontend/src/pages/LobbyPage.tsx"
+        "frontend/src/components/ManualDepositModal.tsx"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -32,7 +34,9 @@
         "build-template-react@1.0.0",
         "initial-app@1.0.0",
         "github-export-icp-cli@1.0.0",
-        "authorization@4.0.0"
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "user-approval@3.0.0"
       ],
       "testIds": [
         "REQ-2"
@@ -40,11 +44,10 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-create-a-profilepage-or-slide-in-side-drawer-panel-that-opens-when-the-profile-icon-is-clicked-it-must-contain-1-account-details-section-showing-the-logged-in-player-name-and-uid-free-fire-uid-from-auth-state-localstorage-2-wallet-section-displaying-current-balance-formatted-as-0-00-3-two-action-buttons-deposit-and-withdraw-4-a-terms-conditions-link-that-navigates-to-the-rules-page-rules-the-profile-view-must-have-its-own-route-profile-or-be-accessible-as-an-overlay-from-lobby",
-      "featureTitle": "Create a ProfilePage (or slide-in side drawer/panel) that opens when the profile icon is clicked. It must contain: (1) Account Details section showing the logged-in Player Name and UID (Free Fire UID from auth state/localStorage), (2) Wallet section displaying current balance formatted as ₹0.00, (3) Two action buttons: 'Deposit' and 'Withdraw', (4) A 'Terms & Conditions' link that navigates to the Rules page (/rules). The profile view must have its own route (/profile) or be accessible as an overlay from /lobby.",
+      "featureId": "feature-fix-the-unauthorized-error-that-occurs-on-the-deposit-page-for-logged-in-users-audit-the-deposit-related-backend-query-and-mutation-hooks-in-usequeries-ts-to-ensure-they-use-the-authenticated-actor-not-anonymous-ensure-that-when-a-logged-in-user-initiates-a-deposit-the-actor-is-called-with-the-user-s-authenticated-identity-eliminating-the-unauthorized-rejection",
+      "featureTitle": "Fix the 'Unauthorized' error that occurs on the deposit page for logged-in users. Audit the deposit-related backend query and mutation hooks in useQueries.ts to ensure they use the authenticated actor (not anonymous). Ensure that when a logged-in user initiates a deposit, the actor is called with the user's authenticated identity, eliminating the unauthorized rejection.",
       "files": [
-        "frontend/src/hooks/useQueries.ts",
-        "frontend/src/pages/ProfilePage.tsx"
+        "frontend/src/components/ManualDepositModal.tsx"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -52,49 +55,12 @@
         "build-template-react@1.0.0",
         "initial-app@1.0.0",
         "github-export-icp-cli@1.0.0",
-        "authorization@4.0.0"
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "user-approval@3.0.0"
       ],
       "testIds": [
         "REQ-3"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-ensure-the-back-button-on-both-the-profilepage-and-the-registerpage-always-navigates-the-user-back-to-the-live-lobby-lobby-never-to-the-login-or-welcome-page-use-router-navigate-lobby-or-history-replacement-to-enforce-this-consistent-with-the-existing-back-navigation-pattern-in-registerpage",
-      "featureTitle": "Ensure the 'Back' button on both the ProfilePage and the RegisterPage always navigates the user back to the Live Lobby (/lobby), never to the login or welcome page. Use router.navigate('/lobby') or history replacement to enforce this, consistent with the existing back-navigation pattern in RegisterPage.",
-      "files": [
-        "frontend/src/pages/ProfilePage.tsx",
-        "frontend/src/pages/RegisterPage.tsx"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "authorization@4.0.0"
-      ],
-      "testIds": [
-        "REQ-5"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-add-the-profile-route-to-the-tanstack-router-configuration-in-app-tsx-with-the-same-auth-guard-pattern-as-other-protected-routes-redirect-unauthenticated-users-away-allow-authenticated-users-in",
-      "featureTitle": "Add the /profile route to the TanStack Router configuration in App.tsx with the same auth guard pattern as other protected routes (redirect unauthenticated users away, allow authenticated users in).",
-      "files": [
-        "frontend/src/App.tsx"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "authorization@4.0.0"
-      ],
-      "testIds": [
-        "REQ-6"
       ],
       "confidence": "high"
     }

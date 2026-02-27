@@ -11,22 +11,21 @@ import {
   Loader2,
   Copy,
   Check,
+  IndianRupee,
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
-import { useGetWalletBalance, useDeposit, useWithdraw } from '../hooks/useQueries';
+import { useWithdraw } from '../hooks/useQueries';
+import ManualDepositModal from '../components/ManualDepositModal';
 
 export default function ProfilePage() {
   const router = useRouter();
   const { isAuthenticated, userName, userEmail, userUid } = useAuth();
-  const { data: balance, isLoading: balanceLoading } = useGetWalletBalance(userEmail);
 
-  const depositMutation = useDeposit();
   const withdrawMutation = useWithdraw();
 
-  const [depositAmount, setDepositAmount] = useState('');
   const [withdrawAmount, setWithdrawAmount] = useState('');
-  const [showDepositInput, setShowDepositInput] = useState(false);
   const [showWithdrawInput, setShowWithdrawInput] = useState(false);
+  const [showDepositModal, setShowDepositModal] = useState(false);
   const [txError, setTxError] = useState('');
   const [txSuccess, setTxSuccess] = useState('');
   const [uidCopied, setUidCopied] = useState(false);
@@ -39,25 +38,6 @@ export default function ProfilePage() {
 
   const handleBack = () => {
     router.navigate({ to: '/lobby', replace: true });
-  };
-
-  const handleDeposit = async () => {
-    const amount = parseFloat(depositAmount);
-    if (isNaN(amount) || amount <= 0) {
-      setTxError('Enter a valid deposit amount.');
-      return;
-    }
-    setTxError('');
-    setTxSuccess('');
-    try {
-      await depositMutation.mutateAsync({ uid: userEmail, amount });
-      setTxSuccess(`₹${amount.toFixed(2)} deposited successfully!`);
-      setDepositAmount('');
-      setShowDepositInput(false);
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Deposit failed.';
-      setTxError(msg);
-    }
   };
 
   const handleWithdraw = async () => {
@@ -87,15 +67,12 @@ export default function ProfilePage() {
     }
   };
 
-  const formattedBalance =
-    balance !== undefined ? `₹${balance.toFixed(2)}` : '₹0.00';
-
   return (
     <div className="min-h-screen bg-game-black relative overflow-hidden">
       {/* Background grid */}
       <div className="absolute inset-0 grid-pattern opacity-10 pointer-events-none" />
 
-      {/* Header — sticky only (no conflicting relative) */}
+      {/* Header */}
       <header className="sticky top-0 z-10 bg-black/80 border-b border-game-red/30 px-4 py-3">
         <div className="max-w-2xl mx-auto flex items-center gap-4">
           <button
@@ -191,22 +168,22 @@ export default function ProfilePage() {
             <h2 className="font-orbitron text-sm font-bold text-white tracking-wider">WALLET</h2>
           </div>
 
-          {/* Balance display */}
-          <div className="bg-black/60 border border-gold/20 rounded-sm p-5 mb-5 text-center">
-            <p className="text-gray-500 font-rajdhani text-xs tracking-widest mb-1">CURRENT BALANCE</p>
-            {balanceLoading ? (
-              <div className="flex items-center justify-center gap-2 text-gold">
-                <Loader2 size={18} className="animate-spin" />
-                <span className="font-orbitron text-lg">Loading...</span>
-              </div>
-            ) : (
-              <p className="font-orbitron text-3xl font-black text-gold">{formattedBalance}</p>
-            )}
+          {/* Add Funds instruction banner */}
+          <div className="bg-green-900/20 border border-green-500/30 rounded-sm px-4 py-3 mb-5 flex items-start gap-3">
+            <IndianRupee size={16} className="text-green-400 mt-0.5 shrink-0" />
+            <div>
+              <p className="text-green-400 font-orbitron text-xs font-bold tracking-wider">
+                ADD FUNDS
+              </p>
+              <p className="text-gray-400 font-rajdhani text-xs mt-0.5 leading-relaxed">
+                Use the Deposit button below to add funds via UPI payment.
+              </p>
+            </div>
           </div>
 
           {/* Feedback messages */}
           {txError && (
-            <div className="bg-game-red/20 border border-game-red/50 rounded-sm px-4 py-2 mb-4 text-game-red text-sm font-rajdhani">
+            <div className="bg-gray-800/60 border border-gray-600/50 rounded-sm px-4 py-2 mb-4 text-gray-300 text-sm font-rajdhani">
               {txError}
             </div>
           )}
@@ -216,50 +193,30 @@ export default function ProfilePage() {
             </div>
           )}
 
-          {/* Deposit section */}
+          {/* Deposit button — opens manual UPI modal */}
           <div className="mb-3">
-            {!showDepositInput ? (
-              <button
-                onClick={() => { setShowDepositInput(true); setShowWithdrawInput(false); setTxError(''); setTxSuccess(''); }}
-                className="w-full flex items-center justify-center gap-2 bg-green-700/80 hover:bg-green-600 border border-green-600/50 text-white font-orbitron font-bold py-3 rounded-sm transition-all tracking-wider text-sm"
-              >
-                <ArrowDownCircle size={18} />
-                DEPOSIT
-              </button>
-            ) : (
-              <div className="space-y-2">
-                <div className="flex gap-2">
-                  <input
-                    type="number"
-                    min="1"
-                    value={depositAmount}
-                    onChange={(e) => setDepositAmount(e.target.value)}
-                    placeholder="Enter amount (₹)"
-                    className="flex-1 bg-black/60 border border-green-700/50 focus:border-green-500 rounded-sm px-4 py-2.5 text-white font-rajdhani text-sm outline-none transition-colors placeholder:text-gray-600"
-                  />
-                  <button
-                    onClick={handleDeposit}
-                    disabled={depositMutation.isPending}
-                    className="px-4 py-2.5 bg-green-700 hover:bg-green-600 disabled:opacity-60 text-white font-orbitron text-xs font-bold rounded-sm transition-colors flex items-center gap-1"
-                  >
-                    {depositMutation.isPending ? <Loader2 size={14} className="animate-spin" /> : 'ADD'}
-                  </button>
-                  <button
-                    onClick={() => { setShowDepositInput(false); setDepositAmount(''); }}
-                    className="px-3 py-2.5 bg-gray-800 hover:bg-gray-700 text-silver font-rajdhani text-xs rounded-sm transition-colors"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            )}
+            <button
+              onClick={() => {
+                setShowDepositModal(true);
+                setTxError('');
+                setTxSuccess('');
+              }}
+              className="w-full flex items-center justify-center gap-2 bg-green-700/80 hover:bg-green-600 border border-green-600/50 text-white font-orbitron font-bold py-3 rounded-sm transition-all tracking-wider text-sm"
+            >
+              <ArrowDownCircle size={18} />
+              DEPOSIT
+            </button>
           </div>
 
           {/* Withdraw section */}
           <div>
             {!showWithdrawInput ? (
               <button
-                onClick={() => { setShowWithdrawInput(true); setShowDepositInput(false); setTxError(''); setTxSuccess(''); }}
+                onClick={() => {
+                  setShowWithdrawInput(true);
+                  setTxError('');
+                  setTxSuccess('');
+                }}
                 className="w-full flex items-center justify-center gap-2 bg-gray-800/80 hover:bg-gray-700 border border-gray-600/50 text-white font-orbitron font-bold py-3 rounded-sm transition-all tracking-wider text-sm"
               >
                 <ArrowUpCircle size={18} />
@@ -333,6 +290,12 @@ export default function ProfilePage() {
           </a>
         </p>
       </footer>
+
+      {/* Manual Deposit Modal */}
+      <ManualDepositModal
+        open={showDepositModal}
+        onClose={() => setShowDepositModal(false)}
+      />
     </div>
   );
 }

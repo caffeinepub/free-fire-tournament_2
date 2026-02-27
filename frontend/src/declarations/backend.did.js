@@ -8,10 +8,36 @@
 
 import { IDL } from '@icp-sdk/core/candid';
 
+export const _CaffeineStorageCreateCertificateResult = IDL.Record({
+  'method' : IDL.Text,
+  'blob_hash' : IDL.Text,
+});
+export const _CaffeineStorageRefillInformation = IDL.Record({
+  'proposed_top_up_amount' : IDL.Opt(IDL.Nat),
+});
+export const _CaffeineStorageRefillResult = IDL.Record({
+  'success' : IDL.Opt(IDL.Bool),
+  'topped_up_amount' : IDL.Opt(IDL.Nat),
+});
 export const UserRole = IDL.Variant({
   'admin' : IDL.Null,
   'user' : IDL.Null,
   'guest' : IDL.Null,
+});
+export const DepositStatus = IDL.Variant({
+  'pending' : IDL.Null,
+  'approved' : IDL.Null,
+  'rejected' : IDL.Null,
+});
+export const ExternalBlob = IDL.Vec(IDL.Nat8);
+export const DepositRecord = IDL.Record({
+  'id' : IDL.Nat,
+  'status' : DepositStatus,
+  'user' : IDL.Principal,
+  'submittedAt' : IDL.Int,
+  'amount' : IDL.Float64,
+  'screenshot' : ExternalBlob,
+  'transactionId' : IDL.Text,
 });
 export const UserProfile = IDL.Record({
   'freefireUid' : IDL.Text,
@@ -60,6 +86,15 @@ export const Tournament = IDL.Record({
   'dateTime' : IDL.Text,
   'prizePool' : IDL.Text,
 });
+export const ApprovalStatus = IDL.Variant({
+  'pending' : IDL.Null,
+  'approved' : IDL.Null,
+  'rejected' : IDL.Null,
+});
+export const UserApprovalInfo = IDL.Record({
+  'status' : ApprovalStatus,
+  'principal' : IDL.Principal,
+});
 export const User = IDL.Record({
   'freefireUid' : IDL.Text,
   'password' : IDL.Text,
@@ -79,14 +114,48 @@ export const RegisterUserResult = IDL.Variant({
 });
 
 export const idlService = IDL.Service({
+  '_caffeineStorageBlobIsLive' : IDL.Func(
+      [IDL.Vec(IDL.Nat8)],
+      [IDL.Bool],
+      ['query'],
+    ),
+  '_caffeineStorageBlobsToDelete' : IDL.Func(
+      [],
+      [IDL.Vec(IDL.Vec(IDL.Nat8))],
+      ['query'],
+    ),
+  '_caffeineStorageConfirmBlobDeletion' : IDL.Func(
+      [IDL.Vec(IDL.Vec(IDL.Nat8))],
+      [],
+      [],
+    ),
+  '_caffeineStorageCreateCertificate' : IDL.Func(
+      [IDL.Text],
+      [_CaffeineStorageCreateCertificateResult],
+      [],
+    ),
+  '_caffeineStorageRefillCashier' : IDL.Func(
+      [IDL.Opt(_CaffeineStorageRefillInformation)],
+      [_CaffeineStorageRefillResult],
+      [],
+    ),
+  '_caffeineStorageUpdateGatewayPrincipals' : IDL.Func([], [], []),
   '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
+  'approveDeposit' : IDL.Func([IDL.Nat], [], []),
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
   'deposit' : IDL.Func([IDL.Text, IDL.Float64], [], []),
+  'getAllPendingDeposits' : IDL.Func([], [IDL.Vec(DepositRecord)], ['query']),
   'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
+  'getDepositRecord' : IDL.Func([IDL.Nat], [IDL.Opt(DepositRecord)], ['query']),
   'getLeaderboard' : IDL.Func([], [IDL.Vec(LeaderboardEntry)], ['query']),
   'getRooms' : IDL.Func([], [IDL.Vec(Room)], ['query']),
   'getTournaments' : IDL.Func([], [IDL.Vec(Tournament)], ['query']),
+  'getUserDeposits' : IDL.Func(
+      [IDL.Principal],
+      [IDL.Vec(DepositRecord)],
+      ['query'],
+    ),
   'getUserProfile' : IDL.Func(
       [IDL.Principal],
       [IDL.Opt(UserProfile)],
@@ -94,6 +163,8 @@ export const idlService = IDL.Service({
     ),
   'getWalletBalance' : IDL.Func([IDL.Text], [IDL.Float64], ['query']),
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+  'isCallerApproved' : IDL.Func([], [IDL.Bool], ['query']),
+  'listApprovals' : IDL.Func([], [IDL.Vec(UserApprovalInfo)], ['query']),
   'loginUser' : IDL.Func([IDL.Text, IDL.Text], [LoginUserResult], []),
   'registerPlayer' : IDL.Func([IDL.Text, IDL.Text, IDL.Text, IDL.Text], [], []),
   'registerUser' : IDL.Func(
@@ -101,17 +172,51 @@ export const idlService = IDL.Service({
       [RegisterUserResult],
       [],
     ),
+  'rejectDeposit' : IDL.Func([IDL.Nat], [], []),
+  'requestApproval' : IDL.Func([], [], []),
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+  'setApproval' : IDL.Func([IDL.Principal, ApprovalStatus], [], []),
+  'submitDeposit' : IDL.Func(
+      [IDL.Float64, IDL.Text, ExternalBlob],
+      [IDL.Nat],
+      [],
+    ),
   'withdraw' : IDL.Func([IDL.Text, IDL.Float64], [], []),
 });
 
 export const idlInitArgs = [];
 
 export const idlFactory = ({ IDL }) => {
+  const _CaffeineStorageCreateCertificateResult = IDL.Record({
+    'method' : IDL.Text,
+    'blob_hash' : IDL.Text,
+  });
+  const _CaffeineStorageRefillInformation = IDL.Record({
+    'proposed_top_up_amount' : IDL.Opt(IDL.Nat),
+  });
+  const _CaffeineStorageRefillResult = IDL.Record({
+    'success' : IDL.Opt(IDL.Bool),
+    'topped_up_amount' : IDL.Opt(IDL.Nat),
+  });
   const UserRole = IDL.Variant({
     'admin' : IDL.Null,
     'user' : IDL.Null,
     'guest' : IDL.Null,
+  });
+  const DepositStatus = IDL.Variant({
+    'pending' : IDL.Null,
+    'approved' : IDL.Null,
+    'rejected' : IDL.Null,
+  });
+  const ExternalBlob = IDL.Vec(IDL.Nat8);
+  const DepositRecord = IDL.Record({
+    'id' : IDL.Nat,
+    'status' : DepositStatus,
+    'user' : IDL.Principal,
+    'submittedAt' : IDL.Int,
+    'amount' : IDL.Float64,
+    'screenshot' : ExternalBlob,
+    'transactionId' : IDL.Text,
   });
   const UserProfile = IDL.Record({
     'freefireUid' : IDL.Text,
@@ -157,6 +262,15 @@ export const idlFactory = ({ IDL }) => {
     'dateTime' : IDL.Text,
     'prizePool' : IDL.Text,
   });
+  const ApprovalStatus = IDL.Variant({
+    'pending' : IDL.Null,
+    'approved' : IDL.Null,
+    'rejected' : IDL.Null,
+  });
+  const UserApprovalInfo = IDL.Record({
+    'status' : ApprovalStatus,
+    'principal' : IDL.Principal,
+  });
   const User = IDL.Record({
     'freefireUid' : IDL.Text,
     'password' : IDL.Text,
@@ -176,14 +290,52 @@ export const idlFactory = ({ IDL }) => {
   });
   
   return IDL.Service({
+    '_caffeineStorageBlobIsLive' : IDL.Func(
+        [IDL.Vec(IDL.Nat8)],
+        [IDL.Bool],
+        ['query'],
+      ),
+    '_caffeineStorageBlobsToDelete' : IDL.Func(
+        [],
+        [IDL.Vec(IDL.Vec(IDL.Nat8))],
+        ['query'],
+      ),
+    '_caffeineStorageConfirmBlobDeletion' : IDL.Func(
+        [IDL.Vec(IDL.Vec(IDL.Nat8))],
+        [],
+        [],
+      ),
+    '_caffeineStorageCreateCertificate' : IDL.Func(
+        [IDL.Text],
+        [_CaffeineStorageCreateCertificateResult],
+        [],
+      ),
+    '_caffeineStorageRefillCashier' : IDL.Func(
+        [IDL.Opt(_CaffeineStorageRefillInformation)],
+        [_CaffeineStorageRefillResult],
+        [],
+      ),
+    '_caffeineStorageUpdateGatewayPrincipals' : IDL.Func([], [], []),
     '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
+    'approveDeposit' : IDL.Func([IDL.Nat], [], []),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
     'deposit' : IDL.Func([IDL.Text, IDL.Float64], [], []),
+    'getAllPendingDeposits' : IDL.Func([], [IDL.Vec(DepositRecord)], ['query']),
     'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
+    'getDepositRecord' : IDL.Func(
+        [IDL.Nat],
+        [IDL.Opt(DepositRecord)],
+        ['query'],
+      ),
     'getLeaderboard' : IDL.Func([], [IDL.Vec(LeaderboardEntry)], ['query']),
     'getRooms' : IDL.Func([], [IDL.Vec(Room)], ['query']),
     'getTournaments' : IDL.Func([], [IDL.Vec(Tournament)], ['query']),
+    'getUserDeposits' : IDL.Func(
+        [IDL.Principal],
+        [IDL.Vec(DepositRecord)],
+        ['query'],
+      ),
     'getUserProfile' : IDL.Func(
         [IDL.Principal],
         [IDL.Opt(UserProfile)],
@@ -191,6 +343,8 @@ export const idlFactory = ({ IDL }) => {
       ),
     'getWalletBalance' : IDL.Func([IDL.Text], [IDL.Float64], ['query']),
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+    'isCallerApproved' : IDL.Func([], [IDL.Bool], ['query']),
+    'listApprovals' : IDL.Func([], [IDL.Vec(UserApprovalInfo)], ['query']),
     'loginUser' : IDL.Func([IDL.Text, IDL.Text], [LoginUserResult], []),
     'registerPlayer' : IDL.Func(
         [IDL.Text, IDL.Text, IDL.Text, IDL.Text],
@@ -202,7 +356,15 @@ export const idlFactory = ({ IDL }) => {
         [RegisterUserResult],
         [],
       ),
+    'rejectDeposit' : IDL.Func([IDL.Nat], [], []),
+    'requestApproval' : IDL.Func([], [], []),
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+    'setApproval' : IDL.Func([IDL.Principal, ApprovalStatus], [], []),
+    'submitDeposit' : IDL.Func(
+        [IDL.Float64, IDL.Text, ExternalBlob],
+        [IDL.Nat],
+        [],
+      ),
     'withdraw' : IDL.Func([IDL.Text, IDL.Float64], [], []),
   });
 };

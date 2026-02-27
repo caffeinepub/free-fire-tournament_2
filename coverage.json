@@ -1,104 +1,58 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-27T02:02:32.571Z",
+  "generatedAt": "2026-02-27T02:49:59.847Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 6,
-    "implemented": 5,
+    "total": 3,
+    "implemented": 3,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "On the LobbyPage, ensure that clicking the 'Join Now' button on any tournament card navigates the user to the Registration/Payment page (/register). The TournamentCard and RoomCard components must both route to '/register' on button click.",
+        "summary": "Update the ManualDepositModal component to replace the static UPI ID display with a UPI Intent Link button. When the user enters a valid amount (minimum ₹20) and clicks 'Proceed to Pay', construct the deep link: upi://pay?pa=8728872927@fam&pn=FreeFireTournament&am={amount}&cu=INR and trigger it via window.location.href or an anchor tag with href set to the deep link, so the device automatically presents installed UPI apps (GPay, PhonePe, Paytm) for the user to complete payment.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/components/TournamentCard.tsx",
-          "frontend/src/components/RoomCard.tsx"
+          "frontend/src/components/ManualDepositModal.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/components/TournamentCard.tsx"
+          "frontend/src/components/ManualDepositModal.tsx"
         ]
       },
       {
         "id": "REQ-2",
-        "summary": "Add a User Profile icon button at the top-right corner of the LobbyPage header. The icon should be a recognizable user/avatar icon styled consistently with the dark red/black gaming theme.",
+        "summary": "After the UPI deep link is triggered, transition the deposit modal/flow to a dedicated screenshot upload screen. This screen should prompt the user to upload a payment screenshot for manual verification, and allow submission of the transaction details (screenshot + transaction ID) to the backend. This replaces the previous mid-flow UPI ID copy step and makes screenshot upload the next explicit step after payment initiation.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/LobbyPage.tsx"
+          "frontend/src/components/ManualDepositModal.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/pages/LobbyPage.tsx"
+          "frontend/src/components/ManualDepositModal.tsx"
         ]
       },
       {
         "id": "REQ-3",
-        "summary": "Create a ProfilePage (or slide-in side drawer/panel) that opens when the profile icon is clicked. It must contain: (1) Account Details section showing the logged-in Player Name and UID (Free Fire UID from auth state/localStorage), (2) Wallet section displaying current balance formatted as ₹0.00, (3) Two action buttons: 'Deposit' and 'Withdraw', (4) A 'Terms & Conditions' link that navigates to the Rules page (/rules). The profile view must have its own route (/profile) or be accessible as an overlay from /lobby.",
+        "summary": "Fix the 'Unauthorized' error that occurs on the deposit page for logged-in users. Audit the deposit-related backend query and mutation hooks in useQueries.ts to ensure they use the authenticated actor (not anonymous). Ensure that when a logged-in user initiates a deposit, the actor is called with the user's authenticated identity, eliminating the unauthorized rejection.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/ProfilePage.tsx",
-          "frontend/src/hooks/useQueries.ts"
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/components/ManualDepositModal.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/pages/ProfilePage.tsx",
-          "frontend/src/hooks/useQueries.ts"
-        ]
-      },
-      {
-        "id": "REQ-4",
-        "summary": "Add a wallet balance field to the backend User type in main.mo (e.g., walletBalance: Float defaulting to 0.0). Expose query and update functions: getWalletBalance(uid: Text) -> Float and deposit/withdraw stubs that adjust the balance (with basic validation: no negative balance on withdraw).",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
-      },
-      {
-        "id": "REQ-5",
-        "summary": "Ensure the 'Back' button on both the ProfilePage and the RegisterPage always navigates the user back to the Live Lobby (/lobby), never to the login or welcome page. Use router.navigate('/lobby') or history replacement to enforce this, consistent with the existing back-navigation pattern in RegisterPage.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/pages/ProfilePage.tsx",
-          "frontend/src/pages/RegisterPage.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/pages/ProfilePage.tsx",
-          "frontend/src/pages/RegisterPage.tsx"
-        ]
-      },
-      {
-        "id": "REQ-6",
-        "summary": "Add the /profile route to the TanStack Router configuration in App.tsx with the same auth guard pattern as other protected routes (redirect unauthenticated users away, allow authenticated users in).",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/App.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/App.tsx"
+          "frontend/src/components/ManualDepositModal.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
     "backend/main.mo",
-    "backend/migration.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/App.tsx",
-    "frontend/src/backend.d.ts",
-    "frontend/src/backend.ts",
-    "frontend/src/components/TournamentCard.tsx",
-    "frontend/src/declarations/backend.did.d.ts",
-    "frontend/src/declarations/backend.did.js",
-    "frontend/src/hooks/useAuth.ts",
-    "frontend/src/hooks/useQueries.ts",
-    "frontend/src/pages/LobbyPage.tsx",
-    "frontend/src/pages/LoginPage.tsx",
-    "frontend/src/pages/ProfilePage.tsx",
-    "frontend/src/pages/RegisterPage.tsx",
-    "frontend/src/pages/SignUpPage.tsx",
+    "frontend/src/components/ManualDepositModal.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

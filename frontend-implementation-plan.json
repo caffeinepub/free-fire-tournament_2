@@ -1,103 +1,60 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Lobby Profile & Wallet Menu + Join Now Navigation",
+  "title": "UPI Intent Link on Deposit Page with Screenshot Upload Flow",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Wire TournamentCard and RoomCard 'Join Now' buttons to navigate to /register",
+      "summary": "Replace static UPI ID display with UPI Intent Link button that triggers deep link to open installed UPI apps when user enters valid amount (minimum ₹20)",
       "acceptanceCriteria": [
-        "Clicking 'Join Now' on any TournamentCard navigates to /register",
-        "Clicking the join button on any RoomCard navigates to /register",
-        "The Registration/Payment page loads correctly after clicking Join Now"
+        "Clicking 'Proceed to Pay' with an amount ≥ ₹20 triggers the UPI deep link upi://pay?pa=8728872927@fam&pn=FreeFireTournament&am={amount}&cu=INR",
+        "The device displays a chooser of installed UPI apps (GPay, PhonePe, Paytm) when the deep link is triggered",
+        "Entering an amount below ₹20 shows a validation error and does not trigger the deep link",
+        "The UPI ID is no longer shown as a static text-only element — the intent link replaces that step"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/TournamentCard.tsx",
+          "path": "frontend/src/components/ManualDepositModal.tsx",
           "operation": "modify",
-          "description": "Update the register button onClick handler to use router.navigate('/register') to ensure consistent navigation to the registration page when the Join Now button is clicked."
-        },
-        {
-          "path": "frontend/src/components/RoomCard.tsx",
-          "operation": "modify",
-          "description": "Verify the existing navigation to '/register' on the join button click is working correctly. Ensure the router.navigate call is present and properly wired."
+          "description": "Replace the current UPI ID copy step with a UPI Intent Link button. Add client-side validation to ensure amount is ≥ ₹20 before allowing user to proceed. When 'Proceed to Pay' is clicked with valid amount, construct the deep link upi://pay?pa=8728872927@fam&pn=FreeFireTournament&am={amount}&cu=INR and trigger it via window.location.href to open the device's UPI app chooser. Remove the static UPI ID display and copy functionality from step 2."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Add a User Profile icon button to the top-right corner of LobbyPage header",
+      "summary": "Transition deposit modal to dedicated screenshot upload screen after UPI deep link is triggered, prompting user to upload payment screenshot and submit transaction details",
       "acceptanceCriteria": [
-        "A profile icon is visible at the top-right of the LobbyPage",
-        "The icon is styled with the existing dark red/black/gold theme",
-        "The icon is tappable and responds to click events"
+        "After the UPI deep link is triggered, the UI automatically advances to the screenshot upload step",
+        "The screenshot upload screen has a file input for the payment screenshot and a transaction ID field",
+        "The user can submit the screenshot and transaction ID for admin verification",
+        "The flow does not require the user to manually navigate back to the app — the upload screen is shown upon return"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/LobbyPage.tsx",
+          "path": "frontend/src/components/ManualDepositModal.tsx",
           "operation": "modify",
-          "description": "Add a header section at the top of the page containing a user profile icon button positioned at the top-right. Use a recognizable user/avatar icon (e.g., from lucide-react icons) styled with the dark red/black/gold gaming theme. Wire the button's onClick to navigate to '/profile'."
+          "description": "After triggering the UPI deep link, automatically advance the modal flow to the screenshot upload step. Restructure the multi-step flow so that after the payment intent is launched, the user sees a screen prompting them to upload their payment screenshot and enter the transaction ID. Use the ExternalBlob.fromBytes method to handle screenshot file uploads. Wire the submit action to call the submitDeposit backend method with amount, transactionId, and screenshot parameters. Include proper loading states during upload and submission."
         }
       ]
     },
     {
       "id": "REQ-3",
-      "summary": "Create ProfilePage displaying account details, wallet balance, deposit/withdraw buttons, and terms link",
+      "summary": "Fix 'Unauthorized' error on deposit page for logged-in users by ensuring deposit-related hooks use authenticated actor instead of anonymous",
       "acceptanceCriteria": [
-        "Profile menu/page opens when profile icon is clicked",
-        "Account Details section shows the player's name and UID from auth/localStorage state",
-        "Wallet section shows balance formatted as ₹0.00",
-        "Deposit button is visible and styled",
-        "Withdraw button is visible and styled",
-        "Terms & Conditions link navigates to the rules/tournament rules page"
+        "A logged-in user can initiate a deposit without receiving an 'Unauthorized' error",
+        "Deposit submission (screenshot + transaction ID) reaches the backend successfully for authenticated users",
+        "No unauthorized errors appear in the deposit flow for users who are logged in via the app's auth system"
       ],
       "file_operations": [
-        {
-          "path": "frontend/src/pages/ProfilePage.tsx",
-          "operation": "create",
-          "description": "Create a new ProfilePage component that displays: (1) A header with a back button that navigates to '/lobby', (2) Account Details section showing the logged-in user's name and Free Fire UID retrieved from useAuth or localStorage, (3) Wallet section displaying the current balance formatted as ₹0.00 fetched via a query hook calling getWalletBalance(uid), (4) Two action buttons labeled 'Deposit' and 'Withdraw' styled with the dark red/black/gold gaming theme, (5) A 'Terms & Conditions' link that navigates to '/rules'. Style the page consistently with the existing gaming theme using Tailwind classes and the custom color palette."
-        },
         {
           "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Add a new useWalletBalance query hook that calls actor.getWalletBalance(uid) to fetch the current wallet balance for the authenticated user. Include proper loading, error, and enabled states. Also add mutation hooks for deposit and withdraw operations that call actor.deposit(uid, amount) and actor.withdraw(uid, amount), with optimistic updates and query invalidation on success."
-        }
-      ]
-    },
-    {
-      "id": "REQ-5",
-      "summary": "Ensure Back button on ProfilePage and RegisterPage always navigates to /lobby",
-      "acceptanceCriteria": [
-        "Back button on RegisterPage navigates to /lobby",
-        "Back button on ProfilePage navigates to /lobby",
-        "Pressing the browser back button from these pages does not land on the login or welcome screen"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/pages/ProfilePage.tsx",
-          "operation": "modify",
-          "description": "Ensure the back button uses router.navigate('/lobby', { replace: true }) to force navigation to the lobby and prevent browser back from returning to login/welcome pages. Apply the same navigation lock pattern used in LobbyPage if necessary."
+          "description": "Audit the useSubmitDeposit mutation hook and any other deposit-related query/mutation hooks to ensure they use the authenticated actor (not anonymous). Verify that the enabled condition properly waits for both actor availability and authentication state. Ensure the queryFn receives and uses the authenticated actor instance when calling submitDeposit. Review error handling to catch and display authorization errors appropriately."
         },
         {
-          "path": "frontend/src/pages/RegisterPage.tsx",
+          "path": "frontend/src/components/ManualDepositModal.tsx",
           "operation": "modify",
-          "description": "Verify the existing back button navigation to '/lobby' is using router.navigate('/lobby', { replace: true }) or equivalent to prevent returning to login/welcome screens. Ensure the navigation lock pattern from LobbyPage is applied consistently."
-        }
-      ]
-    },
-    {
-      "id": "REQ-6",
-      "summary": "Add /profile route to TanStack Router configuration with auth guard",
-      "acceptanceCriteria": [
-        "/profile route is defined in App.tsx",
-        "Unauthenticated users visiting /profile are redirected to login/welcome",
-        "Authenticated users can access /profile"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/App.tsx",
-          "operation": "modify",
-          "description": "Add a new /profile route to the TanStack Router configuration that renders the ProfilePage component. Include the same beforeLoad auth guard pattern used for other protected routes (/lobby, /register) to redirect unauthenticated users to the login or welcome page and allow authenticated users to access the profile."
+          "description": "Ensure the ManualDepositModal component checks authentication state before allowing deposit submission. Add proper error handling and user feedback for authorization failures. Display appropriate messages if the user is not authenticated when attempting to submit a deposit."
         }
       ]
     }

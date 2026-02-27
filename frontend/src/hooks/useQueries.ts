@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useActor } from './useActor';
-import type { Tournament, LeaderboardEntry, Room } from '../backend';
+import type { Tournament, LeaderboardEntry, Room, DepositRecord } from '../backend';
+import { ExternalBlob } from '../backend';
 
 export function useGetTournaments() {
   const { actor, isFetching } = useActor();
@@ -139,6 +140,75 @@ export function useWithdraw() {
     },
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['walletBalance', variables.uid] });
+    },
+  });
+}
+
+export function useSubmitDeposit() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      amount,
+      transactionId,
+      screenshotBytes,
+    }: {
+      amount: number;
+      transactionId: string;
+      screenshotBytes: Uint8Array<ArrayBuffer>;
+    }) => {
+      if (!actor) throw new Error('Actor not available');
+      const screenshot = ExternalBlob.fromBytes(screenshotBytes);
+      return actor.submitDeposit(amount, transactionId, screenshot);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['pendingDeposits'] });
+      queryClient.invalidateQueries({ queryKey: ['walletBalance'] });
+    },
+  });
+}
+
+export function useGetPendingDeposits() {
+  const { actor, isFetching } = useActor();
+
+  return useQuery<DepositRecord[]>({
+    queryKey: ['pendingDeposits'],
+    queryFn: async () => {
+      if (!actor) return [];
+      return actor.getAllPendingDeposits();
+    },
+    enabled: !!actor && !isFetching,
+  });
+}
+
+export function useApproveDeposit() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (depositId: bigint) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.approveDeposit(depositId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['pendingDeposits'] });
+      queryClient.invalidateQueries({ queryKey: ['walletBalance'] });
+    },
+  });
+}
+
+export function useRejectDeposit() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (depositId: bigint) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.rejectDeposit(depositId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['pendingDeposits'] });
     },
   });
 }
