@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useActor } from './useActor';
-import type { Tournament, LeaderboardEntry, Room, DepositRecord } from '../backend';
+import type { Tournament, LeaderboardEntry, Room, Transaction, SubmitDepositResult } from '../backend';
 import { ExternalBlob } from '../backend';
 
 export function useGetTournaments() {
@@ -97,7 +97,6 @@ export function useVerifyLogin() {
     mutationFn: async ({ email }: { email: string; password: string }) => {
       if (!actor) throw new Error('Actor not available');
       // Verify the user exists by checking their wallet balance.
-      // Returns the balance (any number) if the user exists, throws if not found.
       const balance = await actor.getWalletBalance(email);
       return balance;
     },
@@ -153,24 +152,19 @@ export function useSubmitDeposit() {
   const { actor } = useActor();
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: async ({
-      amount,
-      transactionId,
-      screenshotBytes,
-    }: {
-      amount: number;
-      transactionId: string;
-      screenshotBytes: Uint8Array<ArrayBuffer>;
-    }) => {
+  return useMutation<SubmitDepositResult, Error, { amount: number; utrNumber: string }>({
+    mutationFn: async ({ amount, utrNumber }) => {
       if (!actor) throw new Error('Actor not available');
-      const screenshot = ExternalBlob.fromBytes(screenshotBytes);
-      return actor.submitDeposit(amount, transactionId, screenshot);
+      // Backend still accepts a screenshot param; pass an empty blob as placeholder
+      const emptyBlob = ExternalBlob.fromBytes(new Uint8Array(0) as Uint8Array<ArrayBuffer>);
+      return actor.submitDeposit(amount, utrNumber, emptyBlob);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['pendingDeposits'] });
-      // Invalidate all walletBalance queries (prefix match covers ['walletBalance', uid])
-      queryClient.invalidateQueries({ queryKey: ['walletBalance'] });
+    onSuccess: (result) => {
+      if (result.__kind__ === 'success') {
+        queryClient.invalidateQueries({ queryKey: ['pendingDeposits'] });
+        // Invalidate all walletBalance queries (prefix match covers ['walletBalance', uid])
+        queryClient.invalidateQueries({ queryKey: ['walletBalance'] });
+      }
     },
   });
 }
@@ -178,11 +172,11 @@ export function useSubmitDeposit() {
 export function useGetPendingDeposits() {
   const { actor, isFetching } = useActor();
 
-  return useQuery<DepositRecord[]>({
+  return useQuery<Transaction[]>({
     queryKey: ['pendingDeposits'],
     queryFn: async () => {
       if (!actor) return [];
-      return actor.getAllPendingDeposits();
+      return actor.getAllPendingTransactions();
     },
     enabled: !!actor && !isFetching,
   });
@@ -193,9 +187,9 @@ export function useApproveDeposit() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (depositId: bigint) => {
+    mutationFn: async (transactionId: bigint) => {
       if (!actor) throw new Error('Actor not available');
-      return actor.approveDeposit(depositId);
+      return actor.approveTransaction(transactionId);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['pendingDeposits'] });
@@ -210,9 +204,9 @@ export function useRejectDeposit() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (depositId: bigint) => {
+    mutationFn: async (transactionId: bigint) => {
       if (!actor) throw new Error('Actor not available');
-      return actor.rejectDeposit(depositId);
+      return actor.rejectTransaction(transactionId);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['pendingDeposits'] });

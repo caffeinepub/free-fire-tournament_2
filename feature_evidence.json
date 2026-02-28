@@ -2,8 +2,29 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-update-the-minimum-deposit-amount-displayed-and-enforced-in-the-manualdepositmodal-frontend-component-to-10-the-input-field-should-show-a-minimum-value-of-10-and-client-side-validation-should-prevent-submission-of-amounts-below-10-with-an-error-message-stating-the-minimum-is-10",
-      "featureTitle": "Update the minimum deposit amount displayed and enforced in the ManualDepositModal frontend component to ₹10. The input field should show a minimum value of 10, and client-side validation should prevent submission of amounts below ₹10 with an error message stating the minimum is ₹10.",
+      "featureId": "feature-in-manualdepositmodal-tsx-update-the-upi-intent-launch-logic-so-that-after-opening-the-upi-uri-upi-pay-the-app-does-not-auto-close-the-intent-dialog-or-auto-advance-to-the-utr-submission-step-instead-the-modal-must-remain-on-the-upi-payment-step-and-wait-for-an-explicit-user-action-payment-completion-signal-or-manual-confirmation-before-proceeding",
+      "featureTitle": "In ManualDepositModal.tsx, update the UPI Intent launch logic so that after opening the UPI URI (upi://pay?...) the app does NOT auto-close the intent dialog or auto-advance to the UTR submission step. Instead, the modal must remain on the UPI payment step and wait for an explicit user action (payment completion signal or manual confirmation) before proceeding.",
+      "files": [
+        "frontend/src/components/ManualDepositModal.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "user-approval@3.0.0"
+      ],
+      "testIds": [
+        "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-in-manualdepositmodal-tsx-remove-or-disable-any-settimeout-auto-return-timer-that-fires-before-a-transaction-status-success-or-failure-is-received-increase-any-response-wait-timeout-to-at-least-5-minutes-300-000-ms-or-make-it-indefinite-so-the-flow-does-not-prematurely-redirect-the-user",
+      "featureTitle": "In ManualDepositModal.tsx, remove or disable any setTimeout / auto-return timer that fires before a transaction status (Success or Failure) is received. Increase any response-wait timeout to at least 5 minutes (300,000 ms) or make it indefinite, so the flow does not prematurely redirect the user.",
       "files": [
         "frontend/src/components/ManualDepositModal.tsx"
       ],
@@ -19,6 +40,48 @@
       ],
       "testIds": [
         "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-verify-and-fix-the-upi-uri-construction-in-manualdepositmodal-tsx-so-that-the-upi-pay-deep-link-is-correctly-formatted-with-all-required-parameters-pa-pn-am-cu-tn-properly-encoded-ensure-that-opening-the-uri-does-not-crash-or-reset-react-component-state",
+      "featureTitle": "Verify and fix the UPI URI construction in ManualDepositModal.tsx so that the upi://pay?... deep link is correctly formatted with all required parameters (pa, pn, am, cu, tn) properly encoded. Ensure that opening the URI does not crash or reset React component state.",
+      "files": [
+        "frontend/src/components/ManualDepositModal.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "user-approval@3.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-in-manualdepositmodal-tsx-add-a-prominent-verify-payment-button-on-the-upi-payment-step-this-button-is-shown-after-the-upi-intent-is-triggered-and-allows-the-user-to-manually-proceed-to-the-utr-entry-step-if-the-auto-redirect-fails-the-button-should-be-clearly-labeled-verify-payment-and-styled-consistently-with-the-existing-modal-actions",
+      "featureTitle": "In ManualDepositModal.tsx, add a prominent 'Verify Payment' button on the UPI payment step. This button is shown after the UPI intent is triggered and allows the user to manually proceed to the UTR entry step if the auto-redirect fails. The button should be clearly labeled 'Verify Payment' and styled consistently with the existing modal actions.",
+      "files": [
+        "frontend/src/components/ManualDepositModal.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "user-approval@3.0.0"
+      ],
+      "testIds": [
+        "REQ-4"
       ],
       "confidence": "high"
     }

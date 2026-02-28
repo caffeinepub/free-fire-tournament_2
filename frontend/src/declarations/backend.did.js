@@ -30,14 +30,14 @@ export const DepositStatus = IDL.Variant({
   'rejected' : IDL.Null,
 });
 export const ExternalBlob = IDL.Vec(IDL.Nat8);
-export const DepositRecord = IDL.Record({
+export const Transaction = IDL.Record({
   'id' : IDL.Nat,
   'status' : DepositStatus,
   'user' : IDL.Principal,
   'submittedAt' : IDL.Int,
   'amount' : IDL.Float64,
   'screenshot' : ExternalBlob,
-  'transactionId' : IDL.Text,
+  'utr_number' : IDL.Text,
 });
 export const UserProfile = IDL.Record({
   'freefireUid' : IDL.Text,
@@ -99,6 +99,10 @@ export const RegisterUserResult = IDL.Variant({
   'emailExists' : IDL.Null,
   'success' : IDL.Null,
 });
+export const SubmitDepositResult = IDL.Variant({
+  'utrDuplicate' : IDL.Null,
+  'success' : IDL.Nat,
+});
 
 export const idlService = IDL.Service({
   '_caffeineStorageBlobIsLive' : IDL.Func(
@@ -128,24 +132,28 @@ export const idlService = IDL.Service({
     ),
   '_caffeineStorageUpdateGatewayPrincipals' : IDL.Func([], [], []),
   '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
-  'approveDeposit' : IDL.Func([IDL.Nat], [], []),
+  'approveTransaction' : IDL.Func([IDL.Nat], [], []),
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
   'deposit' : IDL.Func([IDL.Text, IDL.Float64], [], []),
-  'getAllPendingDeposits' : IDL.Func([], [IDL.Vec(DepositRecord)], ['query']),
+  'getAllPendingTransactions' : IDL.Func([], [IDL.Vec(Transaction)], ['query']),
   'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
-  'getDepositRecord' : IDL.Func([IDL.Nat], [IDL.Opt(DepositRecord)], ['query']),
   'getLeaderboard' : IDL.Func([], [IDL.Vec(LeaderboardEntry)], ['query']),
   'getRooms' : IDL.Func([], [IDL.Vec(Room)], ['query']),
   'getTournaments' : IDL.Func([], [IDL.Vec(Tournament)], ['query']),
-  'getUserDeposits' : IDL.Func(
-      [IDL.Principal],
-      [IDL.Vec(DepositRecord)],
+  'getTransactionRecord' : IDL.Func(
+      [IDL.Nat],
+      [IDL.Opt(Transaction)],
       ['query'],
     ),
   'getUserProfile' : IDL.Func(
       [IDL.Principal],
       [IDL.Opt(UserProfile)],
+      ['query'],
+    ),
+  'getUserTransactions' : IDL.Func(
+      [IDL.Principal],
+      [IDL.Vec(Transaction)],
       ['query'],
     ),
   'getWalletBalance' : IDL.Func([IDL.Text], [IDL.Float64], ['query']),
@@ -158,13 +166,13 @@ export const idlService = IDL.Service({
       [RegisterUserResult],
       [],
     ),
-  'rejectDeposit' : IDL.Func([IDL.Nat], [], []),
+  'rejectTransaction' : IDL.Func([IDL.Nat], [], []),
   'requestApproval' : IDL.Func([], [], []),
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
   'setApproval' : IDL.Func([IDL.Principal, ApprovalStatus], [], []),
   'submitDeposit' : IDL.Func(
       [IDL.Float64, IDL.Text, ExternalBlob],
-      [IDL.Nat],
+      [SubmitDepositResult],
       [],
     ),
   'withdraw' : IDL.Func([IDL.Text, IDL.Float64], [], []),
@@ -195,14 +203,14 @@ export const idlFactory = ({ IDL }) => {
     'rejected' : IDL.Null,
   });
   const ExternalBlob = IDL.Vec(IDL.Nat8);
-  const DepositRecord = IDL.Record({
+  const Transaction = IDL.Record({
     'id' : IDL.Nat,
     'status' : DepositStatus,
     'user' : IDL.Principal,
     'submittedAt' : IDL.Int,
     'amount' : IDL.Float64,
     'screenshot' : ExternalBlob,
-    'transactionId' : IDL.Text,
+    'utr_number' : IDL.Text,
   });
   const UserProfile = IDL.Record({
     'freefireUid' : IDL.Text,
@@ -261,6 +269,10 @@ export const idlFactory = ({ IDL }) => {
     'emailExists' : IDL.Null,
     'success' : IDL.Null,
   });
+  const SubmitDepositResult = IDL.Variant({
+    'utrDuplicate' : IDL.Null,
+    'success' : IDL.Nat,
+  });
   
   return IDL.Service({
     '_caffeineStorageBlobIsLive' : IDL.Func(
@@ -290,28 +302,32 @@ export const idlFactory = ({ IDL }) => {
       ),
     '_caffeineStorageUpdateGatewayPrincipals' : IDL.Func([], [], []),
     '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
-    'approveDeposit' : IDL.Func([IDL.Nat], [], []),
+    'approveTransaction' : IDL.Func([IDL.Nat], [], []),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
     'deposit' : IDL.Func([IDL.Text, IDL.Float64], [], []),
-    'getAllPendingDeposits' : IDL.Func([], [IDL.Vec(DepositRecord)], ['query']),
-    'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
-    'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
-    'getDepositRecord' : IDL.Func(
-        [IDL.Nat],
-        [IDL.Opt(DepositRecord)],
+    'getAllPendingTransactions' : IDL.Func(
+        [],
+        [IDL.Vec(Transaction)],
         ['query'],
       ),
+    'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
+    'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
     'getLeaderboard' : IDL.Func([], [IDL.Vec(LeaderboardEntry)], ['query']),
     'getRooms' : IDL.Func([], [IDL.Vec(Room)], ['query']),
     'getTournaments' : IDL.Func([], [IDL.Vec(Tournament)], ['query']),
-    'getUserDeposits' : IDL.Func(
-        [IDL.Principal],
-        [IDL.Vec(DepositRecord)],
+    'getTransactionRecord' : IDL.Func(
+        [IDL.Nat],
+        [IDL.Opt(Transaction)],
         ['query'],
       ),
     'getUserProfile' : IDL.Func(
         [IDL.Principal],
         [IDL.Opt(UserProfile)],
+        ['query'],
+      ),
+    'getUserTransactions' : IDL.Func(
+        [IDL.Principal],
+        [IDL.Vec(Transaction)],
         ['query'],
       ),
     'getWalletBalance' : IDL.Func([IDL.Text], [IDL.Float64], ['query']),
@@ -328,13 +344,13 @@ export const idlFactory = ({ IDL }) => {
         [RegisterUserResult],
         [],
       ),
-    'rejectDeposit' : IDL.Func([IDL.Nat], [], []),
+    'rejectTransaction' : IDL.Func([IDL.Nat], [], []),
     'requestApproval' : IDL.Func([], [], []),
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
     'setApproval' : IDL.Func([IDL.Principal, ApprovalStatus], [], []),
     'submitDeposit' : IDL.Func(
         [IDL.Float64, IDL.Text, ExternalBlob],
-        [IDL.Nat],
+        [SubmitDepositResult],
         [],
       ),
     'withdraw' : IDL.Func([IDL.Text, IDL.Float64], [], []),

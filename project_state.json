@@ -1,19 +1,45 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Project involves a payment/wallet app with deposit functionality, UPI payment integration, and admin panel features.",
+  "summary": "Payment app with UPI Intent integration, UTR input validation, and duplicate UTR error handling.",
   "architectural_notes": [
-    "UPI intent link integration for payments with fallback 'Copy UPI ID' button",
-    "Wallet balance system with admin-controlled updates via payment screenshot approval"
+    "UPI Intent must wait for Payment Activity Result before returning to app; no auto-return triggers allowed before transaction status is received.",
+    "UPI URI scheme (upi://pay?...) must be correctly formatted; AndroidManifest/Info.plist must handle external app transitions without crashing or state reset."
   ],
-  "known_issues": [],
-  "isFixRequest": false,
+  "known_issues": [
+    "UPI Intent closes within 0.1s before payment is completed, returning to app prematurely without receiving transaction status."
+  ],
+  "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-update-the-minimum-deposit-amount-displayed-and-enforced-in-the-manualdepositmodal-frontend-component-to-10-the-input-field-should-show-a-minimum-value-of-10-and-client-side-validation-should-prevent-submission-of-amounts-below-10-with-an-error-message-stating-the-minimum-is-10",
-      "title": "Update the minimum deposit amount displayed and enforced in the ManualDepositModal frontend component to ₹10. The input field should show a minimum value of 10, and client-side validation should prevent submission of amounts below ₹10 with an error message stating the minimum is ₹10.",
+      "id": "feature-in-manualdepositmodal-tsx-update-the-upi-intent-launch-logic-so-that-after-opening-the-upi-uri-upi-pay-the-app-does-not-auto-close-the-intent-dialog-or-auto-advance-to-the-utr-submission-step-instead-the-modal-must-remain-on-the-upi-payment-step-and-wait-for-an-explicit-user-action-payment-completion-signal-or-manual-confirmation-before-proceeding",
+      "title": "In ManualDepositModal.tsx, update the UPI Intent launch logic so that after opening the UPI URI (upi://pay?...) the app does NOT auto-close the intent dialog or auto-advance to the UTR submission step. Instead, the modal must remain on the UPI payment step and wait for an explicit user action (payment completion signal or manual confirmation) before proceeding.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-in-manualdepositmodal-tsx-remove-or-disable-any-settimeout-auto-return-timer-that-fires-before-a-transaction-status-success-or-failure-is-received-increase-any-response-wait-timeout-to-at-least-5-minutes-300-000-ms-or-make-it-indefinite-so-the-flow-does-not-prematurely-redirect-the-user",
+      "title": "In ManualDepositModal.tsx, remove or disable any setTimeout / auto-return timer that fires before a transaction status (Success or Failure) is received. Increase any response-wait timeout to at least 5 minutes (300,000 ms) or make it indefinite, so the flow does not prematurely redirect the user.",
       "reqIds": [
         "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-verify-and-fix-the-upi-uri-construction-in-manualdepositmodal-tsx-so-that-the-upi-pay-deep-link-is-correctly-formatted-with-all-required-parameters-pa-pn-am-cu-tn-properly-encoded-ensure-that-opening-the-uri-does-not-crash-or-reset-react-component-state",
+      "title": "Verify and fix the UPI URI construction in ManualDepositModal.tsx so that the upi://pay?... deep link is correctly formatted with all required parameters (pa, pn, am, cu, tn) properly encoded. Ensure that opening the URI does not crash or reset React component state.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-in-manualdepositmodal-tsx-add-a-prominent-verify-payment-button-on-the-upi-payment-step-this-button-is-shown-after-the-upi-intent-is-triggered-and-allows-the-user-to-manually-proceed-to-the-utr-entry-step-if-the-auto-redirect-fails-the-button-should-be-clearly-labeled-verify-payment-and-styled-consistently-with-the-existing-modal-actions",
+      "title": "In ManualDepositModal.tsx, add a prominent 'Verify Payment' button on the UPI payment step. This button is shown after the UPI intent is triggered and allows the user to manually proceed to the UTR entry step if the auto-redirect fails. The button should be clearly labeled 'Verify Payment' and styled consistently with the existing modal actions.",
+      "reqIds": [
+        "REQ-4"
       ],
       "version": 1
     }
@@ -21,21 +47,13 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Change minimum deposit amount to 10 rupees",
+      "summary": "Fix UPI Intent closing instantly before payment completes — wait for Payment Activity Result, increase callback timeout, fix deep link config, and add manual 'Verify Payment' button",
       "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-2",
-      "summary": "Update the minimum deposit amount validation in the backend from its current value to 10 rupees (₹10). Reject any deposit requests below this threshold with an appropriate error message.",
-      "reqIds": [
-        "REQ-1"
-      ],
       "status": "pending"
     }
   ],
   "gameProjectType": "none",
-  "projectName": "Change minimum deposit amount to 10 rupees",
+  "projectName": "Free Fire Tournament",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

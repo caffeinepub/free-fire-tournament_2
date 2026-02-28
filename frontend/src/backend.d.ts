@@ -14,6 +14,13 @@ export class ExternalBlob {
     static fromBytes(blob: Uint8Array<ArrayBuffer>): ExternalBlob;
     withUploadProgress(onProgress: (percentage: number) => void): ExternalBlob;
 }
+export type SubmitDepositResult = {
+    __kind__: "utrDuplicate";
+    utrDuplicate: null;
+} | {
+    __kind__: "success";
+    success: bigint;
+};
 export interface LeaderboardEntry {
     teamName: string;
     rank: bigint;
@@ -39,18 +46,18 @@ export interface Room {
     roomType: RoomType;
     prizePool: string;
 }
-export interface UserApprovalInfo {
-    status: ApprovalStatus;
-    principal: Principal;
-}
-export interface DepositRecord {
+export interface Transaction {
     id: bigint;
     status: DepositStatus;
     user: Principal;
     submittedAt: bigint;
     amount: number;
     screenshot: ExternalBlob;
-    transactionId: string;
+    utr_number: string;
+}
+export interface UserApprovalInfo {
+    status: ApprovalStatus;
+    principal: Principal;
 }
 export interface UserProfile {
     freefireUid: string;
@@ -89,28 +96,28 @@ export enum UserRole {
     guest = "guest"
 }
 export interface backendInterface {
-    approveDeposit(depositId: bigint): Promise<void>;
+    approveTransaction(transactionId: bigint): Promise<void>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
     deposit(uid: string, amount: number): Promise<void>;
-    getAllPendingDeposits(): Promise<Array<DepositRecord>>;
+    getAllPendingTransactions(): Promise<Array<Transaction>>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
-    getDepositRecord(depositId: bigint): Promise<DepositRecord | null>;
     getLeaderboard(): Promise<Array<LeaderboardEntry>>;
     getRooms(): Promise<Array<Room>>;
     getTournaments(): Promise<Array<Tournament>>;
-    getUserDeposits(user: Principal): Promise<Array<DepositRecord>>;
+    getTransactionRecord(transactionId: bigint): Promise<Transaction | null>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
+    getUserTransactions(user: Principal): Promise<Array<Transaction>>;
     getWalletBalance(uid: string): Promise<number>;
     isCallerAdmin(): Promise<boolean>;
     isCallerApproved(): Promise<boolean>;
     listApprovals(): Promise<Array<UserApprovalInfo>>;
     registerPlayer(playerName: string, inGameId: string, teamName: string, whatsappNumber: string): Promise<void>;
     registerUser(name: string, email: string, whatsapp: string, freefireUid: string, password: string): Promise<RegisterUserResult>;
-    rejectDeposit(depositId: bigint): Promise<void>;
+    rejectTransaction(transactionId: bigint): Promise<void>;
     requestApproval(): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     setApproval(user: Principal, status: ApprovalStatus): Promise<void>;
-    submitDeposit(amount: number, transactionId: string, screenshot: ExternalBlob): Promise<bigint>;
+    submitDeposit(amount: number, utr_number: string, screenshot: ExternalBlob): Promise<SubmitDepositResult>;
     withdraw(uid: string, amount: number): Promise<void>;
 }

@@ -1,51 +1,92 @@
 {
   "kind": "build_request",
-  "title": "Change minimum deposit amount to 10 rupees",
-  "priority": "normal",
+  "title": "Fix UPI Intent Premature Closing & Add Verify Payment Button",
+  "projectName": "Free Fire Tournament",
+  "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Update the minimum deposit amount validation in the backend from its current value to 10 rupees (₹10). Reject any deposit requests below this threshold with an appropriate error message.",
-      "target": "backend",
+      "text": "In ManualDepositModal.tsx, update the UPI Intent launch logic so that after opening the UPI URI (upi://pay?...) the app does NOT auto-close the intent dialog or auto-advance to the UTR submission step. Instead, the modal must remain on the UPI payment step and wait for an explicit user action (payment completion signal or manual confirmation) before proceeding.",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-7"
+          "msg-4"
         ],
         "quotes": [
-          "Change minimum deposit ammount to 10rs"
+          "Ensure the app waits for the Payment Activity Result from the external UPI app instead of auto-closing the intent."
         ]
       },
       "acceptanceCriteria": [
-        "Deposit requests with an amount less than 10 are rejected by the backend with a clear error.",
-        "Deposit requests with an amount of exactly 10 or more are accepted by the backend."
+        "After the UPI intent link is triggered, the modal stays on the UPI payment step and does not auto-advance or close within 0.1s.",
+        "No automatic navigation or state reset occurs while the external UPI app is open.",
+        "The modal only proceeds to the UTR entry step when the user explicitly confirms or when a valid payment result is received."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Update the minimum deposit amount displayed and enforced in the ManualDepositModal frontend component to ₹10. The input field should show a minimum value of 10, and client-side validation should prevent submission of amounts below ₹10 with an error message stating the minimum is ₹10.",
+      "text": "In ManualDepositModal.tsx, remove or disable any setTimeout / auto-return timer that fires before a transaction status (Success or Failure) is received. Increase any response-wait timeout to at least 5 minutes (300,000 ms) or make it indefinite, so the flow does not prematurely redirect the user.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-7"
+          "msg-4"
         ],
         "quotes": [
-          "Change minimum deposit ammount to 10rs"
+          "Adjust Callback Timeout: Increase the response timeout and disable any \"Auto-Return\" triggers that execute before a transaction status (Success/Failure) is received."
         ]
       },
       "acceptanceCriteria": [
-        "The deposit amount input enforces a minimum value of 10.",
-        "Submitting an amount below ₹10 shows a validation error: 'Minimum deposit amount is ₹10'.",
-        "The modal UI clearly indicates that the minimum deposit is ₹10."
+        "No auto-return or auto-advance timer fires in under 5 minutes after the UPI intent is launched.",
+        "The app does not reset payment state or navigate away until a Success or Failure status is definitively received or the user manually acts."
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Verify and fix the UPI URI construction in ManualDepositModal.tsx so that the upi://pay?... deep link is correctly formatted with all required parameters (pa, pn, am, cu, tn) properly encoded. Ensure that opening the URI does not crash or reset React component state.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "Verify that the UPI URI scheme (e.g., upi://pay?...) is correctly formatted and that the app's AndroidManifest (for Android) or Info.plist (for iOS) is configured to handle external app transitions without crashing or resetting the state."
+        ]
+      },
+      "acceptanceCriteria": [
+        "The generated UPI URI includes all mandatory parameters (pa, pn, am, cu) with correct URL encoding.",
+        "Clicking the UPI payment link does not reset the modal state or lose the entered deposit amount.",
+        "On return from the external UPI app, the modal remains open and retains its current step and form data."
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "In ManualDepositModal.tsx, add a prominent 'Verify Payment' button on the UPI payment step. This button is shown after the UPI intent is triggered and allows the user to manually proceed to the UTR entry step if the auto-redirect fails. The button should be clearly labeled 'Verify Payment' and styled consistently with the existing modal actions.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "Add 'Check Status' Button: If the auto-redirect fails, provide a manual 'Verify Payment' button that the user can click after they have manually completed the payment in their bank app."
+        ]
+      },
+      "acceptanceCriteria": [
+        "A 'Verify Payment' button is visible on the UPI payment step after the UPI intent link has been triggered.",
+        "Clicking 'Verify Payment' advances the modal to the UTR number entry step.",
+        "The button is styled consistently with the rest of the ManualDepositModal UI (dark gaming aesthetic, red accents).",
+        "The button is not shown before the UPI intent is triggered."
       ]
     }
   ],
   "constraints": [
-    "Do not change any other deposit logic or UPI payment flow beyond the minimum amount threshold."
+    "Do not modify any files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui.",
+    "Do not alter backend payment/transaction logic or UTR submission flow in backend/main.mo.",
+    "All changes must be confined to the frontend ManualDepositModal component and related UPI intent utilities."
   ],
   "nonGoals": [
-    "Changing the maximum deposit limit.",
-    "Modifying the deposit approval/admin flow.",
-    "Changing UPI deep link construction or screenshot upload logic."
+    "Native Android (AndroidManifest.xml) or iOS (Info.plist) configuration — this is a web app.",
+    "Server-side UPI payment status polling or webhook integration.",
+    "Changes to the UTR duplicate-detection logic or admin approval flow.",
+    "Adding new backend endpoints or modifying existing Motoko types."
   ],
   "imageRequirements": {
     "required": [],

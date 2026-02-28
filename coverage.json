@@ -1,25 +1,51 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-27T14:00:30.509Z",
+  "generatedAt": "2026-02-27T14:30:06.725Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 2,
-    "implemented": 1,
+    "total": 4,
+    "implemented": 4,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Update the minimum deposit amount validation in the backend from its current value to 10 rupees (₹10). Reject any deposit requests below this threshold with an appropriate error message.",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
+        "summary": "In ManualDepositModal.tsx, update the UPI Intent launch logic so that after opening the UPI URI (upi://pay?...) the app does NOT auto-close the intent dialog or auto-advance to the UTR submission step. Instead, the modal must remain on the UPI payment step and wait for an explicit user action (payment completion signal or manual confirmation) before proceeding.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/ManualDepositModal.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/ManualDepositModal.tsx"
+        ]
       },
       {
         "id": "REQ-2",
-        "summary": "Update the minimum deposit amount displayed and enforced in the ManualDepositModal frontend component to ₹10. The input field should show a minimum value of 10, and client-side validation should prevent submission of amounts below ₹10 with an error message stating the minimum is ₹10.",
+        "summary": "In ManualDepositModal.tsx, remove or disable any setTimeout / auto-return timer that fires before a transaction status (Success or Failure) is received. Increase any response-wait timeout to at least 5 minutes (300,000 ms) or make it indefinite, so the flow does not prematurely redirect the user.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/ManualDepositModal.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/ManualDepositModal.tsx"
+        ]
+      },
+      {
+        "id": "REQ-3",
+        "summary": "Verify and fix the UPI URI construction in ManualDepositModal.tsx so that the upi://pay?... deep link is correctly formatted with all required parameters (pa, pn, am, cu, tn) properly encoded. Ensure that opening the URI does not crash or reset React component state.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/ManualDepositModal.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/ManualDepositModal.tsx"
+        ]
+      },
+      {
+        "id": "REQ-4",
+        "summary": "In ManualDepositModal.tsx, add a prominent 'Verify Payment' button on the UPI payment step. This button is shown after the UPI intent is triggered and allows the user to manually proceed to the UTR entry step if the auto-redirect fails. The button should be clearly labeled 'Verify Payment' and styled consistently with the existing modal actions.",
         "status": "implemented",
         "plannedFiles": [
           "frontend/src/components/ManualDepositModal.tsx"
@@ -31,8 +57,6 @@
     ]
   },
   "changedFiles": [
-    "backend/main.mo",
-    "backend/migration.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",

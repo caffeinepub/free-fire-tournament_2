@@ -11,10 +11,12 @@ import {
   RefreshCw,
   AlertTriangle,
   Gamepad2,
+  Hash,
 } from 'lucide-react';
 import { useGetPendingDeposits, useApproveDeposit, useRejectDeposit } from '../hooks/useQueries';
 import { useActor } from '../hooks/useActor';
 import { useQuery } from '@tanstack/react-query';
+import type { Transaction } from '../backend';
 
 function useIsAdmin() {
   const { actor, isFetching } = useActor();
@@ -55,24 +57,24 @@ export default function AdminPage() {
   const [actionError, setActionError] = useState<string>('');
   const [actionSuccess, setActionSuccess] = useState<string>('');
 
-  const handleApprove = async (depositId: bigint) => {
+  const handleApprove = async (transactionId: bigint) => {
     setActionError('');
     setActionSuccess('');
     try {
-      await approveMutation.mutateAsync(depositId);
-      setActionSuccess(`Deposit #${depositId} approved and wallet credited.`);
+      await approveMutation.mutateAsync(transactionId);
+      setActionSuccess(`Transaction #${transactionId} approved and wallet credited.`);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Approval failed.';
       setActionError(msg);
     }
   };
 
-  const handleReject = async (depositId: bigint) => {
+  const handleReject = async (transactionId: bigint) => {
     setActionError('');
     setActionSuccess('');
     try {
-      await rejectMutation.mutateAsync(depositId);
-      setActionSuccess(`Deposit #${depositId} rejected.`);
+      await rejectMutation.mutateAsync(transactionId);
+      setActionSuccess(`Transaction #${transactionId} rejected.`);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Rejection failed.';
       setActionError(msg);
@@ -234,7 +236,7 @@ export default function AdminPage() {
 }
 
 interface DepositCardProps {
-  deposit: import('../backend').DepositRecord;
+  deposit: Transaction;
   onApprove: (id: bigint) => void;
   onReject: (id: bigint) => void;
   isApproving: boolean;
@@ -242,16 +244,13 @@ interface DepositCardProps {
 }
 
 function DepositCard({ deposit, onApprove, onReject, isApproving, isRejecting }: DepositCardProps) {
-  const [imgError, setImgError] = useState(false);
-  const screenshotUrl = deposit.screenshot.getDirectURL();
-
   return (
     <div className="bg-gray-900/80 border border-gold/20 rounded-sm p-5 space-y-4">
       {/* Header row */}
       <div className="flex items-start justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="font-orbitron text-xs text-gray-500 tracking-widest">DEPOSIT</span>
+            <span className="font-orbitron text-xs text-gray-500 tracking-widest">TRANSACTION</span>
             <span className="font-orbitron text-xs text-gold font-bold">#{deposit.id.toString()}</span>
             <span className="px-2 py-0.5 bg-yellow-900/40 border border-yellow-600/40 text-yellow-400 font-rajdhani text-xs rounded-sm">
               PENDING
@@ -279,31 +278,14 @@ function DepositCard({ deposit, onApprove, onReject, isApproving, isRejecting }:
           </p>
         </div>
         <div className="bg-black/40 border border-gray-700/50 rounded-sm px-3 py-2">
-          <p className="text-gray-500 font-rajdhani text-xs tracking-widest mb-0.5">TRANSACTION ID</p>
-          <p className="text-white font-rajdhani text-sm font-semibold break-all">
-            {deposit.transactionId || '—'}
+          <p className="text-gray-500 font-rajdhani text-xs tracking-widest mb-0.5 flex items-center gap-1">
+            <Hash size={10} />
+            UTR / TRANSACTION ID
+          </p>
+          <p className="text-white font-rajdhani text-sm font-semibold tracking-widest">
+            {deposit.utr_number || '—'}
           </p>
         </div>
-      </div>
-
-      {/* Screenshot preview */}
-      <div>
-        <p className="text-gray-500 font-rajdhani text-xs tracking-widest mb-2">PAYMENT SCREENSHOT</p>
-        {!imgError ? (
-          <a href={screenshotUrl} target="_blank" rel="noopener noreferrer">
-            <img
-              src={screenshotUrl}
-              alt="Payment screenshot"
-              onError={() => setImgError(true)}
-              className="max-h-48 rounded-sm border border-gray-700/50 object-contain bg-black/40 cursor-pointer hover:opacity-90 transition-opacity"
-            />
-          </a>
-        ) : (
-          <div className="flex items-center gap-2 text-gray-500 font-rajdhani text-sm">
-            <AlertTriangle size={14} />
-            Screenshot unavailable
-          </div>
-        )}
       </div>
 
       {/* Action buttons */}

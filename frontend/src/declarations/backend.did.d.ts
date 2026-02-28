@@ -13,15 +13,6 @@ import type { Principal } from '@icp-sdk/core/principal';
 export type ApprovalStatus = { 'pending' : null } |
   { 'approved' : null } |
   { 'rejected' : null };
-export interface DepositRecord {
-  'id' : bigint,
-  'status' : DepositStatus,
-  'user' : Principal,
-  'submittedAt' : bigint,
-  'amount' : number,
-  'screenshot' : ExternalBlob,
-  'transactionId' : string,
-}
 export type DepositStatus = { 'pending' : null } |
   { 'approved' : null } |
   { 'rejected' : null };
@@ -55,6 +46,8 @@ export type RoomType = { 'duo' : null } |
   { 'clashSquad' : null } |
   { 'squad' : null } |
   { 'fullMap' : null };
+export type SubmitDepositResult = { 'utrDuplicate' : null } |
+  { 'success' : bigint };
 export interface Tournament {
   'id' : bigint,
   'name' : string,
@@ -62,6 +55,15 @@ export interface Tournament {
   'entryFee' : string,
   'dateTime' : string,
   'prizePool' : string,
+}
+export interface Transaction {
+  'id' : bigint,
+  'status' : DepositStatus,
+  'user' : Principal,
+  'submittedAt' : bigint,
+  'amount' : number,
+  'screenshot' : ExternalBlob,
+  'utr_number' : string,
 }
 export interface UserApprovalInfo {
   'status' : ApprovalStatus,
@@ -104,18 +106,18 @@ export interface _SERVICE {
   >,
   '_caffeineStorageUpdateGatewayPrincipals' : ActorMethod<[], undefined>,
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
-  'approveDeposit' : ActorMethod<[bigint], undefined>,
+  'approveTransaction' : ActorMethod<[bigint], undefined>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
   'deposit' : ActorMethod<[string, number], undefined>,
-  'getAllPendingDeposits' : ActorMethod<[], Array<DepositRecord>>,
+  'getAllPendingTransactions' : ActorMethod<[], Array<Transaction>>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
-  'getDepositRecord' : ActorMethod<[bigint], [] | [DepositRecord]>,
   'getLeaderboard' : ActorMethod<[], Array<LeaderboardEntry>>,
   'getRooms' : ActorMethod<[], Array<Room>>,
   'getTournaments' : ActorMethod<[], Array<Tournament>>,
-  'getUserDeposits' : ActorMethod<[Principal], Array<DepositRecord>>,
+  'getTransactionRecord' : ActorMethod<[bigint], [] | [Transaction]>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
+  'getUserTransactions' : ActorMethod<[Principal], Array<Transaction>>,
   'getWalletBalance' : ActorMethod<[string], number>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
   'isCallerApproved' : ActorMethod<[], boolean>,
@@ -125,11 +127,14 @@ export interface _SERVICE {
     [string, string, string, string, string],
     RegisterUserResult
   >,
-  'rejectDeposit' : ActorMethod<[bigint], undefined>,
+  'rejectTransaction' : ActorMethod<[bigint], undefined>,
   'requestApproval' : ActorMethod<[], undefined>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   'setApproval' : ActorMethod<[Principal, ApprovalStatus], undefined>,
-  'submitDeposit' : ActorMethod<[number, string, ExternalBlob], bigint>,
+  'submitDeposit' : ActorMethod<
+    [number, string, ExternalBlob],
+    SubmitDepositResult
+  >,
   'withdraw' : ActorMethod<[string, number], undefined>,
 }
 export declare const idlService: IDL.ServiceClass;

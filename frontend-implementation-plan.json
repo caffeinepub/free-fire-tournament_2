@@ -1,21 +1,69 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Change minimum deposit amount to 10 rupees",
+  "title": "Fix UPI Intent Premature Closing & Add Verify Payment Button",
   "requirements": [
     {
-      "id": "REQ-2",
-      "summary": "Update the minimum deposit amount displayed and enforced in the ManualDepositModal frontend component to ₹10",
+      "id": "REQ-1",
+      "summary": "Fix UPI Intent auto-close behavior to prevent premature modal closure",
       "acceptanceCriteria": [
-        "The deposit amount input enforces a minimum value of 10.",
-        "Submitting an amount below ₹10 shows a validation error: 'Minimum deposit amount is ₹10'.",
-        "The modal UI clearly indicates that the minimum deposit is ₹10."
+        "After the UPI intent link is triggered, the modal stays on the UPI payment step and does not auto-advance or close within 0.1s.",
+        "No automatic navigation or state reset occurs while the external UPI app is open.",
+        "The modal only proceeds to the UTR entry step when the user explicitly confirms or when a valid payment result is received."
       ],
       "file_operations": [
         {
           "path": "frontend/src/components/ManualDepositModal.tsx",
           "operation": "modify",
-          "description": "Update the minimum deposit amount validation from its current value to 10. Change the input field's min attribute to 10, update the client-side validation logic to reject amounts below 10, and modify the error message to state 'Minimum deposit amount is ₹10'. Ensure the UI clearly displays the minimum deposit requirement of ₹10 to users."
+          "description": "Remove or comment out any automatic modal close/navigation logic that fires immediately after the UPI intent is triggered. Ensure that after opening the UPI deep link (upi://pay?...), the component remains on the UPI payment step without auto-advancing to the UTR submission step. The modal must wait for an explicit user action (such as clicking the new 'Verify Payment' button from REQ-4) or a definitive payment status callback before proceeding to the next step."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Disable or increase auto-return timeout to prevent premature redirect",
+      "acceptanceCriteria": [
+        "No auto-return or auto-advance timer fires in under 5 minutes after the UPI intent is launched.",
+        "The app does not reset payment state or navigate away until a Success or Failure status is definitively received or the user manually acts."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/ManualDepositModal.tsx",
+          "operation": "modify",
+          "description": "Identify and remove or disable any setTimeout calls that auto-advance the modal or reset state before a transaction status is received. If a timeout is necessary for fallback behavior, increase it to at least 5 minutes (300,000 ms) or make it indefinite. Ensure the modal does not prematurely navigate away or reset the payment flow while the user is completing the UPI transaction in their external app."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Verify and fix UPI URI construction and state persistence",
+      "acceptanceCriteria": [
+        "The generated UPI URI includes all mandatory parameters (pa, pn, am, cu) with correct URL encoding.",
+        "Clicking the UPI payment link does not reset the modal state or lose the entered deposit amount.",
+        "On return from the external UPI app, the modal remains open and retains its current step and form data."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/ManualDepositModal.tsx",
+          "operation": "modify",
+          "description": "Review the UPI URI construction logic to ensure the upi://pay?... deep link is correctly formatted with all required parameters: pa (payee address), pn (payee name), am (amount), cu (currency, e.g., INR), and tn (transaction note). Apply proper URL encoding to each parameter value using encodeURIComponent. Verify that triggering the UPI link (e.g., via window.location.href or an <a> tag) does not cause React component state to reset or unmount. Ensure the modal's current step, entered amount, and any other form data persist when the user returns from the external UPI app."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Add a 'Verify Payment' button on the UPI payment step",
+      "acceptanceCriteria": [
+        "A 'Verify Payment' button is visible on the UPI payment step after the UPI intent link has been triggered.",
+        "Clicking 'Verify Payment' advances the modal to the UTR number entry step.",
+        "The button is styled consistently with the rest of the ManualDepositModal UI (dark gaming aesthetic, red accents).",
+        "The button is not shown before the UPI intent is triggered."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/ManualDepositModal.tsx",
+          "operation": "modify",
+          "description": "Add a new 'Verify Payment' button to the UPI payment step that appears after the UPI intent link has been triggered (e.g., after the user clicks the UPI payment link). The button should allow the user to manually proceed to the UTR number entry step if the auto-redirect fails or if they need to confirm payment completion manually. Style the button consistently with the existing modal UI (dark background with red accent colors, consistent padding and rounded corners). Conditionally render the button only after the UPI intent has been launched, not before. On click, transition the modal state to the UTR submission step."
         }
       ]
     }
